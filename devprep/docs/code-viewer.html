@@ -1,0 +1,1914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevPrep AI — To'liq Kod Viewer</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0e1a;--bg2:#0f1628;--bg3:#141d35;--border:#1e2d4a;--accent:#00d4ff;--violet:#7c3aed;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;display:flex;flex-direction:column}
+.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Syne',sans-serif;font-size:16px;font-weight:800;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-icon{width:28px;height:28px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.badge-row{display:flex;gap:8px}
+.badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;border:1px solid}
+.badge-s{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:#10b981}
+.badge-c{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.3);color:#00d4ff}
+.badge-d{background:rgba(124,58,237,.1);border-color:rgba(124,58,237,.3);color:#a78bfa}
+.layout{display:flex;flex:1;overflow:hidden}
+/* SIDEBAR */
+.sidebar{width:240px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.search-wrap{padding:10px;border-bottom:1px solid var(--border)}
+.search{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none}
+.search:focus{border-color:var(--accent)}
+.search::placeholder{color:var(--text3)}
+.tree{flex:1;overflow-y:auto;padding:6px 0}
+.tree-section{margin-bottom:2px}
+.tree-sec-hdr{padding:6px 14px 4px;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+.tree-sec-hdr:hover{color:var(--text2)}
+.tree-item{padding:5px 14px 5px 26px;font-size:11.5px;cursor:pointer;color:var(--text2);display:flex;align-items:center;gap:7px;transition:all .12s;border-left:2px solid transparent;user-select:none;line-height:1.4}
+.tree-item:hover{background:rgba(0,212,255,.04);color:var(--text)}
+.tree-item.active{background:rgba(0,212,255,.07);color:var(--accent);border-left-color:var(--accent)}
+.tree-item .sub{font-size:9px;color:var(--text3);background:var(--bg3);padding:1px 5px;border-radius:3px;flex-shrink:0}
+/* EDITOR */
+.editor{flex:1;display:flex;flex-direction:column;min-width:0}
+.tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);overflow-x:auto;min-height:36px;flex-shrink:0}
+.tabs::-webkit-scrollbar{height:2px}
+.tab{display:flex;align-items:center;gap:6px;padding:0 14px;font-size:11px;cursor:pointer;color:var(--text3);white-space:nowrap;border-right:1px solid var(--border);min-height:36px;transition:all .12s;flex-shrink:0}
+.tab:hover{color:var(--text);background:rgba(255,255,255,.02)}
+.tab.active{color:var(--text);background:var(--bg);border-bottom:2px solid var(--accent);margin-bottom:-1px}
+.tab .tc{opacity:0;margin-left:2px;padding:0 3px;border-radius:3px;font-size:13px;line-height:1}
+.tab:hover .tc{opacity:1}
+.tab .tc:hover{background:rgba(255,255,255,.1)}
+.code-wrap{flex:1;overflow:auto;display:flex;flex-direction:column}
+.code-topbar{padding:8px 16px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text3);flex-shrink:0}
+.code-path{color:var(--text2)}
+.copy-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:4px 12px;border-radius:5px;cursor:pointer;font-size:11px;font-family:inherit;transition:all .15s}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+.copy-btn.ok{border-color:var(--green);color:var(--green)}
+.code-body{display:flex;flex:1;min-height:0}
+.line-nums{padding:14px 0;background:rgba(0,0,0,.15);min-width:48px;text-align:right;user-select:none;flex-shrink:0}
+.ln{padding:0 10px;font-size:12px;line-height:1.65;color:var(--text3);opacity:.4}
+.code-text{padding:14px 20px;font-size:12.5px;line-height:1.65;white-space:pre;flex:1;min-width:0}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:10px;color:var(--text3)}
+.empty-state .ei{font-size:40px;opacity:.25}
+/* STATUS */
+.status{background:linear-gradient(90deg,var(--accent),#0090b8);color:#0a0e1a;padding:3px 16px;font-size:11px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;font-weight:600}
+/* SYNTAX */
+.kw{color:#c792ea}.fn{color:#82aaff}.str{color:#c3e88d}.num{color:#f78c6c}.cmt{color:#546e7a;font-style:italic}.cls{color:#ffcb6b}.type{color:#00d4ff}.dec{color:#ff5370}.prop{color:#f07178}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    DevPrep AI — To'liq Kodlar
+  </div>
+  <div class="badge-row">
+    <span class="badge badge-s">36 server fayl</span>
+    <span class="badge badge-c">53 client fayl</span>
+    <span class="badge badge-d">3 docs</span>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="search-wrap">
+      <input class="search" placeholder="🔍 Fayl qidirish..." oninput="filterFiles(this.value)" id="searchInput">
+    </div>
+    <div class="tree" id="treeEl"></div>
+  </div>
+
+  <div class="editor">
+    <div class="tabs" id="tabsEl"></div>
+    <div class="code-wrap" id="codeWrap">
+      <div class="empty-state">
+        <div class="ei">📂</div>
+        <span>Chapdan fayl tanlang</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="status">
+  <span id="sbPath">DevPrep AI v1.0 — tayyor</span>
+  <span id="sbLang">TypeScript · UTF-8</span>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════
+//  ALL FILES DATA
+// ══════════════════════════════════════════════════════════════════════════
+const FILES = {
+
+// ── SERVER ────────────────────────────────────────────────────────────────
+
+'server/prisma/schema.prisma': {g:'server',i:'🔷',l:'prisma',c:`generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role { USER  ADMIN }
+enum Track { FRONTEND  BACKEND  FULLSTACK }
+enum Difficulty { EASY  MEDIUM  HARD  MIXED }
+enum QuestionType { MULTIPLE_CHOICE  SINGLE_CHOICE  OPEN_ENDED }
+enum CategoryGroup { FRONTEND  BACKEND  GENERAL }
+enum NotifType { QUIZ_RESULT  ACHIEVEMENT  ROADMAP  SYSTEM }
+enum AchievementCondition { QUIZ_COUNT  SCORE  STREAK  CATEGORY }
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  fullName      String
+  avatarUrl     String?
+  role          Role      @default(USER)
+  track         Track?
+  isVerified    Boolean   @default(false)
+  verifyToken   String?
+  resetToken    String?
+  resetTokenExp DateTime?
+  refreshToken  String?
+  streakCount   Int       @default(0)
+  lastActive    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  quizResults     QuizResult[]
+  bookmarks       Bookmark[]
+  notifications   Notification[]
+  achievements    UserAchievement[]
+  roadmapProgress RoadmapProgress[]
+  aiSessions      AISession[]
+  adminLogs       AdminLog[]
+  @@map("users")
+}
+
+model Category {
+  id        String        @id @default(uuid())
+  name      String        @unique
+  slug      String        @unique
+  group     CategoryGroup
+  icon      String?
+  createdAt DateTime      @default(now())
+  questions Question[]
+  @@map("categories")
+}
+
+model Question {
+  id            String       @id @default(uuid())
+  categoryId    String
+  category      Category     @relation(fields: [categoryId], references: [id])
+  title         String
+  type          QuestionType
+  difficulty    Difficulty
+  options       Json?        // [{id, text, isCorrect}]
+  correctAnswer String?
+  explanation   String?
+  tags          String[]     @default([])
+  isActive      Boolean      @default(true)
+  createdById   String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  quizQuestions QuizQuestion[]
+  bookmarks     Bookmark[]
+  @@map("questions")
+}
+
+model Quiz {
+  id            String     @id @default(uuid())
+  title         String
+  description   String?
+  type          Track
+  difficulty    Difficulty
+  timeLimit     Int        // seconds
+  questionCount Int
+  isActive      Boolean    @default(true)
+  createdById   String?
+  createdAt     DateTime   @default(now())
+  questions     QuizQuestion[]
+  results       QuizResult[]
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  quizId     String
+  questionId String
+  orderIndex Int
+  quiz       Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  @@id([quizId, questionId])
+  @@map("quiz_questions")
+}
+
+model QuizResult {
+  id          String   @id @default(uuid())
+  userId      String
+  quizId      String
+  score       Int
+  total       Int
+  percentage  Float
+  timeSpent   Int
+  answers     Json
+  completedAt DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  @@map("quiz_results")
+}
+
+model Bookmark {
+  id         String   @id @default(uuid())
+  userId     String
+  questionId String
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  @@unique([userId, questionId])
+  @@map("bookmarks")
+}
+
+model RoadmapNode {
+  id          String  @id @default(uuid())
+  track       Track
+  title       String
+  description String?
+  orderIndex  Int
+  parentId    String?
+  resources   Json?
+  isMilestone Boolean @default(false)
+  parent      RoadmapNode?  @relation("NodeChildren", fields: [parentId], references: [id])
+  children    RoadmapNode[] @relation("NodeChildren")
+  progress    RoadmapProgress[]
+  @@map("roadmap_nodes")
+}
+
+model RoadmapProgress {
+  userId      String
+  nodeId      String
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  node        RoadmapNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  @@id([userId, nodeId])
+  @@map("roadmap_progress")
+}
+
+model AISession {
+  id           String   @id @default(uuid())
+  userId       String
+  questionText String
+  userAnswer   String
+  aiScore      Int
+  aiFeedback   String
+  idealAnswer  String
+  resources    Json?
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("ai_sessions")
+}
+
+model Achievement {
+  id             String               @id @default(uuid())
+  slug           String               @unique
+  title          String
+  description    String?
+  icon           String?
+  conditionType  AchievementCondition
+  conditionValue Int
+  userAchievements UserAchievement[]
+  @@map("achievements")
+}
+
+model UserAchievement {
+  userId        String
+  achievementId String
+  earnedAt      DateTime    @default(now())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  @@id([userId, achievementId])
+  @@map("user_achievements")
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  type      NotifType
+  title     String
+  message   String?
+  isRead    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("notifications")
+}
+
+model AdminLog {
+  id        String   @id @default(uuid())
+  adminId   String
+  action    String
+  target    String?
+  details   Json?
+  createdAt DateTime @default(now())
+  admin     User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  @@map("admin_logs")
+}`},
+
+'server/src/app.ts': {g:'server',i:'📄',l:'ts',c:`import express from 'express'
+import cors from 'cors'
+import helmet from 'helmet'
+import morgan from 'morgan'
+import cookieParser from 'cookie-parser'
+import { env } from './config/env'
+import { globalLimiter, authLimiter, aiLimiter } from './middleware/rateLimit'
+import authRoutes from './modules/auth/auth.routes'
+import questionsRoutes from './modules/questions/questions.routes'
+import quizzesRoutes from './modules/quizzes/quizzes.routes'
+import aiRoutes from './modules/ai/ai.routes'
+import dashboardRoutes from './modules/dashboard/dashboard.routes'
+import adminRoutes from './modules/admin/admin.routes'
+
+const app = express()
+
+app.use(helmet())
+app.use(cors({
+  origin: env.clientUrl,
+  credentials: true,
+  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization'],
+}))
+app.use('/api/v1/auth', authLimiter)
+app.use('/api/v1/ai', aiLimiter)
+app.use(globalLimiter)
+app.use(morgan(env.nodeEnv === 'development' ? 'dev' : 'combined'))
+app.use(express.json({ limit: '10mb' }))
+app.use(express.urlencoded({ extended: true }))
+app.use(cookieParser())
+
+app.get('/health', (_, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString(), service: 'DevPrep AI API' })
+})
+
+app.use('/api/v1/auth', authRoutes)
+app.use('/api/v1/questions', questionsRoutes)
+app.use('/api/v1/quizzes', quizzesRoutes)
+app.use('/api/v1/ai', aiRoutes)
+app.use('/api/v1/dashboard', dashboardRoutes)
+app.use('/api/v1/admin', adminRoutes)
+
+app.use('*', (_, res) => res.status(404).json({ success: false, message: 'Route topilmadi' }))
+app.use((err: Error, _req: express.Request, res: express.Response, _n: express.NextFunction) => {
+  console.error(err)
+  res.status(500).json({ success: false, message: 'Server xatosi' })
+})
+export default app`},
+
+'server/src/config/env.ts': {g:'server',i:'⚙️',l:'ts',c:`import dotenv from 'dotenv'
+dotenv.config()
+
+const required = (key: string): string => {
+  const val = process.env[key]
+  if (!val) throw new Error(\`Missing env: \${key}\`)
+  return val
+}
+
+export const env = {
+  port: parseInt(process.env.PORT || '5000'),
+  nodeEnv: process.env.NODE_ENV || 'development',
+  clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
+  jwt: {
+    secret: required('JWT_SECRET'),
+    refreshSecret: required('JWT_REFRESH_SECRET'),
+    expiresIn: process.env.JWT_EXPIRES_IN || '15m',
+    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+  },
+  smtp: {
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    user: required('SMTP_USER'),
+    pass: required('SMTP_PASS'),
+    from: process.env.FROM_EMAIL || 'DevPrep AI <noreply@devprep.ai>',
+  },
+  anthropic: { apiKey: process.env.ANTHROPIC_API_KEY || '' },
+} as const`},
+
+'server/src/utils/jwt.ts': {g:'server',i:'🔑',l:'ts',c:`import jwt from 'jsonwebtoken'
+import { env } from '../config/env'
+
+export interface JwtPayload {
+  userId: string
+  email: string
+  role: string
+}
+
+export const generateAccessToken = (payload: JwtPayload): string =>
+  jwt.sign(payload, env.jwt.secret, { expiresIn: env.jwt.expiresIn } as jwt.SignOptions)
+
+export const generateRefreshToken = (payload: JwtPayload): string =>
+  jwt.sign(payload, env.jwt.refreshSecret, { expiresIn: env.jwt.refreshExpiresIn } as jwt.SignOptions)
+
+export const verifyAccessToken = (token: string): JwtPayload =>
+  jwt.verify(token, env.jwt.secret) as JwtPayload
+
+export const verifyRefreshToken = (token: string): JwtPayload =>
+  jwt.verify(token, env.jwt.refreshSecret) as JwtPayload`},
+
+'server/src/middleware/auth.middleware.ts': {g:'server',i:'🛡️',l:'ts',c:`import { Response, NextFunction } from 'express'
+import { verifyAccessToken } from '../utils/jwt'
+import { errorResponse } from '../utils/response'
+import { AuthRequest } from '../types'
+
+export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction): void => {
+  try {
+    const authHeader = req.headers.authorization
+    if (!authHeader?.startsWith('Bearer ')) {
+      errorResponse(res, 'Token topilmadi', 401)
+      return
+    }
+    const token = authHeader.split(' ')[1]
+    const payload = verifyAccessToken(token)
+    req.user = payload
+    next()
+  } catch {
+    errorResponse(res, "Token noto'g'ri yoki muddati o'tgan", 401)
+  }
+}`},
+
+'server/src/modules/auth/auth.service.ts': {g:'server',i:'🔐',l:'ts',c:`import crypto from 'crypto'
+import { prisma } from '../../config/database'
+import { hashPassword, comparePassword } from '../../utils/password'
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../utils/jwt'
+import { sendVerificationEmail, sendPasswordResetEmail } from '../../config/email'
+import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto, ChangePasswordDto, UpdateProfileDto } from './auth.schema'
+
+export class AuthService {
+
+  async register(dto: RegisterDto) {
+    const existing = await prisma.user.findUnique({ where: { email: dto.email } })
+    if (existing) throw new Error("Bu email allaqachon ro'yxatdan o'tgan")
+
+    const passwordHash = await hashPassword(dto.password)
+    const verifyToken = crypto.randomBytes(32).toString('hex')
+
+    const user = await prisma.user.create({
+      data: { email: dto.email, passwordHash, fullName: dto.fullName, track: dto.track, verifyToken },
+      select: { id: true, email: true, fullName: true, role: true, track: true, isVerified: true, createdAt: true },
+    })
+
+    await sendVerificationEmail(dto.email, verifyToken)
+    return { user, message: "Ro'yxatdan o'tdingiz! Email manzilingizni tasdiqlang." }
+  }
+
+  async login(dto: LoginDto) {
+    const user = await prisma.user.findUnique({ where: { email: dto.email } })
+    if (!user) throw new Error("Email yoki parol noto'g'ri")
+
+    const isValid = await comparePassword(dto.password, user.passwordHash)
+    if (!isValid) throw new Error("Email yoki parol noto'g'ri")
+    if (!user.isVerified) throw new Error('Email manzilingiz tasdiqlanmagan')
+
+    const payload = { userId: user.id, email: user.email, role: user.role }
+    const accessToken = generateAccessToken(payload)
+    const refreshToken = generateRefreshToken(payload)
+
+    // Streak logic
+    const today = new Date(); today.setHours(0,0,0,0)
+    const lastActive = user.lastActive ? new Date(user.lastActive) : null
+    let streakCount = user.streakCount
+    if (lastActive) {
+      const last = new Date(lastActive); last.setHours(0,0,0,0)
+      const diff = Math.floor((today.getTime() - last.getTime()) / 86400000)
+      if (diff === 1) streakCount++
+      else if (diff > 1) streakCount = 1
+    } else {
+      streakCount = 1
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken, lastActive: new Date(), streakCount },
+    })
+
+    const { passwordHash, verifyToken, resetToken, resetTokenExp, refreshToken: _rt, ...safeUser } = user
+    return { accessToken, refreshToken, user: { ...safeUser, streakCount } }
+  }
+
+  async logout(userId: string) {
+    await prisma.user.update({ where: { id: userId }, data: { refreshToken: null } })
+  }
+
+  async refreshTokens(token: string) {
+    let payload: { userId: string; email: string; role: string }
+    try { payload = verifyRefreshToken(token) }
+    catch { throw new Error("Refresh token noto'g'ri yoki muddati o'tgan") }
+
+    const user = await prisma.user.findFirst({ where: { id: payload.userId, refreshToken: token } })
+    if (!user) throw new Error('Refresh token topilmadi')
+
+    const newPayload = { userId: user.id, email: user.email, role: user.role }
+    const accessToken = generateAccessToken(newPayload)
+    const refreshToken = generateRefreshToken(newPayload)
+
+    await prisma.user.update({ where: { id: user.id }, data: { refreshToken } })
+    return { accessToken, refreshToken }
+  }
+
+  async verifyEmail(token: string) {
+    const user = await prisma.user.findFirst({ where: { verifyToken: token } })
+    if (!user) throw new Error("Noto'g'ri yoki muddati o'tgan token")
+    await prisma.user.update({ where: { id: user.id }, data: { isVerified: true, verifyToken: null } })
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const user = await prisma.user.findUnique({ where: { email: dto.email } })
+    if (!user) return // security: always return success
+    const resetToken = crypto.randomBytes(32).toString('hex')
+    const resetTokenExp = new Date(Date.now() + 3600000)
+    await prisma.user.update({ where: { id: user.id }, data: { resetToken, resetTokenExp } })
+    await sendPasswordResetEmail(dto.email, resetToken)
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const user = await prisma.user.findFirst({
+      where: { resetToken: dto.token, resetTokenExp: { gt: new Date() } }
+    })
+    if (!user) throw new Error("Token noto'g'ri yoki muddati o'tgan")
+    const passwordHash = await hashPassword(dto.password)
+    await prisma.user.update({ where: { id: user.id }, data: { passwordHash, resetToken: null, resetTokenExp: null } })
+  }
+
+  async getProfile(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true, email: true, fullName: true, avatarUrl: true,
+        role: true, track: true, isVerified: true, streakCount: true,
+        lastActive: true, createdAt: true,
+        _count: { select: { quizResults: true, bookmarks: true, aiSessions: true } }
+      }
+    })
+    if (!user) throw new Error('Foydalanuvchi topilmadi')
+    return user
+  }
+}`},
+
+'server/src/modules/quizzes/quizzes.service.ts': {g:'server',i:'📝',l:'ts',c:`import { prisma } from '../../config/database'
+import { Track, Difficulty } from '@prisma/client'
+
+export class QuizzesService {
+  async getQuizzes(params: { type?: string; difficulty?: string; page?: number; limit?: number }) {
+    const { type, difficulty, page = 1, limit = 10 } = params
+    const skip = (page - 1) * limit
+    const where: any = { isActive: true }
+    if (type) where.type = type as Track
+    if (difficulty) where.difficulty = difficulty as Difficulty
+
+    const [quizzes, total] = await Promise.all([
+      prisma.quiz.findMany({
+        where, skip, take: limit,
+        include: { _count: { select: { results: true } } },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.quiz.count({ where }),
+    ])
+    return { quizzes, total, page, limit }
+  }
+
+  async startQuiz(id: string) {
+    const quiz = await prisma.quiz.findFirst({
+      where: { id, isActive: true },
+      include: {
+        questions: {
+          include: {
+            question: {
+              select: {
+                id: true, title: true, type: true, difficulty: true, options: true,
+                category: { select: { name: true } },
+                // ⚠️ correctAnswer intentionally excluded for security
+              },
+            },
+          },
+          orderBy: { orderIndex: 'asc' },
+        },
+      },
+    })
+    if (!quiz) throw new Error('Quiz topilmadi')
+    return {
+      id: quiz.id, title: quiz.title, description: quiz.description,
+      type: quiz.type, difficulty: quiz.difficulty, timeLimit: quiz.timeLimit,
+      questions: quiz.questions.map((qq) => qq.question),
+    }
+  }
+
+  async submitQuiz(quizId: string, userId: string, dto: { answers: any[]; timeSpent: number }) {
+    const quiz = await prisma.quiz.findFirst({
+      where: { id: quizId, isActive: true },
+      include: { questions: { include: { question: true }, orderBy: { orderIndex: 'asc' } } },
+    })
+    if (!quiz) throw new Error('Quiz topilmadi')
+
+    let score = 0
+    const detailedAnswers = dto.answers.map((ans) => {
+      const qq = quiz.questions.find((q) => q.questionId === ans.questionId)
+      if (!qq) return { ...ans, isCorrect: false }
+
+      const question = qq.question
+      let isCorrect = false
+
+      if (question.type !== 'OPEN_ENDED' && question.options && ans.selectedOptionId) {
+        const options = question.options as Array<{ id: string; isCorrect: boolean }>
+        isCorrect = options.find((o) => o.id === ans.selectedOptionId)?.isCorrect || false
+      }
+
+      if (isCorrect) score++
+      return {
+        questionId: ans.questionId,
+        questionTitle: question.title,
+        selectedOptionId: ans.selectedOptionId,
+        isCorrect,
+        correctAnswer: question.correctAnswer,
+        correctOptionId: (question.options as any[])?.find((o) => o.isCorrect)?.id,
+        explanation: question.explanation,
+      }
+    })
+
+    const total = quiz.questions.length
+    const percentage = total > 0 ? (score / total) * 100 : 0
+
+    const result = await prisma.quizResult.create({
+      data: { userId, quizId, score, total, percentage, timeSpent: dto.timeSpent, answers: detailedAnswers }
+    })
+
+    await this.checkAchievements(userId)
+    return { ...result, detailedAnswers }
+  }
+
+  async getLeaderboard() {
+    const results = await prisma.quizResult.groupBy({
+      by: ['userId'],
+      _avg: { percentage: true },
+      _count: { id: true },
+      _max: { percentage: true },
+      orderBy: { _avg: { percentage: 'desc' } },
+      take: 50,
+    })
+    const users = await prisma.user.findMany({
+      where: { id: { in: results.map((r) => r.userId) } },
+      select: { id: true, fullName: true, avatarUrl: true, track: true },
+    })
+    return results.map((r, i) => ({
+      rank: i + 1,
+      user: users.find((u) => u.id === r.userId),
+      avgScore: Math.round(r._avg.percentage || 0),
+      totalQuizzes: r._count.id,
+      bestScore: Math.round(r._max.percentage || 0),
+    }))
+  }
+
+  private async checkAchievements(userId: string) {
+    try {
+      const quizCount = await prisma.quizResult.count({ where: { userId } })
+      const achievements = await prisma.achievement.findMany({ where: { conditionType: 'QUIZ_COUNT' } })
+      for (const ach of achievements) {
+        if (quizCount >= ach.conditionValue) {
+          await prisma.userAchievement.upsert({
+            where: { userId_achievementId: { userId, achievementId: ach.id } },
+            update: {},
+            create: { userId, achievementId: ach.id },
+          }).then(async (r) => {
+            if (r) {
+              await prisma.notification.create({
+                data: { userId, type: 'ACHIEVEMENT', title: \`🏆 \${ach.title}\`, message: ach.description || '' }
+              })
+            }
+          }).catch(() => {})
+        }
+      }
+    } catch {}
+  }
+}
+export const quizzesService = new QuizzesService()`},
+
+'server/src/modules/ai/ai.service.ts': {g:'server',i:'🤖',l:'ts',c:`import Anthropic from '@anthropic-ai/sdk'
+import { prisma } from '../../config/database'
+import { env } from '../../config/env'
+
+const anthropic = new Anthropic({ apiKey: env.anthropic.apiKey })
+
+export class AIService {
+  async evaluateAnswer(userId: string, dto: { questionText: string; userAnswer: string; category?: string }) {
+    const prompt = \`You are a senior software engineer conducting a technical interview.
+Evaluate the answer and respond ONLY with valid JSON (no markdown).
+
+Question: \${dto.questionText}
+\${dto.category ? \`Category: \${dto.category}\` : ''}
+Candidate Answer: \${dto.userAnswer}
+
+{
+  "score": <1-10>,
+  "feedback": "<2-3 sentences>",
+  "idealAnswer": "<comprehensive ideal answer>",
+  "mistakes": ["mistake1", "mistake2"],
+  "resources": [{"title":"...","url":"...","type":"article|video|docs"}],
+  "keyPoints": ["concept1", "concept2"]
+}\`
+
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }],
+    })
+
+    const text = (response.content[0] as any).text
+    const parsed = JSON.parse(text.replace(/\`\`\`json|\`\`\`/g, '').trim())
+
+    const session = await prisma.aISession.create({
+      data: {
+        userId,
+        questionText: dto.questionText,
+        userAnswer: dto.userAnswer,
+        aiScore: parsed.score,
+        aiFeedback: parsed.feedback,
+        idealAnswer: parsed.idealAnswer,
+        resources: parsed.resources || [],
+      }
+    })
+
+    return { sessionId: session.id, ...parsed }
+  }
+
+  async getMockInterviewQuestions(dto: { track: string; count?: number }) {
+    const count = dto.count || 5
+    let categoryFilter: any = {}
+    if (dto.track === 'FRONTEND') categoryFilter = { category: { group: 'FRONTEND' } }
+    else if (dto.track === 'BACKEND') categoryFilter = { category: { group: 'BACKEND' } }
+
+    const questions = await prisma.question.findMany({
+      where: { isActive: true, type: 'OPEN_ENDED', ...categoryFilter },
+      include: { category: { select: { name: true, slug: true } } },
+      take: count * 3,
+    })
+    return questions.sort(() => Math.random() - 0.5).slice(0, count).map((q) => ({
+      id: q.id, title: q.title, difficulty: q.difficulty, category: q.category,
+    }))
+  }
+}
+export const aiService = new AIService()`},
+
+'server/src/modules/dashboard/dashboard.service.ts': {g:'server',i:'📊',l:'ts',c:`import { prisma } from '../../config/database'
+
+export class DashboardService {
+  async getStats(userId: string) {
+    const [user, quizResults, aiSessions, bookmarkCount, achievements, roadmapProgress] =
+      await Promise.all([
+        prisma.user.findUnique({ where: { id: userId }, select: { streakCount: true, track: true, fullName: true } }),
+        prisma.quizResult.findMany({ where: { userId }, select: { percentage: true, completedAt: true }, orderBy: { completedAt: 'desc' } }),
+        prisma.aISession.count({ where: { userId } }),
+        prisma.bookmark.count({ where: { userId } }),
+        prisma.userAchievement.count({ where: { userId } }),
+        prisma.roadmapProgress.count({ where: { userId, isCompleted: true } }),
+      ])
+
+    const totalTests = quizResults.length
+    const avgScore = totalTests > 0
+      ? Math.round(quizResults.reduce((s, r) => s + r.percentage, 0) / totalTests) : 0
+
+    const readinessScore = Math.min(100, Math.round(
+      avgScore * 0.5 + Math.min(totalTests * 2, 30) + Math.min(aiSessions * 3, 20)
+    ))
+
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(); d.setDate(d.getDate() - (6 - i)); d.setHours(0,0,0,0); return d
+    })
+
+    const weeklyActivity = last7Days.map((day) => {
+      const next = new Date(day); next.setDate(next.getDate() + 1)
+      const dayResults = quizResults.filter((r) => r.completedAt >= day && r.completedAt < next)
+      return {
+        date: day.toISOString().split('T')[0],
+        day: ['Yak','Du','Se','Cho','Pay','Ju','Sha'][day.getDay()],
+        score: dayResults.length > 0 ? Math.round(dayResults.reduce((s, r) => s + r.percentage, 0) / dayResults.length) : 0,
+        tests: dayResults.length,
+      }
+    })
+
+    return { totalTests, avgScore, readinessScore, streakCount: user?.streakCount || 0,
+      aiSessionsCount: aiSessions, bookmarkCount, achievementsCount: achievements,
+      roadmapCompleted: roadmapProgress, weeklyActivity, track: user?.track }
+  }
+
+  async getRoadmap(track: string, userId: string) {
+    const nodes = await prisma.roadmapNode.findMany({
+      where: { track: track.toUpperCase() as any },
+      include: { progress: { where: { userId }, select: { isCompleted: true, completedAt: true } } },
+      orderBy: { orderIndex: 'asc' },
+    })
+    return nodes.map((n) => ({
+      id: n.id, title: n.title, description: n.description,
+      orderIndex: n.orderIndex, parentId: n.parentId,
+      isMilestone: n.isMilestone, resources: n.resources,
+      isCompleted: n.progress[0]?.isCompleted || false,
+      completedAt: n.progress[0]?.completedAt || null,
+    }))
+  }
+
+  async completeNode(userId: string, nodeId: string) {
+    return prisma.roadmapProgress.upsert({
+      where: { userId_nodeId: { userId, nodeId } },
+      update: { isCompleted: true, completedAt: new Date() },
+      create: { userId, nodeId, isCompleted: true, completedAt: new Date() },
+    })
+  }
+}
+export const dashboardService = new DashboardService()`},
+
+// ── CLIENT ─────────────────────────────────────────────────────────────────
+
+'client/src/main.tsx': {g:'client',i:'⚛️',l:'tsx',c:`import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { RouterProvider } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { router } from './router'
+import './index.css'
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { staleTime: 1000*60*5, retry: 1, refetchOnWindowFocus: false } }
+})
+
+const theme = JSON.parse(localStorage.getItem('devprep-theme') || '{"state":{"theme":"dark"}}')
+document.documentElement.classList.toggle('dark', theme?.state?.theme !== 'light')
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  </React.StrictMode>
+)`},
+
+'client/src/api/axios.ts': {g:'client',i:'📡',l:'ts',c:`import axios from 'axios'
+
+const BASE_URL = import.meta.env.VITE_API_URL || '/api/v1'
+
+export const api = axios.create({
+  baseURL: BASE_URL,
+  withCredentials: true,
+  headers: { 'Content-Type': 'application/json' },
+})
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('accessToken')
+  if (token) config.headers.Authorization = \`Bearer \${token}\`
+  return config
+})
+
+let isRefreshing = false
+let failedQueue: Array<{ resolve: (v: string) => void; reject: (e: unknown) => void }> = []
+
+const processQueue = (error: unknown, token: string | null = null) => {
+  failedQueue.forEach((p) => (error ? p.reject(error) : p.resolve(token!)))
+  failedQueue = []
+}
+
+api.interceptors.response.use(
+  (res) => res,
+  async (error) => {
+    const original = error.config
+    if (error.response?.status === 401 && !original._retry) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => failedQueue.push({ resolve, reject }))
+          .then((token) => { original.headers.Authorization = \`Bearer \${token}\`; return api(original) })
+      }
+      original._retry = true
+      isRefreshing = true
+      try {
+        const res = await axios.post(\`\${BASE_URL}/auth/refresh\`, {}, { withCredentials: true })
+        const { accessToken } = res.data.data
+        localStorage.setItem('accessToken', accessToken)
+        processQueue(null, accessToken)
+        return api(original)
+      } catch (e) {
+        processQueue(e, null)
+        localStorage.removeItem('accessToken')
+        window.location.href = '/login'
+        return Promise.reject(e)
+      } finally {
+        isRefreshing = false
+      }
+    }
+    return Promise.reject(error)
+  }
+)
+export default api`},
+
+'client/src/store/authStore.ts': {g:'client',i:'🐻',l:'ts',c:`import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+import type { User } from '../types'
+
+interface AuthStore {
+  user: User | null
+  accessToken: string | null
+  isAuthenticated: boolean
+  setAuth: (user: User, token: string) => void
+  setUser: (user: User) => void
+  logout: () => void
+}
+
+export const useAuthStore = create<AuthStore>()(
+  persist(
+    (set) => ({
+      user: null,
+      accessToken: null,
+      isAuthenticated: false,
+      setAuth: (user, token) => {
+        localStorage.setItem('accessToken', token)
+        set({ user, accessToken: token, isAuthenticated: true })
+      },
+      setUser: (user) => set({ user }),
+      logout: () => {
+        localStorage.removeItem('accessToken')
+        set({ user: null, accessToken: null, isAuthenticated: false })
+      },
+    }),
+    { name: 'devprep-auth', partialize: (s) => ({ user: s.user, accessToken: s.accessToken, isAuthenticated: s.isAuthenticated }) }
+  )
+)`},
+
+'client/src/components/layout/Sidebar.tsx': {g:'client',i:'📐',l:'tsx',c:`import { NavLink, useNavigate } from 'react-router-dom'
+import { LayoutDashboard, BookOpen, ClipboardList, Bot, Map, Trophy, Medal, User, LogOut, Zap, Shield } from 'lucide-react'
+import { useAuthStore } from '../../store/authStore'
+import { authApi } from '../../api/auth.api'
+
+const navItems = [
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/questions', icon: BookOpen, label: 'Question Bank' },
+  { to: '/quizzes', icon: ClipboardList, label: 'Quizzes' },
+  { to: '/ai-interview', icon: Bot, label: 'AI Interview' },
+  { to: '/roadmap', icon: Map, label: 'Roadmap' },
+  { to: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
+  { to: '/achievements', icon: Medal, label: 'Achievements' },
+]
+
+export default function Sidebar() {
+  const { user, logout } = useAuthStore()
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    try { await authApi.logout() } catch {}
+    logout()
+    navigate('/login')
+  }
+
+  return (
+    <aside className="w-60 flex flex-col bg-dark-800 border-r border-slate-800 shrink-0">
+      <div className="p-5 border-b border-slate-800">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-accent-500 flex items-center justify-center">
+            <Zap size={16} className="text-dark-900" />
+          </div>
+          <div>
+            <div className="font-sans font-bold text-sm text-white">DevPrep</div>
+            <div className="text-xs text-accent-500 font-mono">AI</div>
+          </div>
+        </div>
+      </div>
+
+      <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
+        {navItems.map(({ to, icon: Icon, label }) => (
+          <NavLink key={to} to={to} className={({ isActive }) => \`sidebar-link \${isActive ? 'active' : ''}\`}>
+            <Icon size={17} /><span>{label}</span>
+          </NavLink>
+        ))}
+        {user?.role === 'ADMIN' && (
+          <>
+            <div className="pt-3 pb-1 px-3">
+              <span className="text-xs text-slate-600 uppercase tracking-widest">Admin</span>
+            </div>
+            <NavLink to="/admin/dashboard" className={({ isActive }) => \`sidebar-link \${isActive ? 'active' : ''}\`}>
+              <Shield size={17} /><span>Admin Panel</span>
+            </NavLink>
+          </>
+        )}
+      </nav>
+
+      <div className="p-3 border-t border-slate-800 space-y-0.5">
+        <NavLink to="/profile" className={({ isActive }) => \`sidebar-link \${isActive ? 'active' : ''}\`}>
+          <User size={17} />
+          <div className="flex-1 min-w-0">
+            <div className="text-xs text-slate-200 truncate font-semibold">{user?.fullName}</div>
+            <div className="text-xs text-slate-500 truncate">{user?.email}</div>
+          </div>
+        </NavLink>
+        <button onClick={handleLogout} className="sidebar-link w-full text-rose-400 hover:bg-rose-500/10">
+          <LogOut size={17} /><span>Chiqish</span>
+        </button>
+      </div>
+    </aside>
+  )
+}`},
+
+'client/src/pages/auth/Login.tsx': {g:'client',i:'🔑',l:'tsx',c:`import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Eye, EyeOff, LogIn } from 'lucide-react'
+import { authApi } from '../../api/auth.api'
+import { useAuthStore } from '../../store/authStore'
+import { Alert, Spinner } from '../../components/ui'
+
+export default function Login() {
+  const navigate = useNavigate()
+  const setAuth = useAuthStore((s) => s.setAuth)
+  const [form, setForm] = useState({ email: '', password: '' })
+  const [showPass, setShowPass] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true); setError('')
+    try {
+      const res = await authApi.login(form)
+      const { accessToken, user } = res.data.data
+      setAuth(user, accessToken)
+      navigate('/dashboard')
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Kirish amalga oshmadi')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="font-sans font-bold text-3xl text-white mb-2">Xush kelibsiz 👋</h1>
+        <p className="text-slate-400 text-sm">Hisobingizga kiring</p>
+      </div>
+      {error && <div className="mb-4"><Alert type="error" message={error} /></div>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="text-xs text-slate-400 mb-1.5 block uppercase tracking-wider">Email</label>
+          <input type="email" className="input" placeholder="you@example.com"
+            value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+        </div>
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-xs text-slate-400 uppercase tracking-wider">Parol</label>
+            <Link to="/forgot-password" className="text-xs text-accent-500 hover:underline">Unutdingizmi?</Link>
+          </div>
+          <div className="relative">
+            <input type={showPass ? 'text' : 'password'} className="input pr-10" placeholder="••••••••"
+              value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
+            <button type="button" onClick={() => setShowPass(!showPass)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+              {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+        </div>
+        <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2 mt-2">
+          {loading ? <Spinner size={16} /> : <LogIn size={16} />}
+          {loading ? 'Kirilmoqda...' : 'Kirish'}
+        </button>
+      </form>
+      <p className="text-center text-sm text-slate-400 mt-6">
+        Hisobingiz yo'qmi?{' '}
+        <Link to="/register" className="text-accent-500 font-semibold hover:underline">Ro'yxatdan o'ting</Link>
+      </p>
+    </div>
+  )
+}`},
+
+'client/src/pages/Dashboard.tsx': {g:'client',i:'📊',l:'tsx',c:`import { useQuery } from '@tanstack/react-query'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts'
+import { Trophy, Flame, Bot, TrendingUp } from 'lucide-react'
+import { dashboardApi } from '../api/dashboard.api'
+import { PageLoader, ScoreRing } from '../components/ui'
+
+export default function Dashboard() {
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ['dashboard-stats'],
+    queryFn: () => dashboardApi.getStats().then((r) => r.data.data),
+  })
+  if (isLoading) return <PageLoader />
+  const s = stats!
+
+  const cards = [
+    { label: 'Jami testlar', value: s.totalTests, icon: Trophy, color: 'text-amber-400', bg: 'bg-amber-500/10' },
+    { label: "O'rtacha ball", value: \`\${s.avgScore}%\`, icon: TrendingUp, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+    { label: 'Daily streak', value: \`\${s.streakCount} kun\`, icon: Flame, color: 'text-orange-400', bg: 'bg-orange-500/10' },
+    { label: 'AI sessiyalar', value: s.aiSessionsCount, icon: Bot, color: 'text-violet-400', bg: 'bg-violet-500/10' },
+  ]
+
+  return (
+    <div className="space-y-6 animate-slide-up">
+      <div>
+        <h1 className="font-sans font-bold text-2xl text-white">Dashboard</h1>
+        <p className="text-slate-400 text-sm mt-1">Sizning o'qish progressingiz</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <div className="card col-span-1 flex flex-col items-center justify-center py-4">
+          <div className="text-xs text-slate-400 uppercase tracking-widest mb-3">Interview Readiness</div>
+          <ScoreRing score={s.readinessScore} size={100} />
+          <div className={\`text-xs font-semibold mt-1 \${s.readinessScore >= 70 ? 'text-emerald-400' : s.readinessScore >= 40 ? 'text-amber-400' : 'text-rose-400'}\`}>
+            {s.readinessScore >= 70 ? '🟢 Tayyor' : s.readinessScore >= 40 ? '🟡 O\'rta' : '🔴 Tayyorgarlik kerak'}
+          </div>
+        </div>
+
+        {cards.map((c) => (
+          <div key={c.label} className="stat-card">
+            <div className={\`p-2 rounded-lg \${c.bg} w-fit mb-3\`}>
+              <c.icon size={18} className={c.color} />
+            </div>
+            <div className="font-sans font-bold text-2xl text-white mb-0.5">{c.value}</div>
+            <div className="text-xs text-slate-400">{c.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="card">
+          <h3 className="font-semibold text-white mb-4 text-sm">Haftalik faollik</h3>
+          <ResponsiveContainer width="100%" height={180}>
+            <BarChart data={s.weeklyActivity} barSize={20}>
+              <XAxis dataKey="day" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} domain={[0,100]} />
+              <Tooltip contentStyle={{ background: '#0f1628', border: '1px solid #1e2d4a', borderRadius: 8, fontSize: 12 }}
+                formatter={(v: number) => [\`\${v}%\`, 'Ball']} />
+              <Bar dataKey="score" fill="#00d4ff" radius={[4,4,0,0]} fillOpacity={0.8} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="card">
+          <h3 className="font-semibold text-white mb-4 text-sm">Ball dinamikasi</h3>
+          <ResponsiveContainer width="100%" height={180}>
+            <AreaChart data={s.weeklyActivity}>
+              <defs>
+                <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#00d4ff" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#00d4ff" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis dataKey="day" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} domain={[0,100]} />
+              <Tooltip contentStyle={{ background: '#0f1628', border: '1px solid #1e2d4a', borderRadius: 8, fontSize: 12 }} />
+              <Area type="monotone" dataKey="score" stroke="#00d4ff" strokeWidth={2} fill="url(#g)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  )
+}`},
+
+'client/src/pages/QuizSession.tsx': {g:'client',i:'⏱️',l:'tsx',c:`import { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { Clock, ChevronLeft, ChevronRight, Send, AlertCircle } from 'lucide-react'
+import { quizApi } from '../api/quiz.api'
+import { PageLoader, Badge, Spinner } from '../components/ui'
+import type { QuizSession as IQuizSession } from '../types'
+
+export default function QuizSession() {
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const [started, setStarted] = useState(false)
+  const [session, setSession] = useState<IQuizSession | null>(null)
+  const [current, setCurrent] = useState(0)
+  const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [timeLeft, setTimeLeft] = useState(0)
+  const [startTime] = useState(Date.now())
+
+  const { data: quizMeta, isLoading } = useQuery({
+    queryKey: ['quiz', id],
+    queryFn: () => quizApi.getQuiz(id!).then((r) => r.data.data),
+  })
+
+  const startMutation = useMutation({
+    mutationFn: () => quizApi.startQuiz(id!).then((r) => r.data.data as IQuizSession),
+    onSuccess: (data) => { setSession(data); setTimeLeft(data.timeLimit); setStarted(true) },
+  })
+
+  const submitMutation = useMutation({
+    mutationFn: () => quizApi.submitQuiz(id!, {
+      answers: session!.questions.map((q) => ({ questionId: q.id, selectedOptionId: answers[q.id] })),
+      timeSpent: Math.round((Date.now() - startTime) / 1000),
+    }).then((r) => r.data.data),
+    onSuccess: (data) => navigate(\`/quizzes/results/\${data.id}\`),
+  })
+
+  useEffect(() => {
+    if (!started || timeLeft <= 0) return
+    const t = setInterval(() => setTimeLeft((n) => {
+      if (n <= 1) { clearInterval(t); submitMutation.mutate(); return 0 }
+      return n - 1
+    }), 1000)
+    return () => clearInterval(t)
+  }, [started])
+
+  if (isLoading) return <PageLoader />
+
+  if (!started && quizMeta) return (
+    <div className="max-w-lg mx-auto mt-12 card animate-slide-up text-center">
+      <div className="text-5xl mb-4">📋</div>
+      <h2 className="font-sans font-bold text-2xl text-white mb-2">{quizMeta.title}</h2>
+      <div className="grid grid-cols-3 gap-3 my-6">
+        {[['Savollar', quizMeta.questionCount], ['Vaqt', \`\${Math.round(quizMeta.timeLimit/60)} min\`], ['Qiyinlik', quizMeta.difficulty]].map(([l,v]) => (
+          <div key={l as string} className="p-3 rounded-xl bg-slate-800 border border-slate-700">
+            <div className="font-bold text-white">{v}</div>
+            <div className="text-xs text-slate-400">{l}</div>
+          </div>
+        ))}
+      </div>
+      <button onClick={() => startMutation.mutate()} disabled={startMutation.isPending}
+        className="btn-primary w-full flex items-center justify-center gap-2">
+        {startMutation.isPending && <Spinner size={16} />} Quizni boshlash
+      </button>
+    </div>
+  )
+
+  if (!session) return <PageLoader />
+  const q = session.questions[current]
+  const isLast = current === session.questions.length - 1
+
+  return (
+    <div className="max-w-3xl mx-auto animate-slide-up">
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-sm text-slate-400"><span className="text-white font-bold">{current+1}</span>/{session.questions.length}</span>
+        <div className={\`flex items-center gap-2 px-4 py-2 rounded-xl font-mono font-bold border \${
+          timeLeft < 60 ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' :
+          timeLeft < 180 ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' :
+          'bg-accent-100 border-accent-200 text-accent-500'}\`}>
+          <Clock size={16} />
+          {String(Math.floor(timeLeft/60)).padStart(2,'0')}:{String(timeLeft%60).padStart(2,'0')}
+        </div>
+        <span className="text-xs text-slate-400">{Object.keys(answers).length} javob</span>
+      </div>
+
+      <div className="h-1 bg-slate-800 rounded-full mb-4 overflow-hidden">
+        <div className="h-full bg-accent-500 rounded-full transition-all" style={{ width: \`\${((current+1)/session.questions.length)*100}%\` }} />
+      </div>
+
+      <div className="card mb-3">
+        <div className="flex gap-2 mb-3">
+          <Badge variant={q.difficulty.toLowerCase() as any}>{q.difficulty}</Badge>
+          {q.category && <span className="text-xs text-slate-500">{q.category.name}</span>}
+        </div>
+        <p className="text-slate-100 font-semibold leading-relaxed">{q.title}</p>
+      </div>
+
+      {q.options && (
+        <div className="space-y-2 mb-4">
+          {q.options.map((opt, idx) => (
+            <button key={opt.id} onClick={() => setAnswers({ ...answers, [q.id]: opt.id })}
+              className={\`w-full p-3.5 rounded-xl text-left text-sm border transition-all \${
+                answers[q.id] === opt.id
+                  ? 'bg-accent-100 border-accent-200 text-accent-500 font-semibold'
+                  : 'bg-slate-800/50 border-slate-700 text-slate-300 hover:border-slate-600'}\`}>
+              <span className="mr-3 inline-flex w-6 h-6 items-center justify-center rounded-full bg-slate-700 text-xs font-bold">
+                {String.fromCharCode(65+idx)}
+              </span>
+              {opt.text}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="flex items-center justify-between">
+        <button onClick={() => setCurrent((c) => Math.max(0,c-1))} disabled={current===0}
+          className="btn-secondary flex items-center gap-1 disabled:opacity-40">
+          <ChevronLeft size={15}/> Oldingi
+        </button>
+        <div className="flex gap-1 flex-wrap justify-center max-w-xs">
+          {session.questions.map((sq, i) => (
+            <button key={sq.id} onClick={() => setCurrent(i)}
+              className={\`w-7 h-7 rounded-lg text-xs font-bold transition-all \${
+                i===current ? 'bg-accent-500 text-dark-900' :
+                answers[sq.id] ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+                'bg-slate-800 text-slate-500 hover:bg-slate-700'}\`}
+            >{i+1}</button>
+          ))}
+        </div>
+        {isLast ? (
+          <button onClick={() => submitMutation.mutate()} disabled={submitMutation.isPending}
+            className="btn-primary flex items-center gap-1">
+            {submitMutation.isPending ? <Spinner size={14}/> : <Send size={14}/>} Yuborish
+          </button>
+        ) : (
+          <button onClick={() => setCurrent((c) => Math.min(session.questions.length-1,c+1))}
+            className="btn-secondary flex items-center gap-1">
+            Keyingi <ChevronRight size={15}/>
+          </button>
+        )}
+      </div>
+      {isLast && Object.keys(answers).length < session.questions.length && (
+        <div className="mt-3 flex items-center gap-2 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+          <AlertCircle size={13}/> {session.questions.length - Object.keys(answers).length} ta savol javobsiz
+        </div>
+      )}
+    </div>
+  )
+}`},
+
+'client/src/pages/Roadmap.tsx': {g:'client',i:'🗺️',l:'tsx',c:`import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { CheckCircle, Circle, Award, ChevronDown, ChevronRight } from 'lucide-react'
+import { dashboardApi } from '../api/dashboard.api'
+import { PageLoader } from '../components/ui'
+import type { RoadmapNode } from '../types'
+
+const tracks = [
+  { value: 'FRONTEND', label: '🎨 Frontend' },
+  { value: 'BACKEND', label: '⚙️ Backend' },
+  { value: 'FULLSTACK', label: '🚀 Full Stack' },
+]
+
+export default function Roadmap() {
+  const [track, setTrack] = useState('FRONTEND')
+  const [expanded, setExpanded] = useState<string | null>(null)
+  const qc = useQueryClient()
+
+  const { data: nodes, isLoading } = useQuery({
+    queryKey: ['roadmap', track],
+    queryFn: () => dashboardApi.getRoadmap(track).then((r) => r.data.data as RoadmapNode[]),
+  })
+
+  const completeMutation = useMutation({
+    mutationFn: (nodeId: string) => dashboardApi.completeNode(nodeId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['roadmap', track] }),
+  })
+
+  const completed = nodes?.filter((n) => n.isCompleted).length || 0
+  const total = nodes?.length || 0
+  const pct = total > 0 ? Math.round((completed / total) * 100) : 0
+
+  return (
+    <div className="max-w-3xl mx-auto animate-slide-up space-y-6">
+      <div>
+        <h1 className="font-sans font-bold text-2xl text-white">Roadmap</h1>
+        <p className="text-slate-400 text-sm mt-1">O'rganish yo'lini kuzating</p>
+      </div>
+
+      <div className="flex gap-2">
+        {tracks.map((t) => (
+          <button key={t.value} onClick={() => setTrack(t.value)}
+            className={\`px-4 py-2 rounded-xl text-sm font-semibold border transition-all \${
+              track === t.value ? 'bg-accent-100 border-accent-200 text-accent-500'
+              : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}\`}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="card">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-semibold text-slate-300">Umumiy progress</span>
+          <span className="text-sm font-bold text-accent-500">{pct}%</span>
+        </div>
+        <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+          <div className="h-full bg-accent-500 rounded-full transition-all duration-500" style={{ width: \`\${pct}%\` }} />
+        </div>
+        <div className="text-xs text-slate-500 mt-2">{completed} / {total} mavzu tugatildi</div>
+      </div>
+
+      {isLoading ? <PageLoader /> : (
+        <div className="space-y-2">
+          {(nodes || []).map((node) => (
+            <div key={node.id} className={\`card border transition-all \${
+              node.isCompleted ? 'border-emerald-500/20 bg-emerald-500/5' :
+              node.isMilestone ? 'border-amber-500/20' : 'border-slate-800'}\`}>
+              <div className="flex items-center gap-4 cursor-pointer"
+                onClick={() => setExpanded(expanded === node.id ? null : node.id)}>
+                <button onClick={(e) => { e.stopPropagation(); if (!node.isCompleted) completeMutation.mutate(node.id) }} className="shrink-0">
+                  {node.isCompleted ? <CheckCircle size={22} className="text-emerald-400" /> : <Circle size={22} className="text-slate-600 hover:text-accent-500 transition-colors" />}
+                </button>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-500 font-mono">{String(node.orderIndex).padStart(2,'0')}.</span>
+                    {node.isMilestone && <Award size={13} className="text-amber-400" />}
+                    <span className={\`text-sm font-semibold \${node.isCompleted ? 'text-emerald-300 line-through opacity-60' : 'text-white'}\`}>{node.title}</span>
+                    {node.isMilestone && <span className="text-xs text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">Milestone</span>}
+                  </div>
+                </div>
+                {expanded === node.id ? <ChevronDown size={15} className="text-slate-500" /> : <ChevronRight size={15} className="text-slate-500" />}
+              </div>
+              {expanded === node.id && (
+                <div className="mt-3 ml-[46px] animate-slide-up space-y-2">
+                  {node.description && <p className="text-sm text-slate-400 leading-relaxed">{node.description}</p>}
+                  {!node.isCompleted && (
+                    <button onClick={() => completeMutation.mutate(node.id)}
+                      className="text-xs text-emerald-400 border border-emerald-500/20 px-3 py-1.5 rounded-lg hover:border-emerald-500/40 transition-all">
+                      ✓ Tugatildi deb belgilash
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}`},
+
+'client/src/pages/QuizResult.tsx': {g:'client',i:'🏆',l:'tsx',c:`import { useParams, useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import { CheckCircle, XCircle, Clock, RotateCcw, Home } from 'lucide-react'
+import { quizApi } from '../api/quiz.api'
+import { PageLoader, ScoreRing } from '../components/ui'
+import type { QuizResult as IResult } from '../types'
+
+export default function QuizResult() {
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+
+  const { data: result, isLoading } = useQuery({
+    queryKey: ['quiz-result', id],
+    queryFn: () => quizApi.getResult(id!).then((r) => r.data.data as IResult),
+  })
+
+  if (isLoading) return <PageLoader />
+  if (!result) return null
+
+  const pct = Math.round(result.percentage)
+  const msg = pct >= 80 ? { text: 'Ajoyib natija! 🎉', color: 'text-emerald-400' }
+    : pct >= 60 ? { text: 'Yaxshi natija! 👍', color: 'text-amber-400' }
+    : { text: "Ko'proq mashq kerak 💪", color: 'text-rose-400' }
+
+  return (
+    <div className="max-w-3xl mx-auto animate-slide-up space-y-6">
+      <div className="card text-center py-8">
+        <ScoreRing score={pct} size={120} label="Ball" />
+        <h2 className={\`font-sans font-bold text-2xl mt-4 mb-1 \${msg.color}\`}>{msg.text}</h2>
+        <p className="text-slate-400 text-sm">{result.quiz?.title}</p>
+        <div className="flex items-center justify-center gap-8 mt-6 pt-6 border-t border-slate-800">
+          <div><div className="font-bold text-xl text-emerald-400">{result.score}</div><div className="text-xs text-slate-400">To'g'ri</div></div>
+          <div><div className="font-bold text-xl text-rose-400">{result.total - result.score}</div><div className="text-xs text-slate-400">Noto'g'ri</div></div>
+          <div><div className="font-bold text-xl text-slate-300 flex items-center gap-1"><Clock size={16}/>{Math.round(result.timeSpent/60)}m</div><div className="text-xs text-slate-400">Vaqt</div></div>
+        </div>
+        <div className="flex justify-center gap-3 mt-6">
+          <button onClick={() => navigate('/quizzes')} className="btn-secondary flex items-center gap-2"><RotateCcw size={14}/>Qayta</button>
+          <button onClick={() => navigate('/dashboard')} className="btn-ghost flex items-center gap-2"><Home size={14}/>Dashboard</button>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="font-semibold text-white mb-3 text-sm">Javoblar tahlili</h3>
+        <div className="space-y-2">
+          {result.answers.map((ans, i) => (
+            <div key={ans.questionId} className={\`card p-4 border \${ans.isCorrect ? 'border-emerald-500/20' : 'border-rose-500/20'}\`}>
+              <div className="flex items-start gap-3">
+                {ans.isCorrect ? <CheckCircle size={16} className="text-emerald-400 mt-0.5 shrink-0"/> : <XCircle size={16} className="text-rose-400 mt-0.5 shrink-0"/>}
+                <div className="flex-1">
+                  <p className="text-sm text-slate-200 mb-1">{i+1}. {ans.questionTitle}</p>
+                  {!ans.isCorrect && ans.correctAnswer && (
+                    <div className="text-xs bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-2 text-emerald-300 mb-1">✓ {ans.correctAnswer}</div>
+                  )}
+                  {ans.explanation && <p className="text-xs text-slate-400">{ans.explanation}</p>}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}`},
+
+'client/src/components/ui/index.tsx': {g:'client',i:'🧩',l:'tsx',c:`import { Loader2 } from 'lucide-react'
+
+export function Spinner({ size = 20 }: { size?: number }) {
+  return <Loader2 size={size} className="animate-spin text-accent-500" />
+}
+
+export function PageLoader() {
+  return <div className="flex items-center justify-center h-64"><Spinner size={32} /></div>
+}
+
+type BadgeVariant = 'easy' | 'medium' | 'hard' | 'frontend' | 'backend' | 'general' | 'default'
+export function Badge({ children, variant = 'default' }: { children: React.ReactNode; variant?: BadgeVariant }) {
+  const cls: Record<BadgeVariant, string> = {
+    easy: 'badge-easy', medium: 'badge-medium', hard: 'badge-hard',
+    frontend: 'badge-frontend', backend: 'badge-backend', general: 'badge-general',
+    default: 'bg-slate-800 text-slate-300 border border-slate-700',
+  }
+  return <span className={\`badge \${cls[variant]}\`}>{children}</span>
+}
+
+export function EmptyState({ icon, title, desc }: { icon: string; title: string; desc?: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="text-5xl mb-4">{icon}</div>
+      <h3 className="font-semibold text-slate-300 mb-1">{title}</h3>
+      {desc && <p className="text-sm text-slate-500">{desc}</p>}
+    </div>
+  )
+}
+
+export function Modal({ isOpen, onClose, title, children }: {
+  isOpen: boolean; onClose: () => void; title: string; children: React.ReactNode
+}) {
+  if (!isOpen) return null
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative z-10 bg-dark-800 border border-slate-700 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-slide-up">
+        <div className="flex items-center justify-between p-6 border-b border-slate-800">
+          <h2 className="font-sans font-bold text-white">{title}</h2>
+          <button onClick={onClose} className="text-slate-500 hover:text-white text-xl">&times;</button>
+        </div>
+        <div className="p-6">{children}</div>
+      </div>
+    </div>
+  )
+}
+
+export function ScoreRing({ score, size = 80, label }: { score: number; size?: number; label?: string }) {
+  const r = (size - 12) / 2
+  const circ = 2 * Math.PI * r
+  const offset = circ - (score / 100) * circ
+  const color = score >= 70 ? '#10b981' : score >= 40 ? '#f59e0b' : '#ef4444'
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#1e2d4a" strokeWidth={6} />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={6}
+          strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
+          style={{ transition: 'stroke-dashoffset 1s ease' }} />
+      </svg>
+      <div className="text-center -mt-12 mb-6">
+        <div className="font-bold text-xl text-white">{score}%</div>
+        {label && <div className="text-xs text-slate-400">{label}</div>}
+      </div>
+    </div>
+  )
+}
+
+export function Alert({ type, message }: { type: 'error' | 'success' | 'info'; message: string }) {
+  const s = { error:'bg-rose-500/10 border-rose-500/20 text-rose-400', success:'bg-emerald-500/10 border-emerald-500/20 text-emerald-400', info:'bg-accent-100 border-accent-200 text-accent-500' }
+  return <div className={\`border rounded-lg px-4 py-3 text-sm font-mono \${s[type]}\`}>{message}</div>
+}`},
+
+// ── DOCS ──────────────────────────────────────────────────────────────────
+
+'docs/DEPLOY.md': {g:'docs',i:'🚀',l:'md',c:`# Deploy Qo'llanma
+
+## Kerakli servislar (barchasi bepul)
+
+| Servis    | Maqsad           | Link                  |
+|-----------|------------------|-----------------------|
+| GitHub    | Kod saqlash      | github.com            |
+| Neon      | PostgreSQL       | neon.tech             |
+| Render    | Backend          | render.com            |
+| Vercel    | Frontend         | vercel.com            |
+| Anthropic | Claude AI        | console.anthropic.com |
+
+## QADAM 1: Neon PostgreSQL
+
+1. neon.tech → Create Project: "devprep"
+2. Connection string nusxa oling
+3. server/.env ga qo'ying:
+   DATABASE_URL="postgresql://...neon.tech/neondb?sslmode=require"
+
+## QADAM 2: Render (Backend)
+
+Root Directory: server
+Build:  npm install && npx prisma generate && npm run build
+Start:  npx prisma migrate deploy && npm start
+
+Environment Variables:
+  DATABASE_URL       = postgresql://...
+  DIRECT_URL         = postgresql://...
+  JWT_SECRET         = (64 random chars)
+  JWT_REFRESH_SECRET = (64 random chars)
+  SMTP_USER          = yourgmail@gmail.com
+  SMTP_PASS          = (Gmail App Password)
+  ANTHROPIC_API_KEY  = sk-ant-...
+  CLIENT_URL         = https://devprep.vercel.app
+  NODE_ENV           = production
+
+## QADAM 3: Vercel (Frontend)
+
+Root Directory: client
+Build Command:  npm run build
+Output:         dist
+
+Environment:
+  VITE_API_URL = https://devprep-api.onrender.com/api/v1
+
+## QADAM 4: Seed
+
+cd server
+DATABASE_URL="..." npm run db:seed
+
+Admin: admin@devprep.ai / Admin123!`},
+
+'docs/LOCAL_SETUP.md': {g:'docs',i:'💻',l:'md',c:`# Lokal Ishga Tushirish
+
+## Talablar
+
+  node --version  # v18+
+  npm --version   # v9+
+  git --version
+
+## 1. Clone
+
+  git clone https://github.com/username/devprep-ai.git
+  cd devprep-ai
+
+## 2. Backend
+
+  cd server
+  npm install
+  cp .env.example .env
+  # .env ni to'ldiring
+
+## 3. Database
+
+  npx prisma db push     # Schema yuklash
+  npm run db:seed        # Seed data
+
+## 4. Frontend
+
+  cd ../client
+  npm install
+  cp .env.example .env
+  # VITE_API_URL=http://localhost:5000/api/v1
+
+## 5. Ishga tushirish
+
+  # Terminal 1:
+  cd server && npm run dev
+
+  # Terminal 2:
+  cd client && npm run dev
+
+  Frontend: http://localhost:5173
+  Backend:  http://localhost:5000
+  Admin:    admin@devprep.ai / Admin123!`},
+
+'docs/API.md': {g:'docs',i:'📡',l:'md',c:`# API Hujjatlar
+
+Base URL: https://devprep-api.onrender.com/api/v1
+
+Header: Authorization: Bearer <accessToken>
+
+## Auth
+POST   /auth/register           → Ro'yxatdan o'tish
+POST   /auth/login              → Kirish
+POST   /auth/logout             → Chiqish 🔒
+POST   /auth/refresh            → Token yangilash
+GET    /auth/verify-email?token → Email tasdiqlash
+POST   /auth/forgot-password    → Reset yuborish
+POST   /auth/reset-password     → Parol yangilash
+GET    /auth/me                 → Profil 🔒
+PUT    /auth/profile            → Profilni yangilash 🔒
+PUT    /auth/change-password    → Parol o'zgartirish 🔒
+
+## Questions 🔒
+GET  /questions                 → Ro'yxat (?search=&categoryId=&difficulty=)
+GET  /questions/categories      → Kategoriyalar
+GET  /questions/bookmarks       → Saqlangan savollar
+GET  /questions/:id             → Bitta savol
+POST /questions/:id/bookmark    → Saqlash/olib tashlash
+
+## Quizzes 🔒
+GET  /quizzes                   → Ro'yxat (?type=&difficulty=)
+GET  /quizzes/:id               → Quiz ma'lumoti
+POST /quizzes/:id/start         → Boshlash (javobsiz)
+POST /quizzes/:id/submit        → Yuborish + natija
+GET  /quizzes/results/my        → Mening natijalarim
+GET  /quizzes/results/:id       → Bitta natija
+GET  /quizzes/leaderboard       → Top 50
+
+## AI 🔒
+POST /ai/evaluate               → Javobni baholash (Claude API)
+POST /ai/mock-interview/start   → Tasodifiy savollar
+GET  /ai/sessions               → Sessiya tarixi
+GET  /ai/sessions/:id           → Bitta sessiya
+
+## Dashboard 🔒
+GET  /dashboard/stats                   → Barcha statistika
+GET  /dashboard/roadmap/:track          → Roadmap nodelar
+POST /dashboard/roadmap/:nodeId/complete → Tugatish
+GET  /dashboard/notifications           → Bildirishnomalar
+PATCH /dashboard/notifications/:id/read → O'qildi
+GET  /dashboard/achievements            → Barcha badgelar
+
+## Admin 👑
+GET    /admin/analytics
+GET    /admin/users          (?search=&page=)
+DELETE /admin/users/:id
+POST   /admin/questions
+PUT    /admin/questions/:id
+DELETE /admin/questions/:id
+POST   /admin/quizzes
+POST   /admin/categories
+`},
+
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  TREE CONFIG
+// ══════════════════════════════════════════════════════════════════════════
+const SECTIONS = [
+  { key:'server', label:'⚙️ Server', color:'#10b981', files:[
+    'server/prisma/schema.prisma',
+    'server/src/app.ts',
+    'server/src/config/env.ts',
+    'server/src/utils/jwt.ts',
+    'server/src/middleware/auth.middleware.ts',
+    'server/src/modules/auth/auth.service.ts',
+    'server/src/modules/quizzes/quizzes.service.ts',
+    'server/src/modules/ai/ai.service.ts',
+    'server/src/modules/dashboard/dashboard.service.ts',
+  ]},
+  { key:'client', label:'⚛️ Client', color:'#00d4ff', files:[
+    'client/src/main.tsx',
+    'client/src/api/axios.ts',
+    'client/src/store/authStore.ts',
+    'client/src/components/layout/Sidebar.tsx',
+    'client/src/components/ui/index.tsx',
+    'client/src/pages/auth/Login.tsx',
+    'client/src/pages/Dashboard.tsx',
+    'client/src/pages/QuizSession.tsx',
+    'client/src/pages/QuizResult.tsx',
+    'client/src/pages/Roadmap.tsx',
+  ]},
+  { key:'docs', label:'📚 Docs', color:'#a78bfa', files:[
+    'docs/DEPLOY.md',
+    'docs/LOCAL_SETUP.md',
+    'docs/API.md',
+  ]},
+]
+
+// ── STATE ────────────────────────────────────────────────────────────────
+let openTabs = []
+let activeKey = null
+
+function getLabel(key) { return key.split('/').pop() }
+
+// ── BUILD TREE ───────────────────────────────────────────────────────────
+function buildTree(filter='') {
+  const el = document.getElementById('treeEl')
+  el.innerHTML = ''
+  SECTIONS.forEach(sec => {
+    const items = sec.files.filter(k => !filter || getLabel(k).toLowerCase().includes(filter.toLowerCase()))
+    if (!items.length) return
+    const wrap = document.createElement('div')
+    wrap.className = 'tree-section'
+    const hdr = document.createElement('div')
+    hdr.className = 'tree-sec-hdr'
+    hdr.innerHTML = `<span style="color:${sec.color}">${sec.label}</span> <span style="font-size:9px;opacity:.5">${items.length} fayl</span>`
+    wrap.appendChild(hdr)
+    items.forEach(key => {
+      const f = FILES[key]
+      if (!f) return
+      const item = document.createElement('div')
+      item.className = 'tree-item' + (activeKey===key?' active':'')
+      item.dataset.key = key
+      const name = getLabel(key)
+      const dir = key.split('/').slice(-2,-1)[0]
+      const showDir = dir !== sec.key.split('/')[0] && dir !== 'src' && dir !== 'docs'
+      item.innerHTML = `<span>${f.i}</span>${showDir?`<span class="sub">${dir}/</span>`:''}<span>${name}</span>`
+      item.onclick = () => openFile(key)
+      wrap.appendChild(item)
+    })
+    el.appendChild(wrap)
+  })
+}
+
+function filterFiles(q) { buildTree(q) }
+
+// ── OPEN FILE ────────────────────────────────────────────────────────────
+function openFile(key) {
+  activeKey = key
+  if (!openTabs.includes(key)) {
+    openTabs.push(key)
+    if (openTabs.length > 8) openTabs.shift()
+  }
+  renderTabs()
+  renderCode(key)
+  buildTree(document.getElementById('searchInput')?.value||'')
+}
+
+// ── RENDER TABS ──────────────────────────────────────────────────────────
+function renderTabs() {
+  const el = document.getElementById('tabsEl')
+  el.innerHTML = ''
+  if (!openTabs.length) {
+    el.innerHTML = '<span style="padding:0 16px;font-size:11px;color:var(--text3);display:flex;align-items:center">Fayl tanlang →</span>'
+    return
+  }
+  openTabs.forEach(key => {
+    const f = FILES[key]
+    const tab = document.createElement('div')
+    tab.className = 'tab' + (key===activeKey?' active':'')
+    tab.innerHTML = `${f?.i||'📄'} ${getLabel(key)}<span class="tc" data-k="${key}">×</span>`
+    tab.onclick = e => { if (e.target.dataset?.k) closeTab(e.target.dataset.k); else openFile(key) }
+    el.appendChild(tab)
+  })
+}
+
+function closeTab(key) {
+  openTabs = openTabs.filter(k=>k!==key)
+  if (activeKey===key) {
+    activeKey = openTabs[openTabs.length-1]||null
+    if (activeKey) renderCode(activeKey)
+    else showEmpty()
+  }
+  renderTabs()
+  buildTree(document.getElementById('searchInput')?.value||'')
+}
+
+// ── RENDER CODE ──────────────────────────────────────────────────────────
+function renderCode(key) {
+  const f = FILES[key]
+  if (!f) return
+  const wrap = document.getElementById('codeWrap')
+  const lines = f.c.split('\n')
+  const lineNums = lines.map((_,i)=>`<div class="ln">${i+1}</div>`).join('')
+  const code = highlight(f.c, f.l)
+
+  wrap.innerHTML = `
+    <div class="code-topbar">
+      <span class="code-path">${key}</span>
+      <button class="copy-btn" id="copyBtn" onclick="copyCode('${key}')">📋 Nusxa olish</button>
+    </div>
+    <div class="code-body" style="flex:1;overflow:auto">
+      <div class="line-nums">${lineNums}</div>
+      <div class="code-text">${code}</div>
+    </div>`
+
+  document.getElementById('sbPath').textContent = `${FILES[key].i} ${key}`
+  document.getElementById('sbLang').textContent = `${f.l.toUpperCase()} · UTF-8 · ${lines.length} qator`
+}
+
+function showEmpty() {
+  document.getElementById('codeWrap').innerHTML = `
+    <div class="empty-state">
+      <div class="ei">📂</div>
+      <span>Chapdan fayl tanlang</span>
+    </div>`
+  document.getElementById('sbPath').textContent = 'DevPrep AI v1.0 — tayyor'
+}
+
+// ── COPY ─────────────────────────────────────────────────────────────────
+function copyCode(key) {
+  navigator.clipboard.writeText(FILES[key]?.c||'').then(()=>{
+    const btn = document.getElementById('copyBtn')
+    if(btn){btn.textContent='✅ Nusxalandi';btn.classList.add('ok')}
+    setTimeout(()=>{if(btn){btn.textContent='📋 Nusxa olish';btn.classList.remove('ok')}},2000)
+  })
+}
+
+// ── HIGHLIGHT ────────────────────────────────────────────────────────────
+function highlight(code, lang) {
+  let c = code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  if (lang==='json') {
+    c = c
+      .replace(/("[\w-]+")\s*:/g,'<span class="prop">$1</span>:')
+      .replace(/:\s*(".*?")/g,': <span class="str">$1</span>')
+      .replace(/:\s*(\d+\.?\d*)/g,': <span class="num">$1</span>')
+      .replace(/:\s*(true|false|null)/g,': <span class="kw">$1</span>')
+  } else if (lang==='prisma') {
+    c = c
+      .replace(/\/\/.*/g,'<span class="cmt">$&</span>')
+      .replace(/"[^"]*"/g,'<span class="str">$&</span>')
+      .replace(/\b(model|enum|generator|datasource)\b/g,'<span class="kw">$&</span>')
+      .replace(/\b(String|Int|Boolean|Float|DateTime|Json)\b/g,'<span class="type">$&</span>')
+      .replace(/@[\w]+(\(.*?\))?/g,'<span class="dec">$&</span>')
+  } else if (lang==='md') {
+    c = c
+      .replace(/^(#{1,3} .+)$/gm,'<span class="cls">$1</span>')
+      .replace(/\*\*(.*?)\*\*/g,'<span class="str">$1</span>')
+      .replace(/`([^`]+)`/g,'<span class="type">$1</span>')
+      .replace(/^(\|.+\|)$/gm,'<span class="cmt">$1</span>')
+      .replace(/^( {2}[\w.].+)$/gm,'<span class="fn">$1</span>')
+  } else {
+    // TS/TSX
+    c = c
+      .replace(/\/\/.*/g,'<span class="cmt">$&</span>')
+      .replace(/\/\*[\s\S]*?\*\//g,'<span class="cmt">$&</span>')
+      .replace(/`[^`]*`/g,m=>`<span class="str">${m}</span>`)
+      .replace(/"([^"\\]|\\.)*"/g,'<span class="str">$&</span>')
+      .replace(/'([^'\\]|\\.)*'/g,'<span class="str">$&</span>')
+      .replace(/\b(import|export|from|default|const|let|var|function|class|interface|type|enum|return|async|await|try|catch|throw|new|if|else|for|of|in|extends|implements|null|undefined|true|false)\b/g,'<span class="kw">$&</span>')
+      .replace(/\b(string|number|boolean|void|any|never|unknown)\b/g,'<span class="type">$&</span>')
+      .replace(/\b([A-Z][a-zA-Z]+)\b(?!\s*=)/g,'<span class="cls">$&</span>')
+      .replace(/\b(\d+)\b/g,'<span class="num">$1</span>')
+  }
+  return c
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────
+buildTree()
+openFile('server/prisma/schema.prisma')
+</script>
+</body>
+</html>

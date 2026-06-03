@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevPrep AI — Architecture Blueprint</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #0f1628;
+    --bg3: #141d35;
+    --border: #1e2d4a;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --accent4: #f59e0b;
+    --accent5: #ef4444;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'JetBrains Mono', monospace; overflow-x: hidden; }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #0a0e1a 0%, #0f1628 50%, #0a0e1a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 70% 50%, rgba(0,212,255,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 60% at 20% 30%, rgba(124,58,237,0.05) 0%, transparent 60%);
+  }
+  .header-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 4px; padding: 6px 14px; margin-bottom: 20px;
+    font-size: 11px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase;
+  }
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff 0%, var(--accent) 50%, var(--accent2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+  }
+  .header p { color: var(--text2); font-size: 14px; max-width: 600px; }
+  .header-meta { display: flex; gap: 32px; margin-top: 24px; flex-wrap: wrap; }
+  .meta-item { display: flex; flex-direction: column; gap: 4px; }
+  .meta-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 1.5px; }
+  .meta-value { font-size: 13px; color: var(--accent); font-weight: 600; }
+
+  /* NAV TABS */
+  .nav { display: flex; gap: 4px; padding: 16px 40px; background: var(--bg2); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .nav-tab {
+    padding: 8px 18px; border-radius: 4px; font-size: 12px; cursor: pointer;
+    border: 1px solid transparent; color: var(--text3); white-space: nowrap;
+    transition: all 0.2s; font-family: 'JetBrains Mono', monospace;
+  }
+  .nav-tab:hover { color: var(--text); border-color: var(--border); }
+  .nav-tab.active { background: rgba(0,212,255,0.1); border-color: rgba(0,212,255,0.3); color: var(--accent); }
+
+  /* CONTENT */
+  .content { padding: 40px; max-width: 1400px; margin: 0 auto; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 28px; margin-bottom: 24px;
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700;
+    color: #fff; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+  }
+  .card-title .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* FOLDER TREE */
+  .tree { font-size: 13px; line-height: 2; }
+  .tree-item { display: flex; align-items: center; gap: 8px; }
+  .tree-item.dir { color: var(--accent); }
+  .tree-item.file { color: var(--text2); }
+  .tree-item.comment { color: var(--text3); font-size: 11px; }
+  .indent-1 { padding-left: 20px; }
+  .indent-2 { padding-left: 40px; }
+  .indent-3 { padding-left: 60px; }
+  .indent-4 { padding-left: 80px; }
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+
+  /* SCHEMA TABLE */
+  .schema-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .schema-table th {
+    background: var(--bg3); color: var(--accent); text-align: left;
+    padding: 10px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+  }
+  .schema-table td { padding: 9px 14px; border-bottom: 1px solid rgba(30,45,74,0.5); vertical-align: top; }
+  .schema-table tr:hover td { background: rgba(0,212,255,0.02); }
+  .type-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 3px;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.5px;
+  }
+  .type-int { background: rgba(0,212,255,0.1); color: var(--accent); }
+  .type-str { background: rgba(16,185,129,0.1); color: var(--accent3); }
+  .type-bool { background: rgba(245,158,11,0.1); color: var(--accent4); }
+  .type-ts { background: rgba(124,58,237,0.1); color: #a78bfa; }
+  .type-enum { background: rgba(239,68,68,0.1); color: var(--accent5); }
+  .pk { color: var(--accent4); font-weight: 700; font-size: 10px; }
+  .fk { color: #a78bfa; font-weight: 600; font-size: 10px; }
+  .nullable { color: var(--text3); font-size: 10px; }
+
+  /* API ENDPOINT */
+  .endpoint {
+    display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px;
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 6px;
+    margin-bottom: 8px; flex-wrap: wrap;
+  }
+  .method {
+    min-width: 60px; text-align: center; padding: 3px 8px; border-radius: 3px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+  }
+  .GET { background: rgba(16,185,129,0.15); color: var(--accent3); }
+  .POST { background: rgba(0,212,255,0.15); color: var(--accent); }
+  .PUT { background: rgba(245,158,11,0.15); color: var(--accent4); }
+  .DELETE { background: rgba(239,68,68,0.15); color: var(--accent5); }
+  .PATCH { background: rgba(124,58,237,0.15); color: #a78bfa; }
+  .ep-path { color: #fff; font-size: 12px; flex: 1; min-width: 200px; }
+  .ep-desc { color: var(--text3); font-size: 11px; min-width: 200px; }
+  .auth-badge {
+    padding: 2px 8px; border-radius: 3px; font-size: 10px;
+    background: rgba(124,58,237,0.15); color: #a78bfa;
+  }
+
+  /* FLOW */
+  .flow { display: flex; flex-direction: column; gap: 0; }
+  .flow-step {
+    display: flex; gap: 20px; align-items: flex-start; position: relative;
+  }
+  .flow-step:not(:last-child)::after {
+    content: ''; position: absolute; left: 19px; top: 40px;
+    width: 2px; height: calc(100% + 0px); background: var(--border);
+  }
+  .flow-num {
+    width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;
+    border: 2px solid;
+  }
+  .flow-body { padding-bottom: 28px; flex: 1; }
+  .flow-title { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+  .flow-desc { font-size: 12px; color: var(--text2); line-height: 1.7; }
+  .step-auth { border-color: var(--accent); color: var(--accent); }
+  .step-server { border-color: var(--accent3); color: var(--accent3); }
+  .step-db { border-color: var(--accent4); color: var(--accent4); }
+  .step-warn { border-color: var(--accent5); color: var(--accent5); }
+
+  /* TECH STACK */
+  .tech-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  .tech-item {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 6px;
+    padding: 16px; text-align: center; transition: border-color 0.2s;
+  }
+  .tech-item:hover { border-color: var(--accent); }
+  .tech-icon { font-size: 24px; margin-bottom: 8px; }
+  .tech-name { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .tech-role { font-size: 10px; color: var(--text3); }
+
+  /* SECTION HEADER */
+  .section-header { margin-bottom: 32px; }
+  .section-header h2 {
+    font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800;
+    color: #fff; margin-bottom: 8px;
+  }
+  .section-header p { color: var(--text2); font-size: 13px; }
+
+  /* TAG */
+  .tag {
+    display: inline-block; padding: 3px 10px; border-radius: 3px;
+    font-size: 10px; font-weight: 600; margin: 3px;
+    background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.15);
+    color: var(--accent);
+  }
+
+  /* TIMELINE */
+  .timeline { }
+  .tl-item { display: flex; gap: 20px; margin-bottom: 24px; }
+  .tl-week {
+    min-width: 80px; font-size: 11px; color: var(--accent);
+    font-weight: 700; padding-top: 2px; text-align: right;
+  }
+  .tl-bar {
+    width: 2px; background: var(--border); position: relative; flex-shrink: 0;
+  }
+  .tl-bar::before {
+    content: ''; position: absolute; top: 6px; left: -4px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--bg);
+  }
+  .tl-content { flex: 1; }
+  .tl-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+  .tl-tasks { list-style: none; }
+  .tl-tasks li { font-size: 12px; color: var(--text2); padding: 4px 0; display: flex; gap: 8px; }
+  .tl-tasks li::before { content: '→'; color: var(--accent3); flex-shrink: 0; }
+
+  /* ER DIAGRAM */
+  .er-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+  .er-table {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 6px; overflow: hidden;
+  }
+  .er-table-header {
+    padding: 10px 14px; font-size: 12px; font-weight: 700; color: #fff;
+    border-bottom: 1px solid var(--border);
+  }
+  .er-field {
+    padding: 6px 14px; font-size: 11px; display: flex; justify-content: space-between;
+    gap: 8px; border-bottom: 1px solid rgba(30,45,74,0.4);
+  }
+  .er-field:last-child { border-bottom: none; }
+  .er-fname { color: var(--text2); }
+  .er-ftype { color: var(--text3); font-size: 10px; }
+
+  code { background: rgba(0,212,255,0.08); padding: 2px 6px; border-radius: 3px; font-size: 11px; color: var(--accent); }
+
+  .prisma-code {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 6px;
+    padding: 20px; font-size: 12px; line-height: 1.8; overflow-x: auto;
+    color: var(--text2);
+  }
+  .prisma-keyword { color: #a78bfa; }
+  .prisma-model { color: var(--accent); font-weight: 700; }
+  .prisma-type { color: var(--accent3); }
+  .prisma-attr { color: var(--accent4); font-size: 11px; }
+  .prisma-comment { color: var(--text3); font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">⚡ DevPrep AI — Blueprint v1.0</div>
+  <h1>Architecture Document</h1>
+  <p>Complete technical blueprint for DevPrep AI MVP — full-stack interview preparation platform for IT graduates.</p>
+  <div class="header-meta">
+    <div class="meta-item"><span class="meta-label">Stack</span><span class="meta-value">React + Node.js + PostgreSQL</span></div>
+    <div class="meta-item"><span class="meta-label">Phase</span><span class="meta-value">MVP v1.0</span></div>
+    <div class="meta-item"><span class="meta-label">Deploy</span><span class="meta-value">Vercel + Render + Neon</span></div>
+    <div class="meta-item"><span class="meta-label">Auth</span><span class="meta-value">JWT + Refresh Token</span></div>
+  </div>
+</div>
+
+<div class="nav">
+  <div class="nav-tab active" onclick="showSection('structure')">📁 Folder Structure</div>
+  <div class="nav-tab" onclick="showSection('schema')">🗄️ DB Schema</div>
+  <div class="nav-tab" onclick="showSection('prisma')">🔷 Prisma Models</div>
+  <div class="nav-tab" onclick="showSection('api')">🔌 API Endpoints</div>
+  <div class="nav-tab" onclick="showSection('er')">🔗 ER Diagram</div>
+  <div class="nav-tab" onclick="showSection('flows')">🔄 Auth + User Flow</div>
+  <div class="nav-tab" onclick="showSection('plan')">📅 Dev Plan</div>
+</div>
+
+<div class="content">
+
+<!-- ==================== FOLDER STRUCTURE ==================== -->
+<div id="section-structure" class="section active">
+  <div class="section-header">
+    <h2>📁 Folder Structure</h2>
+    <p>Monorepo structure with separate frontend and backend packages</p>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:#00d4ff"></span> Frontend — /client</div>
+      <div class="tree">
+        <div class="tree-item dir">📁 client/</div>
+        <div class="tree-item dir indent-1">📁 src/</div>
+        <div class="tree-item dir indent-2">📁 api/</div>
+        <div class="tree-item file indent-3">axios.ts <span style="color:#374151">// base instance</span></div>
+        <div class="tree-item file indent-3">auth.api.ts</div>
+        <div class="tree-item file indent-3">quiz.api.ts</div>
+        <div class="tree-item file indent-3">questions.api.ts</div>
+        <div class="tree-item file indent-3">ai.api.ts</div>
+        <div class="tree-item file indent-3">roadmap.api.ts</div>
+        <div class="tree-item dir indent-2">📁 components/</div>
+        <div class="tree-item dir indent-3">📁 layout/</div>
+        <div class="tree-item file indent-4">Navbar.tsx</div>
+        <div class="tree-item file indent-4">Sidebar.tsx</div>
+        <div class="tree-item file indent-4">Footer.tsx</div>
+        <div class="tree-item dir indent-3">📁 ui/</div>
+        <div class="tree-item file indent-4">Button.tsx</div>
+        <div class="tree-item file indent-4">Card.tsx</div>
+        <div class="tree-item file indent-4">Modal.tsx</div>
+        <div class="tree-item file indent-4">Badge.tsx</div>
+        <div class="tree-item file indent-4">Spinner.tsx</div>
+        <div class="tree-item dir indent-3">📁 charts/</div>
+        <div class="tree-item file indent-4">ProgressChart.tsx</div>
+        <div class="tree-item file indent-4">RadarChart.tsx</div>
+        <div class="tree-item dir indent-2">📁 pages/</div>
+        <div class="tree-item dir indent-3">📁 auth/</div>
+        <div class="tree-item file indent-4">Login.tsx</div>
+        <div class="tree-item file indent-4">Register.tsx</div>
+        <div class="tree-item file indent-4">ForgotPassword.tsx</div>
+        <div class="tree-item file indent-4">ResetPassword.tsx</div>
+        <div class="tree-item file indent-4">VerifyEmail.tsx</div>
+        <div class="tree-item file indent-3">Dashboard.tsx</div>
+        <div class="tree-item file indent-3">QuestionBank.tsx</div>
+        <div class="tree-item file indent-3">QuizList.tsx</div>
+        <div class="tree-item file indent-3">QuizSession.tsx</div>
+        <div class="tree-item file indent-3">QuizResult.tsx</div>
+        <div class="tree-item file indent-3">AIInterview.tsx</div>
+        <div class="tree-item file indent-3">Roadmap.tsx</div>
+        <div class="tree-item file indent-3">Leaderboard.tsx</div>
+        <div class="tree-item file indent-3">Profile.tsx</div>
+        <div class="tree-item dir indent-3">📁 admin/</div>
+        <div class="tree-item file indent-4">AdminDashboard.tsx</div>
+        <div class="tree-item file indent-4">AdminQuestions.tsx</div>
+        <div class="tree-item file indent-4">AdminUsers.tsx</div>
+        <div class="tree-item file indent-4">AdminQuizzes.tsx</div>
+        <div class="tree-item dir indent-2">📁 hooks/</div>
+        <div class="tree-item file indent-3">useAuth.ts</div>
+        <div class="tree-item file indent-3">useTheme.ts</div>
+        <div class="tree-item file indent-3">useQuiz.ts</div>
+        <div class="tree-item dir indent-2">📁 store/</div>
+        <div class="tree-item file indent-3">authStore.ts <span style="color:#374151">// Zustand</span></div>
+        <div class="tree-item file indent-3">themeStore.ts</div>
+        <div class="tree-item dir indent-2">📁 types/</div>
+        <div class="tree-item file indent-3">index.ts</div>
+        <div class="tree-item dir indent-2">📁 utils/</div>
+        <div class="tree-item file indent-3">helpers.ts</div>
+        <div class="tree-item file indent-3">constants.ts</div>
+        <div class="tree-item file indent-2">App.tsx</div>
+        <div class="tree-item file indent-2">main.tsx</div>
+        <div class="tree-item file indent-2">router.tsx</div>
+        <div class="tree-item file indent-1">index.html</div>
+        <div class="tree-item file indent-1">tailwind.config.ts</div>
+        <div class="tree-item file indent-1">vite.config.ts</div>
+        <div class="tree-item file indent-1">tsconfig.json</div>
+        <div class="tree-item file indent-1">vercel.json</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:#10b981"></span> Backend — /server</div>
+      <div class="tree">
+        <div class="tree-item dir">📁 server/</div>
+        <div class="tree-item dir indent-1">📁 src/</div>
+        <div class="tree-item dir indent-2">📁 config/</div>
+        <div class="tree-item file indent-3">database.ts <span style="color:#374151">// Prisma client</span></div>
+        <div class="tree-item file indent-3">env.ts</div>
+        <div class="tree-item file indent-3">email.ts <span style="color:#374151">// Nodemailer</span></div>
+        <div class="tree-item dir indent-2">📁 middleware/</div>
+        <div class="tree-item file indent-3">auth.middleware.ts</div>
+        <div class="tree-item file indent-3">admin.middleware.ts</div>
+        <div class="tree-item file indent-3">validate.middleware.ts</div>
+        <div class="tree-item file indent-3">rateLimit.ts</div>
+        <div class="tree-item dir indent-2">📁 modules/</div>
+        <div class="tree-item dir indent-3">📁 auth/</div>
+        <div class="tree-item file indent-4">auth.routes.ts</div>
+        <div class="tree-item file indent-4">auth.controller.ts</div>
+        <div class="tree-item file indent-4">auth.service.ts</div>
+        <div class="tree-item file indent-4">auth.schema.ts <span style="color:#374151">// Zod</span></div>
+        <div class="tree-item dir indent-3">📁 users/</div>
+        <div class="tree-item file indent-4">users.routes.ts</div>
+        <div class="tree-item file indent-4">users.controller.ts</div>
+        <div class="tree-item file indent-4">users.service.ts</div>
+        <div class="tree-item dir indent-3">📁 questions/</div>
+        <div class="tree-item file indent-4">questions.routes.ts</div>
+        <div class="tree-item file indent-4">questions.controller.ts</div>
+        <div class="tree-item file indent-4">questions.service.ts</div>
+        <div class="tree-item dir indent-3">📁 quizzes/</div>
+        <div class="tree-item file indent-4">quizzes.routes.ts</div>
+        <div class="tree-item file indent-4">quizzes.controller.ts</div>
+        <div class="tree-item file indent-4">quizzes.service.ts</div>
+        <div class="tree-item dir indent-3">📁 ai/</div>
+        <div class="tree-item file indent-4">ai.routes.ts</div>
+        <div class="tree-item file indent-4">ai.controller.ts</div>
+        <div class="tree-item file indent-4">ai.service.ts</div>
+        <div class="tree-item dir indent-3">📁 roadmap/</div>
+        <div class="tree-item file indent-4">roadmap.routes.ts</div>
+        <div class="tree-item file indent-4">roadmap.controller.ts</div>
+        <div class="tree-item file indent-4">roadmap.service.ts</div>
+        <div class="tree-item dir indent-3">📁 admin/</div>
+        <div class="tree-item file indent-4">admin.routes.ts</div>
+        <div class="tree-item file indent-4">admin.controller.ts</div>
+        <div class="tree-item dir indent-3">📁 dashboard/</div>
+        <div class="tree-item file indent-4">dashboard.service.ts</div>
+        <div class="tree-item file indent-4">dashboard.routes.ts</div>
+        <div class="tree-item dir indent-2">📁 utils/</div>
+        <div class="tree-item file indent-3">jwt.ts</div>
+        <div class="tree-item file indent-3">password.ts</div>
+        <div class="tree-item file indent-3">response.ts</div>
+        <div class="tree-item file indent-2">app.ts</div>
+        <div class="tree-item file indent-2">server.ts</div>
+        <div class="tree-item dir indent-1">📁 prisma/</div>
+        <div class="tree-item file indent-2">schema.prisma</div>
+        <div class="tree-item dir indent-2">📁 migrations/</div>
+        <div class="tree-item file indent-1">package.json</div>
+        <div class="tree-item file indent-1">tsconfig.json</div>
+        <div class="tree-item file indent-1">render.yaml</div>
+        <div class="tree-item file indent-1">.env.example</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:#f59e0b"></span> Tech Stack Overview</div>
+    <div class="tech-grid">
+      <div class="tech-item"><div class="tech-icon">⚛️</div><div class="tech-name">React 18</div><div class="tech-role">UI Framework</div></div>
+      <div class="tech-item"><div class="tech-icon">🔷</div><div class="tech-name">TypeScript</div><div class="tech-role">Type Safety</div></div>
+      <div class="tech-item"><div class="tech-icon">🎨</div><div class="tech-name">Tailwind CSS</div><div class="tech-role">Styling</div></div>
+      <div class="tech-item"><div class="tech-icon">🔀</div><div class="tech-name">React Router 6</div><div class="tech-role">Navigation</div></div>
+      <div class="tech-item"><div class="tech-icon">📡</div><div class="tech-name">React Query</div><div class="tech-role">Server State</div></div>
+      <div class="tech-item"><div class="tech-icon">🐻</div><div class="tech-name">Zustand</div><div class="tech-role">Client State</div></div>
+      <div class="tech-item"><div class="tech-icon">📊</div><div class="tech-name">Recharts</div><div class="tech-role">Charts</div></div>
+      <div class="tech-item"><div class="tech-icon">🟢</div><div class="tech-name">Node.js 20</div><div class="tech-role">Runtime</div></div>
+      <div class="tech-item"><div class="tech-icon">🚀</div><div class="tech-name">Express.js</div><div class="tech-role">API Server</div></div>
+      <div class="tech-item"><div class="tech-icon">🔺</div><div class="tech-name">Prisma ORM</div><div class="tech-role">Database ORM</div></div>
+      <div class="tech-item"><div class="tech-icon">🐘</div><div class="tech-name">PostgreSQL</div><div class="tech-role">Database (Neon)</div></div>
+      <div class="tech-item"><div class="tech-icon">🔐</div><div class="tech-name">JWT + bcrypt</div><div class="tech-role">Auth</div></div>
+      <div class="tech-item"><div class="tech-icon">✉️</div><div class="tech-name">Nodemailer</div><div class="tech-role">Email</div></div>
+      <div class="tech-item"><div class="tech-icon">✅</div><div class="tech-name">Zod</div><div class="tech-role">Validation</div></div>
+      <div class="tech-item"><div class="tech-icon">🤖</div><div class="tech-name">Anthropic API</div><div class="tech-role">AI Features</div></div>
+      <div class="tech-item"><div class="tech-icon">▲</div><div class="tech-name">Vercel</div><div class="tech-role">Frontend Deploy</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DB SCHEMA ==================== -->
+<div id="section-schema" class="section">
+  <div class="section-header">
+    <h2>🗄️ Database Schema</h2>
+    <p>PostgreSQL tables with all fields, types and constraints</p>
+  </div>
+
+  <!-- USERS -->
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:#00d4ff"></span> users</div>
+    <table class="schema-table">
+      <tr><th>Column</th><th>Type</th><th>Constraint</th><th>Description</th></tr>
+      <tr><td><span class="pk">🔑 id</span></td><td><span class="type-badge type-int">UUID</span></td><td>PK, DEFAULT gen_random_uuid()</td><td>Primary key</td></tr>
+      <tr><td>email</td><td><span class="type-badge type-str">VARCHAR(255)</span></td><td>UNIQUE, NOT NULL</td><td>User email</td></tr>
+      <tr><td>password_hash</td><td><span class="type-badge type-str">TEXT</span></td><td>NOT NULL</td><td>bcrypt hashed</td></tr>
+      <tr><td>full_name</td><td><span class="type-badge type-str">VARCHAR(100)</span></td><td>NOT NULL</td><td>Display name</td></tr>
+      <tr><td>avatar_url</td><td><span class="type-badge type-str">TEXT</span></td><td>nullable</td><td>Profile picture</td></tr>
+      <tr><td>role</td><td><span class="type-badge type-enum">ENUM</span></td><td>DEFAULT 'user'</td><td>user | admin</td></tr>
+      <tr><td>track</td><td><span class="type-badge type-enum">ENUM</span></td><td>nullable</td><td>frontend | backend | fullstack</td></tr>
+      <tr><td>is_verified</td><td><span class="type-badge type-bool">BOOLEAN</span></td><td>DEFAULT false</td><td>Email verified?</td></tr>
+      <tr><td>verify_token</td><td><span class="type-badge type-str">TEXT</span></td><td>nullable</td><td>Email verification token</td></tr>
+      <tr><td>reset_token</td><td><span class="type-badge type-str">TEXT</span></td><td>nullable</td><td>Password reset token</td></tr>
+      <tr><td>reset_token_exp</td><td><span class="type-badge type-ts">TIMESTAMPTZ</span></td><td>nullable</td><td>Token expiry</td></tr>
+      <tr><td>refresh_token</td><td><span class="type-badge type-str">TEXT</span></td><td>nullable</td><td>JWT refresh token</td></tr>
+      <tr><td>streak_count</td><td><span class="type-badge type-int">INTEGER</span></td><td>DEFAULT 0</td><td>Daily streak</td></tr>
+      <tr><td>last_active</td><td><span class="type-badge type-ts">TIMESTAMPTZ</span></td><td>nullable</td><td>Last activity date</td></tr>
+      <tr><td>created_at</td><td><span class="type-badge type-ts">TIMESTAMPTZ</span></td><td>DEFAULT NOW()</td><td></td></tr>
+      <tr><td>updated_at</td><td><span class="type-badge type-ts">TIMESTAMPTZ</span></td><td>DEFAULT NOW()</td><td></td></tr>
+    </table>
+  </div>
+
+  <!-- CATEGORIES -->
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:#10b981"></span> categories</div>
+    <table class="schema-table">
+      <tr><th>Column</th><th>Type</th><th>Constraint</th><th>Description</th></tr>
+      <tr><td><span class="pk">🔑 id</span></td><td><span class="type-badge type-int">UUID</span></td><td>PK</td><td></td></tr>
+      <tr><td>name</td><td><span class="type-badge type-str">VARCHAR(100)</span></td><td>UNIQUE, NOT NULL</td><td>e.g. "JavaScript"</td></tr>
+      <tr><td>slug</td><td><span class="type-badge type-str">VARCHAR(100)</span></td><td>UNIQUE, NOT NULL</td><td>e.g. "javascript"</td></tr>
+      <tr><td>group</td><td><span class="type-badge type-enum">ENUM</span></td><td>NOT NULL</td><td>frontend | backend | general</td></tr>
+      <tr><td>icon</td><td><span class="type-badge type-str">VARCHAR(50)</span></td><td>nullable</td><td>Icon identifier</td></tr>
+      <tr><td>created_at</td><td><span class="type-badge type-ts">TIMESTAMPTZ</span></td><td>DEFAULT NOW()</td><td></td></tr>
+    </table>
+  </div>
+
+  <!-- QUESTIONS -->
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:#7c3aed"></span> questions</div>
+    <table class="schema-table">
+      <tr><th>Column</th><th>Type</th><th>Constraint</th><th>Description</th></tr>
+      <tr><td><span class="pk">🔑 id</span></td><td><span class="type-badge type-int">UUID</span></td><td>PK</td><td></td></tr>
+      <tr><td><span class="fk">🔗 category_id</span></td><td><span class="type-badge type-int">UUID</span></td><td>FK → categories.id</td><td></td></tr>
+      <tr><td>title</td><td><span class="type-badge type-str">TEXT</span></td><td>NOT NULL</td><td>Question text</td></tr>
+      <tr><td>type</td><td><span class="type-badge type-enum">ENUM</span></td><td>NOT NULL</td><td>multiple_choice | single_choice | open_ended</td></tr>
+      <tr><td>difficulty</td><td><span class="type-badge type-enum">ENUM</span></td><td>NOT NULL</td><td>easy | medium | hard</td></tr>
+      <tr><td>options</td><td><span class="type-badge type-str">JSONB</span></td><td>nullable</td><td>[{id, text, isCorrect}]</td></tr>
+      <tr><td>correct_answer</td><td><span class="type-badge type-str">TEXT</span></td><td>nullable</td><td>For open-ended</td></tr>
+      <tr><td>explanation</td><td><span class="type-badge type-str">TEXT</span></td><td>nullable</td><td>Why this answer</td></tr>
+      <tr><td>tags</td><td><span class="type-badge type-str">TEXT[]</span></td><td>DEFAULT '{}'</td><td>Search tags</td></tr>
+      <tr><td>is_active</td><td><span class="type-badge type-bool">BOOLEAN</span></td><td>DEFAULT true</td><td></td></tr>
+      <tr><td>created_by</td><td><span class="type-badge type-int">UUID</span></td><td>FK → users.id</td><td>Admin who created</td></tr>
+      <tr><td>created_at</td><td><span class="type-badge type-ts">TIMESTAMPTZ</span></td><td>DEFAULT NOW()</td><td></td></tr>
+      <tr><td>updated_at</td><td><span class="type-badge type-ts">TIMESTAMPTZ</span></td><td>DEFAULT NOW()</td><td></td></tr>
+    </table>
+  </div>
+
+  <!-- QUIZZES -->
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:#f59e0b"></span> quizzes</div>
+    <table class="schema-table">
+      <tr><th>Column</th><th>Type</th><th>Constraint</th><th>Description</th></tr>
+      <tr><td><span class="pk">🔑 id</span></td><td><span class="type-badge type-int">UUID</span></td><td>PK</td><td></td></tr>
+      <tr><td>title</td><td><span class="type-badge type-str">VARCHAR(200)</span></td><td>NOT NULL</td><td>Quiz name</td></tr>
+      <tr><td>description</td><td><span class="type-badge type-str">TEXT</span></td><td>nullable</td><td></td></tr>
+      <tr><td>type</td><td><span class="type-badge type-enum">ENUM</span></td><td>NOT NULL</td><td>frontend | backend | fullstack | general</td></tr>
+      <tr><td>difficulty</td><td><span class="type-badge type-enum">ENUM</span></td><td>NOT NULL</td><td>easy | medium | hard | mixed</td></tr>
+      <tr><td>time_limit</td><td><span class="type-badge type-int">INTEGER</span></td><td>NOT NULL</td><td>Seconds</td></tr>
+      <tr><td>question_count</td><td><span class="type-badge type-int">INTEGER</span></td><td>NOT NULL</td><td></td></tr>
+      <tr><td>is_active</td><td><span class="type-badge type-bool">BOOLEAN</span></td><td>DEFAULT true</td><td></td></tr>
+      <tr><td>created_by</td><td><span class="type-badge type-int">UUID</span></td><td>FK → users.id</td><td></td></tr>
+      <tr><td>created_at</td><td><span class="type-badge type-ts">TIMESTAMPTZ</span></td><td>DEFAULT NOW()</td><td></td></tr>
+    </table>
+  </div>
+
+  <div class="grid-2">
+    <!-- QUIZ_QUESTIONS -->
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:#f59e0b"></span> quiz_questions (junction)</div>
+      <table class="schema-table">
+        <tr><th>Column</th><th>Type</th><th>Constraint</th></tr>
+        <tr><td><span class="fk">🔗 quiz_id</span></td><td><span class="type-badge type-int">UUID</span></td><td>FK → quizzes.id</td></tr>
+        <tr><td><span class="fk">🔗 question_id</span></td><td><span class="type-badge type-int">UUID</span></td><td>FK → questions.id</td></tr>
+        <tr><td>order_index</td><td><span class="type-badge type-int">INTEGER</span></td><td>NOT NULL</td></tr>
+      </table>
+    </div>
+
+    <!-- QUIZ_RESULTS -->
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:#ef4444"></span> quiz_results</div>
+      <table class="schema-table">
+        <tr><th>Column</th><th>Type</th><th>Constraint</th></tr>
+        <tr><td><span class="pk">🔑 id</span></td><td><span class="type-badge type-int">UUID</span></td><td>PK</td></tr>
+        <tr><td><span class="fk">🔗 user_id</span></td><td><span class="type-badge type-int">UUID</span></td><td>FK → users.id</td></tr>
+        <tr><td><span class="fk">🔗 quiz_id</span></td><td><span class="type-badge type-int">UUID</span></td><td>FK → quizzes.id</td></tr>
+        <tr><td>score</td><td><span class="type-badge type-int">INTEGER</span></td><td>NOT NULL</td></tr>
+        <tr><td>total</td><td><span class="type-badge type-int">INTEGER</span></td><td>NOT NULL</td></tr>
+        <tr><td>percentage</td><td><span class="type-badge type-int">DECIMAL(5,2)</span></td><td>NOT NULL</td></tr>
+        <tr><td>time_spent</td><td><span class="type-badge type-int">INTEGER</span></td><td>seconds</td></tr>
+        <tr><td>answers</td><td><span class="type-badge type-str">JSONB</span></td><td>NOT NULL</td></tr>
+        <tr><td>completed_at</td><td><span class="type-badge type-ts">TIMESTAMPTZ</span></td><td>DEFAULT NOW()</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- BOOKMARKS -->
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:#10b981"></span> bookmarks</div>
+      <table class="schema-table">
+        <tr><th>Column</th><th>Type</th><th>Constraint</th></tr>
+        <tr><td><span class="pk">🔑 id</span></td><td><span class="type-badge type-int">UUID</span></td><td>PK</td></tr>
+        <tr><td><span class="fk">🔗 user_id</span></td><td><span class="type-badge type-int">UUID</span></td><td>FK → users.id</td></tr>
+        <tr><td><span class="fk">🔗 question_id</span></td><td><span class="type-badge type-int">UUID</span></td><td>FK → questions.id</td></tr>
+        <tr><td>created_at</td><td><span class="type-badge type-ts">TIMESTAMPTZ</span></td><td>DEFAULT NOW()</td></tr>
+      </table>
+      <div style="margin-top:10px"><code>UNIQUE(user_id, question_id)</code></div>
+    </div>
+
+    <!-- ACHIEVEMENTS -->
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:#f59e0b"></span> achievements + user_achievements</div>
+      <table class="schema-table">
+        <tr><th>Column</th><th>Type</th><th>Constraint</th></tr>
+        <tr><td><span class="pk">🔑 id</span></td><td><span class="type-badge type-int">UUID</span></td><td>PK</td></tr>
+        <tr><td>slug</td><td><span class="type-badge type-str">VARCHAR(50)</span></td><td>UNIQUE</td></tr>
+        <tr><td>title</td><td><span class="type-badge type-str">VARCHAR(100)</span></td><td>NOT NULL</td></tr>
+        <tr><td>description</td><td><span class="type-badge type-str">TEXT</span></td><td></td></tr>
+        <tr><td>icon</td><td><span class="type-badge type-str">VARCHAR(50)</span></td><td></td></tr>
+        <tr><td>condition_type</td><td><span class="type-badge type-enum">ENUM</span></td><td>quiz_count | score | streak | category</td></tr>
+        <tr><td>condition_value</td><td><span class="type-badge type-int">INTEGER</span></td><td></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- ROADMAPS -->
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:#7c3aed"></span> roadmap_nodes</div>
+      <table class="schema-table">
+        <tr><th>Column</th><th>Type</th><th>Constraint</th></tr>
+        <tr><td><span class="pk">🔑 id</span></td><td><span class="type-badge type-int">UUID</span></td><td>PK</td></tr>
+        <tr><td>track</td><td><span class="type-badge type-enum">ENUM</span></td><td>frontend | backend | fullstack</td></tr>
+        <tr><td>title</td><td><span class="type-badge type-str">VARCHAR(100)</span></td><td>NOT NULL</td></tr>
+        <tr><td>description</td><td><span class="type-badge type-str">TEXT</span></td><td></td></tr>
+        <tr><td>order_index</td><td><span class="type-badge type-int">INTEGER</span></td><td>NOT NULL</td></tr>
+        <tr><td>parent_id</td><td><span class="type-badge type-int">UUID</span></td><td>FK → self, nullable</td></tr>
+        <tr><td>resources</td><td><span class="type-badge type-str">JSONB</span></td><td>nullable</td></tr>
+        <tr><td>is_milestone</td><td><span class="type-badge type-bool">BOOLEAN</span></td><td>DEFAULT false</td></tr>
+      </table>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:#ef4444"></span> notifications</div>
+      <table class="schema-table">
+        <tr><th>Column</th><th>Type</th><th>Constraint</th></tr>
+        <tr><td><span class="pk">🔑 id</span></td><td><span class="type-badge type-int">UUID</span></td><td>PK</td></tr>
+        <tr><td><span class="fk">🔗 user_id</span></td><td><span class="type-badge type-int">UUID</span></td><td>FK → users.id</td></tr>
+        <tr><td>type</td><td><span class="type-badge type-enum">ENUM</span></td><td>quiz_result | achievement | roadmap | system</td></tr>
+        <tr><td>title</td><td><span class="type-badge type-str">VARCHAR(200)</span></td><td>NOT NULL</td></tr>
+        <tr><td>message</td><td><span class="type-badge type-str">TEXT</span></td><td></td></tr>
+        <tr><td>is_read</td><td><span class="type-badge type-bool">BOOLEAN</span></td><td>DEFAULT false</td></tr>
+        <tr><td>created_at</td><td><span class="type-badge type-ts">TIMESTAMPTZ</span></td><td>DEFAULT NOW()</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PRISMA ==================== -->
+<div id="section-prisma" class="section">
+  <div class="section-header">
+    <h2>🔷 Prisma Models</h2>
+    <p>Complete schema.prisma for Neon PostgreSQL</p>
+  </div>
+
+  <div class="card">
+    <div class="prisma-code">
+<span class="prisma-comment">// prisma/schema.prisma</span>
+
+<span class="prisma-keyword">generator</span> client {
+  provider = <span class="prisma-type">"prisma-client-js"</span>
+}
+
+<span class="prisma-keyword">datasource</span> db {
+  provider  = <span class="prisma-type">"postgresql"</span>
+  url       = env(<span class="prisma-type">"DATABASE_URL"</span>)
+  directUrl = env(<span class="prisma-type">"DIRECT_URL"</span>)
+}
+
+<span class="prisma-comment">// ─── ENUMS ───────────────────────────────────────</span>
+
+<span class="prisma-keyword">enum</span> <span class="prisma-model">Role</span> { USER  ADMIN }
+<span class="prisma-keyword">enum</span> <span class="prisma-model">Track</span> { FRONTEND  BACKEND  FULLSTACK }
+<span class="prisma-keyword">enum</span> <span class="prisma-model">Difficulty</span> { EASY  MEDIUM  HARD  MIXED }
+<span class="prisma-keyword">enum</span> <span class="prisma-model">QuestionType</span> { MULTIPLE_CHOICE  SINGLE_CHOICE  OPEN_ENDED }
+<span class="prisma-keyword">enum</span> <span class="prisma-model">CategoryGroup</span> { FRONTEND  BACKEND  GENERAL }
+<span class="prisma-keyword">enum</span> <span class="prisma-model">NotifType</span> { QUIZ_RESULT  ACHIEVEMENT  ROADMAP  SYSTEM }
+<span class="prisma-keyword">enum</span> <span class="prisma-model">AchievementCondition</span> { QUIZ_COUNT  SCORE  STREAK  CATEGORY }
+
+<span class="prisma-comment">// ─── USER ─────────────────────────────────────────</span>
+
+<span class="prisma-keyword">model</span> <span class="prisma-model">User</span> {
+  id             <span class="prisma-type">String</span>   <span class="prisma-attr">@id @default(uuid())</span>
+  email          <span class="prisma-type">String</span>   <span class="prisma-attr">@unique</span>
+  passwordHash   <span class="prisma-type">String</span>
+  fullName       <span class="prisma-type">String</span>
+  avatarUrl      <span class="prisma-type">String?</span>
+  role           <span class="prisma-type">Role</span>     <span class="prisma-attr">@default(USER)</span>
+  track          <span class="prisma-type">Track?</span>
+  isVerified     <span class="prisma-type">Boolean</span>  <span class="prisma-attr">@default(false)</span>
+  verifyToken    <span class="prisma-type">String?</span>
+  resetToken     <span class="prisma-type">String?</span>
+  resetTokenExp  <span class="prisma-type">DateTime?</span>
+  refreshToken   <span class="prisma-type">String?</span>
+  streakCount    <span class="prisma-type">Int</span>      <span class="prisma-attr">@default(0)</span>
+  lastActive     <span class="prisma-type">DateTime?</span>
+  createdAt      <span class="prisma-type">DateTime</span> <span class="prisma-attr">@default(now())</span>
+  updatedAt      <span class="prisma-type">DateTime</span> <span class="prisma-attr">@updatedAt</span>
+
+  quizResults      <span class="prisma-type">QuizResult[]</span>
+  bookmarks        <span class="prisma-type">Bookmark[]</span>
+  notifications    <span class="prisma-type">Notification[]</span>
+  achievements     <span class="prisma-type">UserAchievement[]</span>
+  roadmapProgress  <span class="prisma-type">RoadmapProgress[]</span>
+  aiSessions       <span class="prisma-type">AISession[]</span>
+  adminLogs        <span class="prisma-type">AdminLog[]</span>
+}
+
+<span class="prisma-comment">// ─── CATEGORY ─────────────────────────────────────</span>
+
+<span class="prisma-keyword">model</span> <span class="prisma-model">Category</span> {
+  id        <span class="prisma-type">String</span>        <span class="prisma-attr">@id @default(uuid())</span>
+  name      <span class="prisma-type">String</span>        <span class="prisma-attr">@unique</span>
+  slug      <span class="prisma-type">String</span>        <span class="prisma-attr">@unique</span>
+  group     <span class="prisma-type">CategoryGroup</span>
+  icon      <span class="prisma-type">String?</span>
+  createdAt <span class="prisma-type">DateTime</span>      <span class="prisma-attr">@default(now())</span>
+  questions <span class="prisma-type">Question[]</span>
+}
+
+<span class="prisma-comment">// ─── QUESTION ─────────────────────────────────────</span>
+
+<span class="prisma-keyword">model</span> <span class="prisma-model">Question</span> {
+  id            <span class="prisma-type">String</span>       <span class="prisma-attr">@id @default(uuid())</span>
+  categoryId    <span class="prisma-type">String</span>
+  category      <span class="prisma-type">Category</span>     <span class="prisma-attr">@relation(fields: [categoryId], references: [id])</span>
+  title         <span class="prisma-type">String</span>
+  type          <span class="prisma-type">QuestionType</span>
+  difficulty    <span class="prisma-type">Difficulty</span>
+  options       <span class="prisma-type">Json?</span>        <span class="prisma-comment">// [{id, text, isCorrect}]</span>
+  correctAnswer <span class="prisma-type">String?</span>
+  explanation   <span class="prisma-type">String?</span>
+  tags          <span class="prisma-type">String[]</span>
+  isActive      <span class="prisma-type">Boolean</span>      <span class="prisma-attr">@default(true)</span>
+  createdById   <span class="prisma-type">String?</span>
+  createdAt     <span class="prisma-type">DateTime</span>     <span class="prisma-attr">@default(now())</span>
+  updatedAt     <span class="prisma-type">DateTime</span>     <span class="prisma-attr">@updatedAt</span>
+
+  quizQuestions <span class="prisma-type">QuizQuestion[]</span>
+  bookmarks     <span class="prisma-type">Bookmark[]</span>
+}
+
+<span class="prisma-comment">// ─── QUIZ ─────────────────────────────────────────</span>
+
+<span class="prisma-keyword">model</span> <span class="prisma-model">Quiz</span> {
+  id            <span class="prisma-type">String</span>     <span class="prisma-attr">@id @default(uuid())</span>
+  title         <span class="prisma-type">String</span>
+  description   <span class="prisma-type">String?</span>
+  type          <span class="prisma-type">Track</span>
+  difficulty    <span class="prisma-type">Difficulty</span>
+  timeLimit     <span class="prisma-type">Int</span>        <span class="prisma-comment">// seconds</span>
+  questionCount <span class="prisma-type">Int</span>
+  isActive      <span class="prisma-type">Boolean</span>    <span class="prisma-attr">@default(true)</span>
+  createdById   <span class="prisma-type">String?</span>
+  createdAt     <span class="prisma-type">DateTime</span>   <span class="prisma-attr">@default(now())</span>
+
+  questions     <span class="prisma-type">QuizQuestion[]</span>
+  results       <span class="prisma-type">QuizResult[]</span>
+}
+
+<span class="prisma-keyword">model</span> <span class="prisma-model">QuizQuestion</span> {
+  quizId     <span class="prisma-type">String</span>
+  questionId <span class="prisma-type">String</span>
+  orderIndex <span class="prisma-type">Int</span>
+  quiz       <span class="prisma-type">Quiz</span>     <span class="prisma-attr">@relation(fields: [quizId], references: [id])</span>
+  question   <span class="prisma-type">Question</span> <span class="prisma-attr">@relation(fields: [questionId], references: [id])</span>
+  <span class="prisma-attr">@@id([quizId, questionId])</span>
+}
+
+<span class="prisma-keyword">model</span> <span class="prisma-model">QuizResult</span> {
+  id          <span class="prisma-type">String</span>   <span class="prisma-attr">@id @default(uuid())</span>
+  userId      <span class="prisma-type">String</span>
+  quizId      <span class="prisma-type">String</span>
+  score       <span class="prisma-type">Int</span>
+  total       <span class="prisma-type">Int</span>
+  percentage  <span class="prisma-type">Float</span>
+  timeSpent   <span class="prisma-type">Int</span>
+  answers     <span class="prisma-type">Json</span>
+  completedAt <span class="prisma-type">DateTime</span> <span class="prisma-attr">@default(now())</span>
+  user        <span class="prisma-type">User</span>     <span class="prisma-attr">@relation(fields: [userId], references: [id])</span>
+  quiz        <span class="prisma-type">Quiz</span>     <span class="prisma-attr">@relation(fields: [quizId], references: [id])</span>
+}
+
+<span class="prisma-comment">// ─── BOOKMARK ─────────────────────────────────────</span>
+
+<span class="prisma-keyword">model</span> <span class="prisma-model">Bookmark</span> {
+  id         <span class="prisma-type">String</span>   <span class="prisma-attr">@id @default(uuid())</span>
+  userId     <span class="prisma-type">String</span>
+  questionId <span class="prisma-type">String</span>
+  createdAt  <span class="prisma-type">DateTime</span> <span class="prisma-attr">@default(now())</span>
+  user       <span class="prisma-type">User</span>     <span class="prisma-attr">@relation(fields: [userId], references: [id])</span>
+  question   <span class="prisma-type">Question</span> <span class="prisma-attr">@relation(fields: [questionId], references: [id])</span>
+  <span class="prisma-attr">@@unique([userId, questionId])</span>
+}
+
+<span class="prisma-comment">// ─── ROADMAP ──────────────────────────────────────</span>
+
+<span class="prisma-keyword">model</span> <span class="prisma-model">RoadmapNode</span> {
+  id          <span class="prisma-type">String</span>  <span class="prisma-attr">@id @default(uuid())</span>
+  track       <span class="prisma-type">Track</span>
+  title       <span class="prisma-type">String</span>
+  description <span class="prisma-type">String?</span>
+  orderIndex  <span class="prisma-type">Int</span>
+  parentId    <span class="prisma-type">String?</span>
+  resources   <span class="prisma-type">Json?</span>
+  isMilestone <span class="prisma-type">Boolean</span> <span class="prisma-attr">@default(false)</span>
+  parent      <span class="prisma-type">RoadmapNode?</span>  <span class="prisma-attr">@relation("NodeChildren", fields: [parentId], references: [id])</span>
+  children    <span class="prisma-type">RoadmapNode[]</span> <span class="prisma-attr">@relation("NodeChildren")</span>
+  progress    <span class="prisma-type">RoadmapProgress[]</span>
+}
+
+<span class="prisma-keyword">model</span> <span class="prisma-model">RoadmapProgress</span> {
+  userId      <span class="prisma-type">String</span>
+  nodeId      <span class="prisma-type">String</span>
+  isCompleted <span class="prisma-type">Boolean</span>  <span class="prisma-attr">@default(false)</span>
+  completedAt <span class="prisma-type">DateTime?</span>
+  user        <span class="prisma-type">User</span>        <span class="prisma-attr">@relation(fields: [userId], references: [id])</span>
+  node        <span class="prisma-type">RoadmapNode</span> <span class="prisma-attr">@relation(fields: [nodeId], references: [id])</span>
+  <span class="prisma-attr">@@id([userId, nodeId])</span>
+}
+
+<span class="prisma-comment">// ─── AI SESSION ───────────────────────────────────</span>
+
+<span class="prisma-keyword">model</span> <span class="prisma-model">AISession</span> {
+  id           <span class="prisma-type">String</span>   <span class="prisma-attr">@id @default(uuid())</span>
+  userId       <span class="prisma-type">String</span>
+  questionText <span class="prisma-type">String</span>
+  userAnswer   <span class="prisma-type">String</span>
+  aiScore      <span class="prisma-type">Int</span>
+  aiFeedback   <span class="prisma-type">String</span>
+  idealAnswer  <span class="prisma-type">String</span>
+  resources    <span class="prisma-type">Json?</span>
+  createdAt    <span class="prisma-type">DateTime</span> <span class="prisma-attr">@default(now())</span>
+  user         <span class="prisma-type">User</span>     <span class="prisma-attr">@relation(fields: [userId], references: [id])</span>
+}
+
+<span class="prisma-comment">// ─── ACHIEVEMENTS ─────────────────────────────────</span>
+
+<span class="prisma-keyword">model</span> <span class="prisma-model">Achievement</span> {
+  id             <span class="prisma-type">String</span>               <span class="prisma-attr">@id @default(uuid())</span>
+  slug           <span class="prisma-type">String</span>               <span class="prisma-attr">@unique</span>
+  title          <span class="prisma-type">String</span>
+  description    <span class="prisma-type">String?</span>
+  icon           <span class="prisma-type">String?</span>
+  conditionType  <span class="prisma-type">AchievementCondition</span>
+  conditionValue <span class="prisma-type">Int</span>
+  userAchievements <span class="prisma-type">UserAchievement[]</span>
+}
+
+<span class="prisma-keyword">model</span> <span class="prisma-model">UserAchievement</span> {
+  userId        <span class="prisma-type">String</span>
+  achievementId <span class="prisma-type">String</span>
+  earnedAt      <span class="prisma-type">DateTime</span>    <span class="prisma-attr">@default(now())</span>
+  user          <span class="prisma-type">User</span>        <span class="prisma-attr">@relation(fields: [userId], references: [id])</span>
+  achievement   <span class="prisma-type">Achievement</span> <span class="prisma-attr">@relation(fields: [achievementId], references: [id])</span>
+  <span class="prisma-attr">@@id([userId, achievementId])</span>
+}
+
+<span class="prisma-comment">// ─── NOTIFICATIONS ────────────────────────────────</span>
+
+<span class="prisma-keyword">model</span> <span class="prisma-model">Notification</span> {
+  id        <span class="prisma-type">String</span>    <span class="prisma-attr">@id @default(uuid())</span>
+  userId    <span class="prisma-type">String</span>
+  type      <span class="prisma-type">NotifType</span>
+  title     <span class="prisma-type">String</span>
+  message   <span class="prisma-type">String?</span>
+  isRead    <span class="prisma-type">Boolean</span>   <span class="prisma-attr">@default(false)</span>
+  createdAt <span class="prisma-type">DateTime</span>  <span class="prisma-attr">@default(now())</span>
+  user      <span class="prisma-type">User</span>      <span class="prisma-attr">@relation(fields: [userId], references: [id])</span>
+}
+
+<span class="prisma-comment">// ─── ADMIN LOGS ───────────────────────────────────</span>
+
+<span class="prisma-keyword">model</span> <span class="prisma-model">AdminLog</span> {
+  id        <span class="prisma-type">String</span>   <span class="prisma-attr">@id @default(uuid())</span>
+  adminId   <span class="prisma-type">String</span>
+  action    <span class="prisma-type">String</span>
+  target    <span class="prisma-type">String?</span>
+  details   <span class="prisma-type">Json?</span>
+  createdAt <span class="prisma-type">DateTime</span> <span class="prisma-attr">@default(now())</span>
+  admin     <span class="prisma-type">User</span>     <span class="prisma-attr">@relation(fields: [adminId], references: [id])</span>
+}
+    </div>
+  </div>
+</div>
+
+<!-- ==================== API ==================== -->
+<div id="section-api" class="section">
+  <div class="section-header">
+    <h2>🔌 API Endpoints</h2>
+    <p>Base URL: <code>https://api.devprep.ai/api/v1</code></p>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:#00d4ff"></span> Auth — /auth</div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/auth/register</span><span class="ep-desc">Register new user</span></div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/auth/login</span><span class="ep-desc">Login, returns access + refresh tokens</span></div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/auth/logout</span><span class="ep-desc">Invalidate refresh token</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/auth/refresh</span><span class="ep-desc">Get new access token via refresh token</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/auth/verify-email?token=xxx</span><span class="ep-desc">Verify email address</span></div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/auth/forgot-password</span><span class="ep-desc">Send reset email</span></div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/auth/reset-password</span><span class="ep-desc">Reset password with token</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/auth/me</span><span class="ep-desc">Get current user profile</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method PUT">PUT</span><span class="ep-path">/auth/profile</span><span class="ep-desc">Update profile (name, track, avatar)</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method PUT">PUT</span><span class="ep-path">/auth/change-password</span><span class="ep-desc">Change password</span><span class="auth-badge">🔒 auth</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:#10b981"></span> Questions — /questions</div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/questions</span><span class="ep-desc">List questions (filter: category, difficulty, search, page)</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/questions/:id</span><span class="ep-desc">Get single question with explanation</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/questions/categories</span><span class="ep-desc">Get all categories with question counts</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/questions/:id/bookmark</span><span class="ep-desc">Toggle bookmark</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/questions/bookmarks</span><span class="ep-desc">Get user's bookmarked questions</span><span class="auth-badge">🔒 auth</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:#f59e0b"></span> Quizzes — /quizzes</div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/quizzes</span><span class="ep-desc">List available quizzes (filter: type, difficulty)</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/quizzes/:id</span><span class="ep-desc">Get quiz details + questions</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/quizzes/:id/start</span><span class="ep-desc">Start quiz session (returns questions without answers)</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/quizzes/:id/submit</span><span class="ep-desc">Submit answers, get results + score</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/quizzes/results/my</span><span class="ep-desc">User's quiz history</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/quizzes/results/:id</span><span class="ep-desc">Single result detail</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/quizzes/leaderboard</span><span class="ep-desc">Global leaderboard (top 50)</span><span class="auth-badge">🔒 auth</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:#7c3aed"></span> AI Assistant — /ai</div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/ai/evaluate</span><span class="ep-desc">Evaluate open-ended answer → score, feedback, ideal answer</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/ai/sessions</span><span class="ep-desc">User's AI session history</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/ai/sessions/:id</span><span class="ep-desc">Single AI session detail</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/ai/mock-interview/start</span><span class="ep-desc">Generate random interview questions by track</span><span class="auth-badge">🔒 auth</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:#ef4444"></span> Dashboard + Roadmap</div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/dashboard/stats</span><span class="ep-desc">All dashboard stats (tests, avg score, streak, readiness)</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/dashboard/progress-chart</span><span class="ep-desc">Weekly progress data for chart</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/roadmap/:track</span><span class="ep-desc">Get roadmap nodes for track (frontend/backend/fullstack)</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/roadmap/:nodeId/complete</span><span class="ep-desc">Mark node as completed</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/notifications</span><span class="ep-desc">User's notifications</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method PATCH">PATCH</span><span class="ep-path">/notifications/:id/read</span><span class="ep-desc">Mark notification as read</span><span class="auth-badge">🔒 auth</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/achievements</span><span class="ep-desc">User's achievements + all available badges</span><span class="auth-badge">🔒 auth</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:#ef4444"></span> Admin — /admin <span style="font-size:11px;color:#ef4444;font-weight:400">(admin role required)</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/admin/users</span><span class="ep-desc">List all users (paginated)</span><span class="auth-badge">👑 admin</span></div>
+    <div class="endpoint"><span class="method DELETE">DELETE</span><span class="ep-path">/admin/users/:id</span><span class="ep-desc">Delete user</span><span class="auth-badge">👑 admin</span></div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/admin/questions</span><span class="ep-desc">Create question</span><span class="auth-badge">👑 admin</span></div>
+    <div class="endpoint"><span class="method PUT">PUT</span><span class="ep-path">/admin/questions/:id</span><span class="ep-desc">Update question</span><span class="auth-badge">👑 admin</span></div>
+    <div class="endpoint"><span class="method DELETE">DELETE</span><span class="ep-path">/admin/questions/:id</span><span class="ep-desc">Delete question</span><span class="auth-badge">👑 admin</span></div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/admin/quizzes</span><span class="ep-desc">Create quiz (with question IDs)</span><span class="auth-badge">👑 admin</span></div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/admin/categories</span><span class="ep-desc">Create category</span><span class="auth-badge">👑 admin</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/admin/analytics</span><span class="ep-desc">Platform analytics overview</span><span class="auth-badge">👑 admin</span></div>
+  </div>
+</div>
+
+<!-- ==================== ER DIAGRAM ==================== -->
+<div id="section-er" class="section">
+  <div class="section-header">
+    <h2>🔗 ER Diagram</h2>
+    <p>Entity relationships — simplified visual overview</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:#00d4ff"></span> Relationships Map</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:20px;line-height:2">
+      <strong style="color:#fff">User</strong> →<span style="color:var(--accent3)"> has many</span> QuizResults, Bookmarks, Notifications, AISession, RoadmapProgress, UserAchievement<br>
+      <strong style="color:#fff">Quiz</strong> →<span style="color:var(--accent3)"> has many</span> QuizQuestions, QuizResults<br>
+      <strong style="color:#fff">Question</strong> →<span style="color:var(--accent3)"> belongs to</span> Category; <span style="color:var(--accent3)">has many</span> QuizQuestions, Bookmarks<br>
+      <strong style="color:#fff">Category</strong> →<span style="color:var(--accent3)"> has many</span> Questions<br>
+      <strong style="color:#fff">RoadmapNode</strong> →<span style="color:var(--accent4)"> self-referential</span> parent/children; <span style="color:var(--accent3)">has many</span> RoadmapProgress<br>
+      <strong style="color:#fff">Achievement</strong> →<span style="color:var(--accent3)"> has many</span> UserAchievements
+    </div>
+    <div class="er-grid">
+      <div class="er-table">
+        <div class="er-table-header" style="border-left:3px solid #00d4ff">👤 users</div>
+        <div class="er-field"><span class="er-fname">🔑 id (PK)</span><span class="er-ftype">UUID</span></div>
+        <div class="er-field"><span class="er-fname">email</span><span class="er-ftype">UNIQUE</span></div>
+        <div class="er-field"><span class="er-fname">role</span><span class="er-ftype">ENUM</span></div>
+        <div class="er-field"><span class="er-fname">track</span><span class="er-ftype">ENUM</span></div>
+        <div class="er-field"><span class="er-fname">streak_count</span><span class="er-ftype">INT</span></div>
+      </div>
+      <div class="er-table">
+        <div class="er-table-header" style="border-left:3px solid #10b981">📋 categories</div>
+        <div class="er-field"><span class="er-fname">🔑 id (PK)</span><span class="er-ftype">UUID</span></div>
+        <div class="er-field"><span class="er-fname">name</span><span class="er-ftype">UNIQUE</span></div>
+        <div class="er-field"><span class="er-fname">slug</span><span class="er-ftype">UNIQUE</span></div>
+        <div class="er-field"><span class="er-fname">group</span><span class="er-ftype">ENUM</span></div>
+      </div>
+      <div class="er-table">
+        <div class="er-table-header" style="border-left:3px solid #7c3aed">❓ questions</div>
+        <div class="er-field"><span class="er-fname">🔑 id (PK)</span><span class="er-ftype">UUID</span></div>
+        <div class="er-field"><span class="er-fname">🔗 category_id (FK)</span><span class="er-ftype">→ categories</span></div>
+        <div class="er-field"><span class="er-fname">type</span><span class="er-ftype">ENUM</span></div>
+        <div class="er-field"><span class="er-fname">difficulty</span><span class="er-ftype">ENUM</span></div>
+        <div class="er-field"><span class="er-fname">options</span><span class="er-ftype">JSONB</span></div>
+      </div>
+      <div class="er-table">
+        <div class="er-table-header" style="border-left:3px solid #f59e0b">📝 quizzes</div>
+        <div class="er-field"><span class="er-fname">🔑 id (PK)</span><span class="er-ftype">UUID</span></div>
+        <div class="er-field"><span class="er-fname">type</span><span class="er-ftype">ENUM</span></div>
+        <div class="er-field"><span class="er-fname">difficulty</span><span class="er-ftype">ENUM</span></div>
+        <div class="er-field"><span class="er-fname">time_limit</span><span class="er-ftype">INT (sec)</span></div>
+      </div>
+      <div class="er-table">
+        <div class="er-table-header" style="border-left:3px solid #ef4444">🏆 quiz_results</div>
+        <div class="er-field"><span class="er-fname">🔗 user_id (FK)</span><span class="er-ftype">→ users</span></div>
+        <div class="er-field"><span class="er-fname">🔗 quiz_id (FK)</span><span class="er-ftype">→ quizzes</span></div>
+        <div class="er-field"><span class="er-fname">score / total</span><span class="er-ftype">INT</span></div>
+        <div class="er-field"><span class="er-fname">answers</span><span class="er-ftype">JSONB</span></div>
+      </div>
+      <div class="er-table">
+        <div class="er-table-header" style="border-left:3px solid #10b981">🔖 bookmarks</div>
+        <div class="er-field"><span class="er-fname">🔗 user_id (FK)</span><span class="er-ftype">→ users</span></div>
+        <div class="er-field"><span class="er-fname">🔗 question_id (FK)</span><span class="er-ftype">→ questions</span></div>
+        <div class="er-field"><span class="er-fname">UNIQUE</span><span class="er-ftype">(user+question)</span></div>
+      </div>
+      <div class="er-table">
+        <div class="er-table-header" style="border-left:3px solid #7c3aed">🗺️ roadmap_nodes</div>
+        <div class="er-field"><span class="er-fname">🔑 id (PK)</span><span class="er-ftype">UUID</span></div>
+        <div class="er-field"><span class="er-fname">track</span><span class="er-ftype">ENUM</span></div>
+        <div class="er-field"><span class="er-fname">🔗 parent_id (self)</span><span class="er-ftype">→ self</span></div>
+        <div class="er-field"><span class="er-fname">is_milestone</span><span class="er-ftype">BOOL</span></div>
+      </div>
+      <div class="er-table">
+        <div class="er-table-header" style="border-left:3px solid #00d4ff">🤖 ai_sessions</div>
+        <div class="er-field"><span class="er-fname">🔗 user_id (FK)</span><span class="er-ftype">→ users</span></div>
+        <div class="er-field"><span class="er-fname">ai_score</span><span class="er-ftype">INT (1-10)</span></div>
+        <div class="er-field"><span class="er-fname">ai_feedback</span><span class="er-ftype">TEXT</span></div>
+        <div class="er-field"><span class="er-fname">ideal_answer</span><span class="er-ftype">TEXT</span></div>
+      </div>
+      <div class="er-table">
+        <div class="er-table-header" style="border-left:3px solid #f59e0b">🏅 achievements</div>
+        <div class="er-field"><span class="er-fname">slug</span><span class="er-ftype">UNIQUE</span></div>
+        <div class="er-field"><span class="er-fname">condition_type</span><span class="er-ftype">ENUM</span></div>
+        <div class="er-field"><span class="er-fname">condition_value</span><span class="er-ftype">INT</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== FLOWS ==================== -->
+<div id="section-flows" class="section">
+  <div class="section-header">
+    <h2>🔄 Auth + User Flows</h2>
+    <p>Step-by-step process flows for key user journeys</p>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:#00d4ff"></span> Register Flow</div>
+      <div class="flow">
+        <div class="flow-step"><div class="flow-num step-auth">1</div><div class="flow-body"><div class="flow-title">User fills Register form</div><div class="flow-desc">email, fullName, password, track selection</div></div></div>
+        <div class="flow-step"><div class="flow-num step-server">2</div><div class="flow-body"><div class="flow-title">Backend validates</div><div class="flow-desc">Zod schema validation, check email uniqueness</div></div></div>
+        <div class="flow-step"><div class="flow-num step-db">3</div><div class="flow-body"><div class="flow-title">Create user in DB</div><div class="flow-desc">bcrypt hash password, generate verify_token</div></div></div>
+        <div class="flow-step"><div class="flow-num step-auth">4</div><div class="flow-body"><div class="flow-title">Send verification email</div><div class="flow-desc">Nodemailer sends link: /verify-email?token=xxx</div></div></div>
+        <div class="flow-step"><div class="flow-num step-server">5</div><div class="flow-body"><div class="flow-title">User clicks link</div><div class="flow-desc">Backend sets is_verified=true, clears token</div></div></div>
+        <div class="flow-step"><div class="flow-num step-db" style="border-color:var(--accent3);color:var(--accent3)">✓</div><div class="flow-body"><div class="flow-title">Redirect to Login</div><div class="flow-desc">Registration complete</div></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:#10b981"></span> Login + Token Flow</div>
+      <div class="flow">
+        <div class="flow-step"><div class="flow-num step-auth">1</div><div class="flow-body"><div class="flow-title">User submits credentials</div><div class="flow-desc">email + password → POST /auth/login</div></div></div>
+        <div class="flow-step"><div class="flow-num step-server">2</div><div class="flow-body"><div class="flow-title">Verify password</div><div class="flow-desc">bcrypt.compare(), check is_verified</div></div></div>
+        <div class="flow-step"><div class="flow-num step-db">3</div><div class="flow-body"><div class="flow-title">Generate tokens</div><div class="flow-desc">accessToken (15min) + refreshToken (7d), save refresh to DB</div></div></div>
+        <div class="flow-step"><div class="flow-num step-auth">4</div><div class="flow-body"><div class="flow-title">Return to client</div><div class="flow-desc">accessToken in response body, refreshToken in httpOnly cookie</div></div></div>
+        <div class="flow-step"><div class="flow-num step-server">5</div><div class="flow-body"><div class="flow-title">Axios interceptor</div><div class="flow-desc">On 401 → auto-call /auth/refresh → retry original request</div></div></div>
+        <div class="flow-step"><div class="flow-num step-db" style="border-color:var(--accent3);color:var(--accent3)">✓</div><div class="flow-body"><div class="flow-title">User authenticated</div><div class="flow-desc">Store access token in Zustand, redirect to Dashboard</div></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:#7c3aed"></span> Quiz Flow</div>
+      <div class="flow">
+        <div class="flow-step"><div class="flow-num step-auth">1</div><div class="flow-body"><div class="flow-title">Browse Quiz List</div><div class="flow-desc">Filter by type (Frontend/Backend), difficulty</div></div></div>
+        <div class="flow-step"><div class="flow-num step-server">2</div><div class="flow-body"><div class="flow-title">Start Quiz</div><div class="flow-desc">POST /quizzes/:id/start → returns questions (no correct answers)</div></div></div>
+        <div class="flow-step"><div class="flow-num step-db">3</div><div class="flow-body"><div class="flow-title">Answer Questions</div><div class="flow-desc">Timer counts down, user navigates questions, saves answers locally</div></div></div>
+        <div class="flow-step"><div class="flow-num step-auth">4</div><div class="flow-body"><div class="flow-title">Submit</div><div class="flow-desc">POST /quizzes/:id/submit → backend calculates score</div></div></div>
+        <div class="flow-step"><div class="flow-num step-server">5</div><div class="flow-body"><div class="flow-title">Check Achievements</div><div class="flow-desc">Auto-check if user earned any new badges, send notification</div></div></div>
+        <div class="flow-step"><div class="flow-num step-db" style="border-color:var(--accent3);color:var(--accent3)">✓</div><div class="flow-body"><div class="flow-title">Result Page</div><div class="flow-desc">Show score, correct/wrong breakdown, explanations</div></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:#f59e0b"></span> AI Interview Flow</div>
+      <div class="flow">
+        <div class="flow-step"><div class="flow-num step-auth">1</div><div class="flow-body"><div class="flow-title">Select Track</div><div class="flow-desc">Frontend / Backend / Full Stack mode</div></div></div>
+        <div class="flow-step"><div class="flow-num step-server">2</div><div class="flow-body"><div class="flow-title">Get Question</div><div class="flow-desc">Random open-ended question from question bank</div></div></div>
+        <div class="flow-step"><div class="flow-num step-db">3</div><div class="flow-body"><div class="flow-title">User writes answer</div><div class="flow-desc">Textarea with timer (optional)</div></div></div>
+        <div class="flow-step"><div class="flow-num step-auth">4</div><div class="flow-body"><div class="flow-title">POST /ai/evaluate</div><div class="flow-desc">Send question + user_answer to backend</div></div></div>
+        <div class="flow-step"><div class="flow-num step-server">5</div><div class="flow-body"><div class="flow-title">Claude API call</div><div class="flow-desc">Structured prompt → returns JSON: score, feedback, ideal_answer, resources</div></div></div>
+        <div class="flow-step"><div class="flow-num step-db" style="border-color:var(--accent3);color:var(--accent3)">✓</div><div class="flow-body"><div class="flow-title">Show Results</div><div class="flow-desc">Score card, mistake explanation, ideal answer, learning links. Save to AISession</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DEV PLAN ==================== -->
+<div id="section-plan" class="section">
+  <div class="section-header">
+    <h2>📅 Development Plan</h2>
+    <p>MVP build timeline — 4 weeks sprint plan</p>
+  </div>
+
+  <div class="card">
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-week">QADAM 1<br><span style="color:var(--text3);font-size:9px">Hozir ✓</span></div>
+        <div class="tl-bar"></div>
+        <div class="tl-content">
+          <div class="tl-title">Architecture + Schema</div>
+          <ul class="tl-tasks">
+            <li>Folder structure design</li>
+            <li>PostgreSQL schema + Prisma models</li>
+            <li>API endpoint planning</li>
+            <li>ER diagram + Auth flows</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-week">QADAM 2</div>
+        <div class="tl-bar"></div>
+        <div class="tl-content">
+          <div class="tl-title">Backend: Auth System</div>
+          <ul class="tl-tasks">
+            <li>Express.js + Prisma setup, Neon connection</li>
+            <li>Register / Login / Logout + JWT tokens</li>
+            <li>Email verification + Forgot/Reset password</li>
+            <li>Auth middleware + User profile CRUD</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-week">QADAM 3</div>
+        <div class="tl-bar"></div>
+        <div class="tl-content">
+          <div class="tl-title">Backend: Questions + Quiz API</div>
+          <ul class="tl-tasks">
+            <li>Categories + Questions CRUD</li>
+            <li>Question Bank API (filter, search, pagination)</li>
+            <li>Bookmark API</li>
+            <li>Quiz start/submit + scoring + leaderboard</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-week">QADAM 4</div>
+        <div class="tl-bar"></div>
+        <div class="tl-content">
+          <div class="tl-title">Backend: AI + Roadmap + Dashboard</div>
+          <ul class="tl-tasks">
+            <li>Anthropic API integration (answer evaluation)</li>
+            <li>Roadmap nodes + progress tracking</li>
+            <li>Dashboard stats aggregation API</li>
+            <li>Achievements logic + Notifications</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-week">QADAM 5</div>
+        <div class="tl-bar"></div>
+        <div class="tl-content">
+          <div class="tl-title">Frontend: Setup + Auth Pages</div>
+          <ul class="tl-tasks">
+            <li>Vite + React + TypeScript + Tailwind setup</li>
+            <li>Layout: Sidebar, Navbar, Dark/Light mode</li>
+            <li>Auth pages: Login, Register, Verify, Reset</li>
+            <li>Protected Routes + Axios interceptors + React Query</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-week">QADAM 6</div>
+        <div class="tl-bar"></div>
+        <div class="tl-content">
+          <div class="tl-title">Frontend: Dashboard + Question Bank</div>
+          <ul class="tl-tasks">
+            <li>Stats cards, Recharts (progress + radar)</li>
+            <li>Interview Readiness Score widget</li>
+            <li>Question Bank with filters, search, bookmarks</li>
+            <li>Question detail modal</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-week">QADAM 7</div>
+        <div class="tl-bar"></div>
+        <div class="tl-content">
+          <div class="tl-title">Frontend: Quiz + AI Interview</div>
+          <ul class="tl-tasks">
+            <li>Quiz list, start screen, timer, MCQ UI</li>
+            <li>Submit + Result page + Leaderboard</li>
+            <li>AI Interview mode selector + answer textarea</li>
+            <li>AI evaluation result card (score, feedback, ideal)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-week">QADAM 8</div>
+        <div class="tl-bar"></div>
+        <div class="tl-content">
+          <div class="tl-title">Frontend: Roadmap + Admin</div>
+          <ul class="tl-tasks">
+            <li>Visual roadmap (locked/unlocked/completed nodes)</li>
+            <li>Progress tracking + milestones</li>
+            <li>Admin panel: Questions, Quizzes, Users CRUD</li>
+            <li>Admin analytics overview</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-week">QADAM 9</div>
+        <div class="tl-bar"></div>
+        <div class="tl-content">
+          <div class="tl-title">Polish + Testing</div>
+          <ul class="tl-tasks">
+            <li>Seed database (categories, questions, quizzes, roadmap nodes)</li>
+            <li>Error handling, loading states, empty states</li>
+            <li>Mobile responsiveness check</li>
+            <li>Performance optimization</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-week">QADAM 10</div>
+        <div class="tl-bar"></div>
+        <div class="tl-content">
+          <div class="tl-title">Deploy</div>
+          <ul class="tl-tasks">
+            <li>Neon PostgreSQL production setup + migrations</li>
+            <li>Backend deploy to Render (render.yaml)</li>
+            <li>Frontend deploy to Vercel (vercel.json)</li>
+            <li>Environment variables, CORS, final checks</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:#00d4ff"></span> Environment Variables</div>
+    <div class="prisma-code">
+<span class="prisma-comment"># server/.env</span>
+
+<span class="prisma-comment"># Database</span>
+DATABASE_URL=<span class="prisma-type">"postgresql://user:pass@neon.db/devprep?sslmode=require"</span>
+DIRECT_URL=<span class="prisma-type">"postgresql://user:pass@neon.db/devprep?sslmode=require"</span>
+
+<span class="prisma-comment"># JWT</span>
+JWT_SECRET=<span class="prisma-type">"your-super-secret-64-char-string"</span>
+JWT_REFRESH_SECRET=<span class="prisma-type">"your-refresh-secret-64-char-string"</span>
+JWT_EXPIRES_IN=<span class="prisma-type">"15m"</span>
+JWT_REFRESH_EXPIRES_IN=<span class="prisma-type">"7d"</span>
+
+<span class="prisma-comment"># Email (Gmail SMTP)</span>
+SMTP_HOST=<span class="prisma-type">"smtp.gmail.com"</span>
+SMTP_PORT=<span class="prisma-type">587</span>
+SMTP_USER=<span class="prisma-type">"your@gmail.com"</span>
+SMTP_PASS=<span class="prisma-type">"your-app-password"</span>
+FROM_EMAIL=<span class="prisma-type">"DevPrep AI &lt;noreply@devprep.ai&gt;"</span>
+
+<span class="prisma-comment"># Anthropic AI</span>
+ANTHROPIC_API_KEY=<span class="prisma-type">"sk-ant-..."</span>
+
+<span class="prisma-comment"># App</span>
+PORT=<span class="prisma-type">5000</span>
+NODE_ENV=<span class="prisma-type">"production"</span>
+CLIENT_URL=<span class="prisma-type">"https://devprep.vercel.app"</span>
+
+<span class="prisma-comment"># client/.env</span>
+VITE_API_URL=<span class="prisma-type">"https://devprep.onrender.com/api/v1"</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<script>
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo({top: 0, behavior:'smooth'});
+}
+</script>
+</body>
+</html>

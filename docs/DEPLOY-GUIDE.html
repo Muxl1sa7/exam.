@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevPrep AI — Deploy Qo'llanma</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#080c18;--bg2:#0e1525;--bg3:#131d32;--bd:#1a2840;--ac:#00d4ff;--gr:#10b981;--am:#f59e0b;--rd:#ef4444;--vi:#7c3aed;--tx:#dde4f0;--tx2:#8899bb;--tx3:#4a5a78}
+body{background:var(--bg);color:var(--tx);font-family:'JetBrains Mono',monospace;min-height:100vh}
+
+/* HEADER */
+.header{background:var(--bg2);border-bottom:1px solid var(--bd);padding:16px 32px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-i{width:32px;height:32px;background:var(--ac);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-t{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;background:linear-gradient(135deg,#fff,var(--ac));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.progress-bar{display:flex;align-items:center;gap:6px}
+.pb-step{width:28px;height:4px;border-radius:2px;background:var(--bd);transition:all .3s}
+.pb-step.done{background:var(--gr)}
+.pb-step.active{background:var(--ac)}
+
+/* LAYOUT */
+.layout{display:flex;min-height:calc(100vh - 65px)}
+
+/* SIDEBAR */
+.side{width:260px;background:var(--bg2);border-right:1px solid var(--bd);padding:16px 0;flex-shrink:0;position:sticky;top:0;height:calc(100vh - 65px);overflow-y:auto}
+.side-section{padding:6px 0 2px}
+.side-label{padding:6px 16px 2px;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--tx3)}
+.side-item{padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .15s;border-left:2px solid transparent;font-size:12px;color:var(--tx2)}
+.side-item:hover{color:var(--tx);background:rgba(0,212,255,.03)}
+.side-item.active{color:var(--ac);background:rgba(0,212,255,.06);border-left-color:var(--ac)}
+.side-item .si-num{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.side-item.done .si-num{background:rgba(16,185,129,.15);color:var(--gr)}
+.side-item.active .si-num{background:rgba(0,212,255,.15);color:var(--ac)}
+.side-item.todo .si-num{background:var(--bg3);color:var(--tx3)}
+
+/* MAIN CONTENT */
+.main{flex:1;padding:32px 40px;max-width:860px}
+
+/* STEP CARD */
+.step{display:none;animation:fadeIn .3s ease}
+.step.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.step-header{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+.step-num{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:20px;font-weight:800;flex-shrink:0}
+.step-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff}
+.step-sub{font-size:12px;color:var(--tx2);margin-top:2px}
+
+/* CARD */
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:20px;margin-bottom:16px}
+.card-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+
+/* CODE BLOCK */
+.code-block{background:var(--bg3);border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-bottom:12px}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--bd);font-size:10px;color:var(--tx3)}
+.code-lang{background:var(--bd);padding:2px 8px;border-radius:3px;font-size:9.5px;color:var(--tx2)}
+.copy-btn{cursor:pointer;padding:3px 10px;background:transparent;border:1px solid var(--bd);border-radius:4px;color:var(--tx2);font-size:9.5px;font-family:inherit;transition:all .13s}
+.copy-btn:hover{border-color:var(--ac);color:var(--ac)}
+.copy-btn.ok{border-color:var(--gr);color:var(--gr)}
+pre{padding:14px;font-size:12px;line-height:1.7;overflow-x:auto;color:var(--tx2)}
+pre .k{color:#c792ea}
+pre .s{color:#c3e88d}
+pre .c{color:#4a6070;font-style:italic}
+pre .n{color:#f78c6c}
+pre .h{color:var(--ac)}
+pre .v{color:var(--am)}
+
+/* CHECKLIST */
+.checklist{list-style:none;space-y:4px}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:8px 12px;border-radius:8px;cursor:pointer;transition:background .15s;font-size:12px;color:var(--tx2)}
+.check-item:hover{background:rgba(255,255,255,.03)}
+.check-item.checked{color:var(--tx3);text-decoration:line-through}
+.chk{width:18px;height:18px;border-radius:4px;border:2px solid var(--bd);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;margin-top:1px}
+.check-item.checked .chk{background:var(--gr);border-color:var(--gr);color:#fff}
+
+/* ALERT */
+.alert{border-radius:8px;padding:12px 16px;font-size:12px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start;line-height:1.6}
+.alert.info{background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.2);color:var(--ac)}
+.alert.warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);color:var(--am)}
+.alert.success{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);color:var(--gr)}
+.alert.error{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);color:var(--rd)}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:4px;font-size:10px;font-weight:600;border:1px solid}
+.badge.free{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.2);color:var(--gr)}
+.badge.paid{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2);color:var(--am)}
+.badge.req{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.2);color:var(--rd)}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--bg3);color:var(--ac);text-align:left;padding:8px 12px;font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--bd)}
+td{padding:8px 12px;border-bottom:1px solid rgba(26,40,64,.5);color:var(--tx2)}
+tr:hover td{background:rgba(0,212,255,.02)}
+
+/* NAV BUTTONS */
+.nav-btns{display:flex;gap:12px;margin-top:28px;padding-top:20px;border-top:1px solid var(--bd)}
+.btn-prev{background:var(--bg3);border:1px solid var(--bd);color:var(--tx2);padding:10px 20px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;transition:all .15s}
+.btn-prev:hover{border-color:var(--tx2);color:var(--tx)}
+.btn-next{background:var(--ac);border:1px solid var(--ac);color:#060c18;padding:10px 24px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;transition:all .15s;margin-left:auto}
+.btn-next:hover{opacity:.9}
+.btn-next:disabled{opacity:.4;cursor:not-allowed}
+
+/* URL PILL */
+.url{display:inline-flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--bd);border-radius:6px;padding:4px 12px;font-size:11px;color:var(--ac);text-decoration:none;transition:border-color .15s}
+.url:hover{border-color:var(--ac)}
+
+/* STATUS CHECK */
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.status-item{background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:12px;display:flex;align-items:center;gap:10px;font-size:11px}
+.status-icon{font-size:20px}
+.status-label{color:var(--tx2);font-size:10px}
+.status-val{color:#fff;font-size:12px;font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-i">⚡</div>
+    <span class="logo-t">DevPrep AI — Deploy</span>
+  </div>
+  <div class="progress-bar" id="progressBar">
+    <div class="pb-step active" id="pb0"></div>
+    <div class="pb-step" id="pb1"></div>
+    <div class="pb-step" id="pb2"></div>
+    <div class="pb-step" id="pb3"></div>
+    <div class="pb-step" id="pb4"></div>
+    <div class="pb-step" id="pb5"></div>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="side">
+    <div class="side-section">
+      <div class="side-label">Tayyorgarlik</div>
+      <div class="side-item active" id="nav0" onclick="goTo(0)">
+        <span class="si-num">0</span> Servislar ro'yxati
+      </div>
+    </div>
+    <div class="side-section">
+      <div class="side-label">Deploy qadamlari</div>
+      <div class="side-item todo" id="nav1" onclick="goTo(1)">
+        <span class="si-num">1</span> Neon PostgreSQL
+      </div>
+      <div class="side-item todo" id="nav2" onclick="goTo(2)">
+        <span class="si-num">2</span> GitHub
+      </div>
+      <div class="side-item todo" id="nav3" onclick="goTo(3)">
+        <span class="si-num">3</span> Render (Backend)
+      </div>
+      <div class="side-item todo" id="nav4" onclick="goTo(4)">
+        <span class="si-num">4</span> Vercel (Frontend)
+      </div>
+      <div class="side-item todo" id="nav5" onclick="goTo(5)">
+        <span class="si-num">5</span> Seed + Test
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- STEP 0 — Servislar -->
+    <div class="step active" id="step0">
+      <div class="step-header">
+        <div class="step-num" style="background:rgba(0,212,255,.1);color:var(--ac)">🚀</div>
+        <div>
+          <div class="step-title">Tayyorgarlik</div>
+          <div class="step-sub">Kerakli servislarni ro'yxatdan o'ting</div>
+        </div>
+      </div>
+
+      <div class="alert info">💡 Barcha servislar bepul tizimga ega. Deploy 20-30 daqiqa oladi.</div>
+
+      <div class="card">
+        <table>
+          <tr>
+            <th>Servis</th><th>Maqsad</th><th>Plan</th><th>Link</th>
+          </tr>
+          <tr>
+            <td>🐘 <strong style="color:#fff">Neon</strong></td>
+            <td>PostgreSQL Database</td>
+            <td><span class="badge free">Bepul</span></td>
+            <td><a class="url" href="https://neon.tech" target="_blank">neon.tech →</a></td>
+          </tr>
+          <tr>
+            <td>🐙 <strong style="color:#fff">GitHub</strong></td>
+            <td>Kod repository</td>
+            <td><span class="badge free">Bepul</span></td>
+            <td><a class="url" href="https://github.com" target="_blank">github.com →</a></td>
+          </tr>
+          <tr>
+            <td>🎨 <strong style="color:#fff">Render</strong></td>
+            <td>Backend hosting</td>
+            <td><span class="badge free">Bepul*</span></td>
+            <td><a class="url" href="https://render.com" target="_blank">render.com →</a></td>
+          </tr>
+          <tr>
+            <td>▲ <strong style="color:#fff">Vercel</strong></td>
+            <td>Frontend hosting</td>
+            <td><span class="badge free">Bepul</span></td>
+            <td><a class="url" href="https://vercel.com" target="_blank">vercel.com →</a></td>
+          </tr>
+          <tr>
+            <td>🤖 <strong style="color:#fff">Anthropic</strong></td>
+            <td>Claude AI API</td>
+            <td><span class="badge paid">$5 kredit</span></td>
+            <td><a class="url" href="https://console.anthropic.com" target="_blank">console.anthropic.com →</a></td>
+          </tr>
+          <tr>
+            <td>📧 <strong style="color:#fff">Gmail</strong></td>
+            <td>Email yuborish</td>
+            <td><span class="badge free">Bepul</span></td>
+            <td><a class="url" href="https://mail.google.com" target="_blank">mail.google.com →</a></td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="alert warn">⚠️ Render bepul tier: server 15 daqiqa faoliyatsizlikdan keyin uxlaydi. Birinchi so'rov 30-50 soniya kechikadi. Pro $7/oy.</div>
+
+      <div class="card">
+        <div class="card-title">✅ Ro'yxatdan o'tish tekshiruvi</div>
+        <ul class="checklist" id="checklist0">
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Neon.tech hisobi bor yoki yaratildi</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> GitHub hisobi bor yoki yaratildi</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Render.com hisobi bor yoki yaratildi</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Vercel.com hisobi bor yoki yaratildi</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Anthropic API kaliti bor</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Gmail App Password yaratildi</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔑 Gmail App Password yaratish</div>
+        <ol style="list-style:decimal;padding-left:18px;font-size:12px;color:var(--tx2);line-height:2">
+          <li>Google hisobingizga kiring</li>
+          <li>myaccount.google.com → Security</li>
+          <li>2-Step Verification yoqing (agar yoqilmagan bo'lsa)</li>
+          <li>Security → App passwords</li>
+          <li>App: <strong style="color:#fff">Mail</strong> → Device: <strong style="color:#fff">Other (Custom name)</strong></li>
+          <li>Name: <strong style="color:#fff">DevPrep AI</strong> → Generate</li>
+          <li>16 belgili parolni nusxalab saqlang: <code style="background:var(--bg3);padding:2px 6px;border-radius:3px;color:var(--ac)">xxxx xxxx xxxx xxxx</code></li>
+        </ol>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-next" onclick="goTo(1)">Keyingi: Neon PostgreSQL →</button>
+      </div>
+    </div>
+
+    <!-- STEP 1 — NEON -->
+    <div class="step" id="step1">
+      <div class="step-header">
+        <div class="step-num" style="background:rgba(16,185,129,.1);color:var(--gr)">🐘</div>
+        <div>
+          <div class="step-title">Neon PostgreSQL</div>
+          <div class="step-sub">Bepul serverless PostgreSQL — Neon.tech</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">1. Project yaratish</div>
+        <ol style="list-style:decimal;padding-left:18px;font-size:12px;color:var(--tx2);line-height:2.2">
+          <li><a class="url" href="https://neon.tech" target="_blank">neon.tech →</a> ga kiring</li>
+          <li><strong style="color:#fff">Sign Up</strong> → GitHub bilan kirish (tez)</li>
+          <li><strong style="color:#fff">Create Project</strong> bosing</li>
+          <li>Project name: <code style="background:var(--bg3);padding:2px 6px;border-radius:3px;color:var(--ac)">devprep</code></li>
+          <li>Region: <strong style="color:#fff">AWS US East (N. Virginia)</strong> yoki yaqinroq</li>
+          <li>PostgreSQL version: <strong style="color:#fff">16</strong></li>
+          <li><strong style="color:#fff">Create Project</strong> bosing</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <div class="card-title">2. Connection string olish</div>
+        <p style="font-size:12px;color:var(--tx2);margin-bottom:12px">Project yaratilgandan keyin avtomatik ko'rinadi. Agar ko'rinmasa: <strong style="color:#fff">Dashboard → Connection Details</strong></p>
+
+        <div class="alert info">Connection string 2 xil bo'ladi — ikkalasi ham kerak!</div>
+
+        <div style="font-size:12px;color:var(--tx2);margin-bottom:8px;font-weight:600">📌 Pooled Connection (DATABASE_URL):</div>
+        <div class="code-block">
+          <div class="code-header"><span>server/.env</span><span class="code-lang">env</span></div>
+          <pre><span class="c"># Connection pooler orqali (ko'p connection uchun)</span>
+DATABASE_URL=<span class="s">"postgresql://USER:PASS@ep-xxx.us-east-2.aws.neon.tech/neondb?sslmode=require&pgbouncer=true"</span></pre>
+        </div>
+
+        <div style="font-size:12px;color:var(--tx2);margin-bottom:8px;font-weight:600">📌 Direct Connection (DIRECT_URL):</div>
+        <div class="code-block">
+          <div class="code-header"><span>server/.env</span><span class="code-lang">env</span></div>
+          <pre>DIRECT_URL=<span class="s">"postgresql://USER:PASS@ep-xxx.us-east-2.aws.neon.tech/neondb?sslmode=require"</span></pre>
+        </div>
+
+        <div class="alert warn">⚠️ Bu connection string faqat Neon dashboard'da ko'rinadi. Hoziroq nusxalab saqlang!</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">3. Lokal test (ixtiyoriy)</div>
+        <div class="code-block">
+          <div class="code-header"><span>terminal</span><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this,'cd server\nnpx prisma db push\nnpm run db:seed')">📋</button></div>
+          <pre><span class="c"># server/.env ga DATABASE_URL ni qo'ying, keyin:</span>
+<span class="k">cd</span> server
+npx prisma db push    <span class="c"># Schema yuklash</span>
+npm run db:seed       <span class="c"># Boshlang'ich ma'lumotlar</span></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">✅ Tekshiruv</div>
+        <ul class="checklist">
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Neon project yaratildi</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> DATABASE_URL (pooled) nusxalandi</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> DIRECT_URL nusxalandi</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Lokal prisma db push ishladi (ixtiyoriy)</li>
+        </ul>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-prev" onclick="goTo(0)">← Orqaga</button>
+        <button class="btn-next" onclick="goTo(2)">Keyingi: GitHub →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 — GITHUB -->
+    <div class="step" id="step2">
+      <div class="step-header">
+        <div class="step-num" style="background:rgba(124,58,237,.1);color:var(--vi)">🐙</div>
+        <div>
+          <div class="step-title">GitHub</div>
+          <div class="step-sub">Kodni push qiling — Render/Vercel avtomatik deploy qiladi</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">1. Repository yaratish</div>
+        <ol style="list-style:decimal;padding-left:18px;font-size:12px;color:var(--tx2);line-height:2.2">
+          <li>github.com → <strong style="color:#fff">New repository</strong></li>
+          <li>Name: <code style="background:var(--bg3);padding:2px 6px;border-radius:3px;color:var(--ac)">devprep-ai</code></li>
+          <li>Visibility: <strong style="color:#fff">Private</strong> (env secrets uchun)</li>
+          <li><strong style="color:#fff">Create repository</strong></li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <div class="card-title">2. Kodni push qilish</div>
+        <div class="code-block">
+          <div class="code-header"><span>terminal</span><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this, 'cd /path/to/devprep-ai\ngit init\ngit add .\ngit commit -m \"feat: initial commit — DevPrep AI MVP\"\ngit branch -M main\ngit remote add origin https://github.com/USERNAME/devprep-ai.git\ngit push -u origin main')">📋</button></div>
+          <pre><span class="k">cd</span> /path/to/devprep-ai
+
+<span class="c"># .gitignore tekshiring (node_modules, .env yo'qligini)</span>
+git init
+git add .
+git commit -m <span class="s">"feat: initial commit — DevPrep AI MVP"</span>
+git branch -M main
+git remote add origin https://github.com/<span class="v">USERNAME</span>/devprep-ai.git
+git push -u origin main</pre>
+        </div>
+
+        <div class="alert warn">⚠️ .env fayllar gitignore'da! Hech qachon .env ni commit qilmang!</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">3. .gitignore tekshirish</div>
+        <div class="code-block">
+          <div class="code-header"><span>.gitignore</span><span class="code-lang">text</span></div>
+          <pre>node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+server/prisma/migrations/
+client/.vite/</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">✅ Tekshiruv</div>
+        <ul class="checklist">
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> GitHub repo yaratildi: devprep-ai</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Kod muvaffaqiyatli push qilindi</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> .env fayllari ko'rinmaydi (private)</li>
+        </ul>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-prev" onclick="goTo(1)">← Orqaga</button>
+        <button class="btn-next" onclick="goTo(3)">Keyingi: Render →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 — RENDER -->
+    <div class="step" id="step3">
+      <div class="step-header">
+        <div class="step-num" style="background:rgba(16,185,129,.1);color:var(--gr)">🎨</div>
+        <div>
+          <div class="step-title">Render — Backend Deploy</div>
+          <div class="step-sub">Node.js + Express API → render.com</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">1. Web Service yaratish</div>
+        <ol style="list-style:decimal;padding-left:18px;font-size:12px;color:var(--tx2);line-height:2.2">
+          <li><a class="url" href="https://render.com" target="_blank">render.com →</a> kiring</li>
+          <li><strong style="color:#fff">New +</strong> → <strong style="color:#fff">Web Service</strong></li>
+          <li><strong style="color:#fff">Connect GitHub</strong> → devprep-ai repo tanlang</li>
+          <li>Quyidagi sozlamalarni kiriting:</li>
+        </ol>
+
+        <div style="margin-top:12px">
+          <table>
+            <tr><th>Maydon</th><th>Qiymat</th></tr>
+            <tr><td>Name</td><td><code style="color:var(--ac)">devprep-api</code></td></tr>
+            <tr><td>Region</td><td>Oregon (US West)</td></tr>
+            <tr><td>Branch</td><td>main</td></tr>
+            <tr><td>Root Directory</td><td><code style="color:var(--ac)">server</code></td></tr>
+            <tr><td>Runtime</td><td>Node</td></tr>
+            <tr><td>Build Command</td><td><code style="color:var(--am)">npm ci && npx prisma generate && npm run build</code></td></tr>
+            <tr><td>Start Command</td><td><code style="color:var(--am)">npx prisma migrate deploy && node dist/server.js</code></td></tr>
+            <tr><td>Instance Type</td><td>Free</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">2. Environment Variables qo'shish</div>
+        <p style="font-size:12px;color:var(--tx2);margin-bottom:12px">Render → Service → <strong style="color:#fff">Environment</strong> → <strong style="color:#fff">Add Environment Variable</strong></p>
+
+        <div class="code-block">
+          <div class="code-header"><span>Render Environment Variables</span><span class="code-lang">env</span><button class="copy-btn" onclick="copyCode(this, 'NODE_ENV=production\nPORT=5000\nDATABASE_URL=postgresql://...\nDIRECT_URL=postgresql://...\nJWT_SECRET=<64-char-random>\nJWT_REFRESH_SECRET=<64-char-random>\nJWT_EXPIRES_IN=15m\nJWT_REFRESH_EXPIRES_IN=7d\nSMTP_HOST=smtp.gmail.com\nSMTP_PORT=587\nSMTP_USER=your@gmail.com\nSMTP_PASS=xxxx xxxx xxxx xxxx\nFROM_EMAIL=DevPrep AI <noreply@devprep.ai>\nANTHROPIC_API_KEY=sk-ant-...\nCLIENT_URL=https://devprep-ai.vercel.app')">📋 Barchasini nusxalash</button></div>
+          <pre>NODE_ENV=<span class="s">production</span>
+PORT=<span class="n">5000</span>
+DATABASE_URL=<span class="s">postgresql://USER:PASS@ep-xxx.neon.tech/neondb?sslmode=require&pgbouncer=true</span>
+DIRECT_URL=<span class="s">postgresql://USER:PASS@ep-xxx.neon.tech/neondb?sslmode=require</span>
+JWT_SECRET=<span class="v">&lt;node -e "require('crypto').randomBytes(64).toString('hex')" | pbcopy&gt;</span>
+JWT_REFRESH_SECRET=<span class="v">&lt;yana bir 64-char random string&gt;</span>
+JWT_EXPIRES_IN=<span class="s">15m</span>
+JWT_REFRESH_EXPIRES_IN=<span class="s">7d</span>
+SMTP_HOST=<span class="s">smtp.gmail.com</span>
+SMTP_PORT=<span class="n">587</span>
+SMTP_USER=<span class="s">your@gmail.com</span>
+SMTP_PASS=<span class="s">xxxx xxxx xxxx xxxx</span>
+FROM_EMAIL=<span class="s">DevPrep AI &lt;noreply@devprep.ai&gt;</span>
+ANTHROPIC_API_KEY=<span class="s">sk-ant-api03-...</span>
+CLIENT_URL=<span class="s">https://devprep-ai.vercel.app</span></pre>
+        </div>
+
+        <div class="alert info">💡 JWT_SECRET generatsiya: terminalni oching va shu buyruqni ishga tushiring:</div>
+        <div class="code-block">
+          <div class="code-header"><span>terminal</span><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this, \"node -e \\\"console.log(require('crypto').randomBytes(64).toString('hex'))\\\"\")">📋</button></div>
+          <pre>node -e <span class="s">"console.log(require('crypto').randomBytes(64).toString('hex'))"</span>
+<span class="c"># Natija: 128 belgi uzunlikdagi random hex string</span></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">3. Deploy & Test</div>
+        <ol style="list-style:decimal;padding-left:18px;font-size:12px;color:var(--tx2);line-height:2.2">
+          <li><strong style="color:#fff">Create Web Service</strong> bosing</li>
+          <li>Deploy log ko'rish: 3-5 daqiqa kutish</li>
+          <li>Status: <span style="color:var(--gr)">● Live</span> bo'lsa muvaffaqiyatli</li>
+          <li>Health check:</li>
+        </ol>
+        <div class="code-block">
+          <div class="code-header"><span>browser / curl</span><span class="code-lang">bash</span></div>
+          <pre>https://devprep-api.onrender.com/health
+
+<span class="c"># Javob:</span>
+{<span class="s">"status"</span>:<span class="s">"ok"</span>,<span class="s">"timestamp"</span>:<span class="s">"2024-..."</span>,<span class="s">"service"</span>:<span class="s">"DevPrep AI API"</span>}</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">✅ Tekshiruv</div>
+        <ul class="checklist">
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Render service yaratildi</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Barcha env vars qo'shildi (15 ta)</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Deploy muvaffaqiyatli (status: Live)</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> /health endpoint ishlaydi</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Render URL nusxalandi: devprep-api.onrender.com</li>
+        </ul>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-prev" onclick="goTo(2)">← Orqaga</button>
+        <button class="btn-next" onclick="goTo(4)">Keyingi: Vercel →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4 — VERCEL -->
+    <div class="step" id="step4">
+      <div class="step-header">
+        <div class="step-num" style="background:rgba(0,212,255,.1);color:var(--ac)">▲</div>
+        <div>
+          <div class="step-title">Vercel — Frontend Deploy</div>
+          <div class="step-sub">React + Vite → vercel.com</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">1. Project import qilish</div>
+        <ol style="list-style:decimal;padding-left:18px;font-size:12px;color:var(--tx2);line-height:2.2">
+          <li><a class="url" href="https://vercel.com" target="_blank">vercel.com →</a> kiring</li>
+          <li><strong style="color:#fff">Add New...</strong> → <strong style="color:#fff">Project</strong></li>
+          <li>GitHub → devprep-ai repo tanlang → <strong style="color:#fff">Import</strong></li>
+          <li>Configure Project:</li>
+        </ol>
+        <div style="margin-top:12px">
+          <table>
+            <tr><th>Maydon</th><th>Qiymat</th></tr>
+            <tr><td>Framework Preset</td><td>Vite</td></tr>
+            <tr><td>Root Directory</td><td><code style="color:var(--ac)">client</code> (muhim!)</td></tr>
+            <tr><td>Build Command</td><td><code style="color:var(--am)">npm run build</code></td></tr>
+            <tr><td>Output Directory</td><td><code style="color:var(--am)">dist</code></td></tr>
+            <tr><td>Install Command</td><td><code style="color:var(--am)">npm ci</code></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">2. Environment Variables</div>
+        <p style="font-size:12px;color:var(--tx2);margin-bottom:12px">Configure Project → <strong style="color:#fff">Environment Variables</strong> bo'limida:</p>
+        <div class="code-block">
+          <div class="code-header"><span>Vercel Environment Variables</span><span class="code-lang">env</span><button class="copy-btn" onclick="copyCode(this,'VITE_API_URL=https://devprep-api.onrender.com/api/v1')">📋</button></div>
+          <pre>VITE_API_URL=<span class="s">https://devprep-api.onrender.com/api/v1</span>
+<span class="c"># Render URL'ingizni qo'ying (onrender.com domain)</span></pre>
+        </div>
+
+        <div class="alert warn">⚠️ Root Directory ni "client" deb ko'rsatishni unutmang! Aks holda build xatolik beradi.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">3. Deploy & Test</div>
+        <ol style="list-style:decimal;padding-left:18px;font-size:12px;color:var(--tx2);line-height:2.2">
+          <li><strong style="color:#fff">Deploy</strong> bosing → 1-2 daqiqa kutish</li>
+          <li>Vercel URL olish: <code style="color:var(--ac)">devprep-ai.vercel.app</code></li>
+          <li>Bu URL ni Render'da CLIENT_URL ga o'rnating!</li>
+          <li>Browser'da ochib ko'ring</li>
+        </ol>
+
+        <div class="alert info">💡 Vercel deploy bo'lgandan keyin — Render'ga borib CLIENT_URL ni yangilang: <code>https://devprep-ai.vercel.app</code></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">4. CORS muhim!</div>
+        <p style="font-size:12px;color:var(--tx2);margin-bottom:10px">Render → devprep-api → Environment → CLIENT_URL yangilash:</p>
+        <div class="code-block">
+          <div class="code-header"><span>Render → Environment</span><span class="code-lang">env</span></div>
+          <pre>CLIENT_URL=<span class="s">https://devprep-ai.vercel.app</span>
+<span class="c"># Keyin Render servis qayta deploy bo'ladi (avtomatik)</span></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">✅ Tekshiruv</div>
+        <ul class="checklist">
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Vercel project yaratildi (root: client)</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> VITE_API_URL env var qo'shildi</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Deploy muvaffaqiyatli</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Vercel URL nusxalandi</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Render → CLIENT_URL yangilandi</li>
+        </ul>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-prev" onclick="goTo(3)">← Orqaga</button>
+        <button class="btn-next" onclick="goTo(5)">Keyingi: Seed + Test →</button>
+      </div>
+    </div>
+
+    <!-- STEP 5 — SEED + TEST -->
+    <div class="step" id="step5">
+      <div class="step-header">
+        <div class="step-num" style="background:rgba(245,158,11,.1);color:var(--am)">🌱</div>
+        <div>
+          <div class="step-title">Seed + Final Test</div>
+          <div class="step-sub">Ma'lumotlar yuklash va hamma narsani tekshirish</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">1. Database Seed</div>
+        <p style="font-size:12px;color:var(--tx2);margin-bottom:12px">Lokal terminaldan seed yuborish (Neon'ga to'g'ridan to'g'ri):</p>
+        <div class="code-block">
+          <div class="code-header"><span>terminal</span><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this,'cd server\nDATABASE_URL=\"postgresql://...neon.tech/neondb?sslmode=require\" npm run db:seed')">📋</button></div>
+          <pre><span class="k">cd</span> server
+
+<span class="c"># Production DATABASE_URL bilan seed:</span>
+DATABASE_URL=<span class="s">"postgresql://USER:PASS@ep-xxx.neon.tech/neondb?sslmode=require"</span> \
+  npm run db:seed
+
+<span class="c"># Yoki .env.production yaratib:</span>
+<span class="k">cp</span> .env.example .env.production
+<span class="c"># .env.production ga production DATABASE_URL yozing</span>
+dotenv -e .env.production -- npm run db:seed</pre>
+        </div>
+
+        <div class="alert success">✅ Muvaffaqiyatli bo'lsa:<br>
+🌱 Seed boshlandi...<br>
+✅ 11 kategoriya yaratildi<br>
+✅ Savollar yaratildi<br>
+✅ Achievementlar<br>
+✅ Roadmap yaratildi<br>
+✅ Admin: admin@devprep.ai / Admin123!<br>
+🎉 Seed yakunlandi!</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">2. To'liq tekshiruv</div>
+
+        <div class="status-grid">
+          <div class="status-item">
+            <div class="status-icon">🐘</div>
+            <div>
+              <div class="status-label">Neon DB</div>
+              <div class="status-val">neon.tech → Tables</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <div class="status-icon">🎨</div>
+            <div>
+              <div class="status-label">Render API</div>
+              <div class="status-val">/health → {"status":"ok"}</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <div class="status-icon">▲</div>
+            <div>
+              <div class="status-label">Vercel Frontend</div>
+              <div class="status-val">Login sahifasi ko'rinadi</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <div class="status-icon">🔐</div>
+            <div>
+              <div class="status-label">Auth</div>
+              <div class="status-val">Login ishlaydi</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">3. Test scenariy</div>
+        <ul class="checklist">
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Vercel URL ochildi: login sahifasi ko'rinadi</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Render health: devprep-api.onrender.com/health ✅</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Register qilindi → email keldi</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Email tasdiqlandi → login ishladi</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Dashboard ko'rindi (charts ishlaydi)</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Question Bank — savollar ko'rindi</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Quiz boshlandi va yakunlandi</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> AI Interview — Claude javob berdi</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Admin: admin@devprep.ai / Admin123! ishladi</li>
+          <li class="check-item" onclick="toggle(this)"><span class="chk"></span> Admin panel ko'rindi</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔧 Muammo va yechimlar</div>
+        <table>
+          <tr><th>Muammo</th><th>Yechim</th></tr>
+          <tr><td>CORS error</td><td>Render → CLIENT_URL = Vercel URL ekanligini tekshiring</td></tr>
+          <tr><td>DB connection xato</td><td>DATABASE_URL oxirida ?sslmode=require borligini tekshiring</td></tr>
+          <tr><td>Email kelmaydi</td><td>Gmail App Password to'g'ri? Spam papka tekshiring</td></tr>
+          <tr><td>AI ishlamaydi</td><td>ANTHROPIC_API_KEY to'g'ri va kredit borligini tekshiring</td></tr>
+          <tr><td>Render 30s kutadi</td><td>Bepul tier uxlaydi. Pro $7/oy ga o'ting yoki keep-alive skript</td></tr>
+          <tr><td>Vercel 404</td><td>vercel.json rewrites borligini tekshiring</td></tr>
+          <tr><td>Build xatolik</td><td>Root Directory = "client" ekanligini tekshiring</td></tr>
+        </table>
+      </div>
+
+      <div class="alert success" style="margin-top:16px">
+        🎉 <strong>Tabriklaymiz! DevPrep AI deploy bo'ldi!</strong><br><br>
+        Frontend: https://devprep-ai.vercel.app<br>
+        Backend: https://devprep-api.onrender.com<br>
+        Admin: admin@devprep.ai / Admin123!
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-prev" onclick="goTo(4)">← Orqaga</button>
+        <button class="btn-next" style="background:var(--gr);border-color:var(--gr)" onclick="alert('🎉 DevPrep AI muvaffaqiyatli deploy bo\'ldi!')">🎉 Tayyor!</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+let current = 0
+const total = 6
+
+function goTo(n) {
+  // Hide current
+  document.getElementById(`step${current}`).classList.remove('active')
+  document.getElementById(`nav${current}`)?.classList.remove('active')
+  if (n > current) document.getElementById(`nav${current}`)?.classList.replace('active','done')
+
+  // Show new
+  current = n
+  document.getElementById(`step${n}`).classList.add('active')
+
+  // Update sidebar nav
+  document.querySelectorAll('.side-item').forEach((el, i) => {
+    el.classList.remove('active','done','todo')
+    if (i < n) el.classList.add('done')
+    else if (i === n) el.classList.add('active')
+    else el.classList.add('todo')
+  })
+
+  // Update progress bar
+  document.querySelectorAll('.pb-step').forEach((el, i) => {
+    el.classList.remove('done','active')
+    if (i < n) el.classList.add('done')
+    else if (i === n) el.classList.add('active')
+  })
+
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+function toggle(el) {
+  el.classList.toggle('checked')
+  if (el.classList.contains('checked')) {
+    el.querySelector('.chk').textContent = '✓'
+  } else {
+    el.querySelector('.chk').textContent = ''
+  }
+}
+
+function copyCode(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✅ Nusxalandi'
+    btn.classList.add('ok')
+    setTimeout(() => { btn.textContent = '📋'; btn.classList.remove('ok') }, 2000)
+  })
+}
+
+// Init sidebar
+document.querySelectorAll('.side-item').forEach((el, i) => {
+  el.classList.remove('active','done','todo')
+  if (i === 0) el.classList.add('active')
+  else el.classList.add('todo')
+})
+</script>
+</body>
+</html>

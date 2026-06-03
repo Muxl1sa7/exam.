@@ -1,0 +1,2096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevPrep AI — Barcha Kodlar (To'liq)</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#080c18;--bg2:#0e1525;--bg3:#131d32;--bd:#1a2840;--ac:#00d4ff;--vi:#7c3aed;--gr:#10b981;--am:#f59e0b;--rd:#ef4444;--tx:#dde4f0;--tx2:#8899bb;--tx3:#4a5a78}
+html,body{height:100%;overflow:hidden;font-family:'JetBrains Mono',monospace}
+body{background:var(--bg);color:var(--tx);display:flex;flex-direction:column}
+
+/* ── HEADER ── */
+.hdr{background:var(--bg2);border-bottom:1px solid var(--bd);padding:10px 20px;display:flex;align-items:center;gap:16px;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:9px}
+.logo-i{width:26px;height:26px;background:var(--ac);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.logo-t{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;background:linear-gradient(135deg,#fff 0%,var(--ac) 60%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr-stats{display:flex;gap:8px;margin-left:auto}
+.hdr-badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;border:1px solid}
+.hdr-badge.s{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.25);color:var(--gr)}
+.hdr-badge.c{background:rgba(0,212,255,.08);border-color:rgba(0,212,255,.25);color:var(--ac)}
+.hdr-badge.d{background:rgba(124,58,237,.08);border-color:rgba(124,58,237,.25);color:#a78bfa}
+
+/* ── LAYOUT ── */
+.wrap{display:flex;flex:1;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.side{width:230px;background:var(--bg2);border-right:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0}
+.side-search{padding:8px;border-bottom:1px solid var(--bd)}
+.side-search input{width:100%;background:var(--bg3);border:1px solid var(--bd);border-radius:5px;padding:5px 9px;font-size:11px;color:var(--tx);font-family:inherit;outline:none}
+.side-search input:focus{border-color:var(--ac)}
+.side-search input::placeholder{color:var(--tx3)}
+.tree{flex:1;overflow-y:auto;padding:4px 0}
+.tree::-webkit-scrollbar{width:4px}
+.tree::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+.grp-hdr{padding:7px 12px 3px;font-size:9.5px;text-transform:uppercase;letter-spacing:1.5px;color:var(--tx3);display:flex;align-items:center;gap:6px;user-select:none}
+.grp-hdr span{opacity:.6;font-size:9px}
+.f-item{padding:4px 12px 4px 20px;font-size:11px;cursor:pointer;color:var(--tx2);display:flex;align-items:center;gap:6px;transition:all .1s;border-left:2px solid transparent;user-select:none;line-height:1.5}
+.f-item:hover{background:rgba(0,212,255,.03);color:var(--tx)}
+.f-item.active{background:rgba(0,212,255,.06);color:var(--ac);border-left-color:var(--ac)}
+.f-sub{font-size:9px;color:var(--tx3);background:var(--bg3);padding:1px 5px;border-radius:3px;flex-shrink:0}
+
+/* ── EDITOR ── */
+.editor{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--bd);overflow-x:auto;min-height:34px;flex-shrink:0}
+.tabs::-webkit-scrollbar{height:2px}
+.tab{display:flex;align-items:center;gap:5px;padding:0 13px;font-size:10.5px;cursor:pointer;color:var(--tx3);white-space:nowrap;border-right:1px solid var(--bd);min-height:34px;transition:all .1s;flex-shrink:0}
+.tab:hover{color:var(--tx)}
+.tab.active{color:var(--tx);background:var(--bg);border-bottom:2px solid var(--ac);margin-bottom:-1px}
+.tab .x{opacity:0;padding:0 3px;border-radius:2px;font-size:12px;margin-left:2px}
+.tab:hover .x{opacity:1}
+.tab .x:hover{background:rgba(255,255,255,.1);color:#fff}
+
+/* ── CODE ── */
+.code-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.code-bar{padding:6px 14px;background:var(--bg2);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;font-size:10.5px;color:var(--tx3);flex-shrink:0}
+.code-path{color:var(--tx2)}
+.copy-btn{background:var(--bg3);border:1px solid var(--bd);color:var(--tx2);padding:3px 10px;border-radius:4px;cursor:pointer;font-size:10px;font-family:inherit;transition:all .13s}
+.copy-btn:hover{border-color:var(--ac);color:var(--ac)}
+.copy-btn.ok{border-color:var(--gr);color:var(--gr)}
+.code-scroll{flex:1;overflow:auto;display:flex}
+.code-scroll::-webkit-scrollbar{width:6px;height:6px}
+.code-scroll::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+.lns{padding:12px 0;background:rgba(0,0,0,.12);min-width:44px;text-align:right;user-select:none;flex-shrink:0;position:sticky;left:0}
+.ln{padding:0 9px;font-size:11.5px;line-height:1.65;color:var(--tx3);opacity:.4}
+.code{padding:12px 18px;font-size:12px;line-height:1.65;white-space:pre;flex:1;min-width:0;tab-size:2}
+
+/* ── EMPTY ── */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:8px;color:var(--tx3)}
+.empty-i{font-size:36px;opacity:.2}
+
+/* ── STATUS ── */
+.status{background:var(--ac);color:#060c18;padding:2px 14px;font-size:10.5px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;font-weight:700}
+
+/* ── SYNTAX ── */
+.kw{color:#c792ea}.fn{color:#82aaff}.str{color:#c3e88d}.num{color:#f78c6c}.cmt{color:#4a6178;font-style:italic}.cls{color:#ffcb6b}.tp{color:#00d4ff}.dc{color:#ff5370}.pr{color:#f07178}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="logo">
+    <div class="logo-i">⚡</div>
+    <span class="logo-t">DevPrep AI — To'liq Kodlar</span>
+  </div>
+  <div class="hdr-stats">
+    <span class="hdr-badge s">⚙️ 36 server</span>
+    <span class="hdr-badge c">⚛️ 53 client</span>
+    <span class="hdr-badge d">📚 3 docs</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="side">
+    <div class="side-search">
+      <input placeholder="🔍 Fayl qidirish..." oninput="search(this.value)" id="si">
+    </div>
+    <div class="tree" id="tree"></div>
+  </div>
+  <div class="editor">
+    <div class="tabs" id="tabs"></div>
+    <div class="code-area" id="ca">
+      <div class="empty"><div class="empty-i">📂</div><span>Chapdan fayl tanlang</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="status">
+  <span id="sp">DevPrep AI v1.0 — barcha kodlar tayyor</span>
+  <span id="sl">TypeScript · UTF-8</span>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════
+//  FILE DATABASE — BARCHA FAYLLAR
+// ════════════════════════════════════════════════════════════════════
+const F={
+
+// ─── SERVER: CONFIG ──────────────────────────────────────────────────
+'s/prisma/schema.prisma':{g:'server',i:'🔷',l:'prisma',n:'schema.prisma',p:'prisma/',c:`generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role { USER  ADMIN }
+enum Track { FRONTEND  BACKEND  FULLSTACK }
+enum Difficulty { EASY  MEDIUM  HARD  MIXED }
+enum QuestionType { MULTIPLE_CHOICE  SINGLE_CHOICE  OPEN_ENDED }
+enum CategoryGroup { FRONTEND  BACKEND  GENERAL }
+enum NotifType { QUIZ_RESULT  ACHIEVEMENT  ROADMAP  SYSTEM }
+enum AchievementCondition { QUIZ_COUNT  SCORE  STREAK  CATEGORY }
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  fullName      String
+  avatarUrl     String?
+  role          Role      @default(USER)
+  track         Track?
+  isVerified    Boolean   @default(false)
+  verifyToken   String?
+  resetToken    String?
+  resetTokenExp DateTime?
+  refreshToken  String?
+  streakCount   Int       @default(0)
+  lastActive    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  quizResults     QuizResult[]
+  bookmarks       Bookmark[]
+  notifications   Notification[]
+  achievements    UserAchievement[]
+  roadmapProgress RoadmapProgress[]
+  aiSessions      AISession[]
+  adminLogs       AdminLog[]
+  @@map("users")
+}
+
+model Category {
+  id        String        @id @default(uuid())
+  name      String        @unique
+  slug      String        @unique
+  group     CategoryGroup
+  icon      String?
+  createdAt DateTime      @default(now())
+  questions Question[]
+  @@map("categories")
+}
+
+model Question {
+  id            String       @id @default(uuid())
+  categoryId    String
+  category      Category     @relation(fields: [categoryId], references: [id])
+  title         String
+  type          QuestionType
+  difficulty    Difficulty
+  options       Json?        // [{id, text, isCorrect}]
+  correctAnswer String?
+  explanation   String?
+  tags          String[]     @default([])
+  isActive      Boolean      @default(true)
+  createdById   String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  quizQuestions QuizQuestion[]
+  bookmarks     Bookmark[]
+  @@map("questions")
+}
+
+model Quiz {
+  id            String     @id @default(uuid())
+  title         String
+  description   String?
+  type          Track
+  difficulty    Difficulty
+  timeLimit     Int
+  questionCount Int
+  isActive      Boolean    @default(true)
+  createdById   String?
+  createdAt     DateTime   @default(now())
+  questions     QuizQuestion[]
+  results       QuizResult[]
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  quizId     String
+  questionId String
+  orderIndex Int
+  quiz       Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  @@id([quizId, questionId])
+  @@map("quiz_questions")
+}
+
+model QuizResult {
+  id          String   @id @default(uuid())
+  userId      String
+  quizId      String
+  score       Int
+  total       Int
+  percentage  Float
+  timeSpent   Int
+  answers     Json
+  completedAt DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  @@map("quiz_results")
+}
+
+model Bookmark {
+  id         String   @id @default(uuid())
+  userId     String
+  questionId String
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  @@unique([userId, questionId])
+  @@map("bookmarks")
+}
+
+model RoadmapNode {
+  id          String  @id @default(uuid())
+  track       Track
+  title       String
+  description String?
+  orderIndex  Int
+  parentId    String?
+  resources   Json?
+  isMilestone Boolean @default(false)
+  parent      RoadmapNode?  @relation("NodeChildren", fields: [parentId], references: [id])
+  children    RoadmapNode[] @relation("NodeChildren")
+  progress    RoadmapProgress[]
+  @@map("roadmap_nodes")
+}
+
+model RoadmapProgress {
+  userId      String
+  nodeId      String
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  node        RoadmapNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  @@id([userId, nodeId])
+  @@map("roadmap_progress")
+}
+
+model AISession {
+  id           String   @id @default(uuid())
+  userId       String
+  questionText String
+  userAnswer   String
+  aiScore      Int
+  aiFeedback   String
+  idealAnswer  String
+  resources    Json?
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("ai_sessions")
+}
+
+model Achievement {
+  id             String               @id @default(uuid())
+  slug           String               @unique
+  title          String
+  description    String?
+  icon           String?
+  conditionType  AchievementCondition
+  conditionValue Int
+  userAchievements UserAchievement[]
+  @@map("achievements")
+}
+
+model UserAchievement {
+  userId        String
+  achievementId String
+  earnedAt      DateTime    @default(now())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  @@id([userId, achievementId])
+  @@map("user_achievements")
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  type      NotifType
+  title     String
+  message   String?
+  isRead    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("notifications")
+}
+
+model AdminLog {
+  id        String   @id @default(uuid())
+  adminId   String
+  action    String
+  target    String?
+  details   Json?
+  createdAt DateTime @default(now())
+  admin     User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  @@map("admin_logs")
+}`},
+
+'s/src/app.ts':{g:'server',i:'🚀',l:'ts',n:'app.ts',p:'src/',c:`import express from 'express'
+import cors from 'cors'
+import helmet from 'helmet'
+import morgan from 'morgan'
+import cookieParser from 'cookie-parser'
+import { env } from './config/env'
+import { globalLimiter, authLimiter, aiLimiter } from './middleware/rateLimit'
+import authRoutes from './modules/auth/auth.routes'
+import questionsRoutes from './modules/questions/questions.routes'
+import quizzesRoutes from './modules/quizzes/quizzes.routes'
+import aiRoutes from './modules/ai/ai.routes'
+import dashboardRoutes from './modules/dashboard/dashboard.routes'
+import adminRoutes from './modules/admin/admin.routes'
+
+const app = express()
+
+app.use(helmet())
+app.use(cors({
+  origin: env.clientUrl,
+  credentials: true,
+  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization'],
+}))
+
+app.use('/api/v1/auth', authLimiter)
+app.use('/api/v1/ai', aiLimiter)
+app.use(globalLimiter)
+app.use(morgan(env.nodeEnv === 'development' ? 'dev' : 'combined'))
+app.use(express.json({ limit: '10mb' }))
+app.use(express.urlencoded({ extended: true }))
+app.use(cookieParser())
+
+app.get('/health', (_, res) => res.json({
+  status: 'ok', timestamp: new Date().toISOString(), service: 'DevPrep AI API'
+}))
+
+app.use('/api/v1/auth', authRoutes)
+app.use('/api/v1/questions', questionsRoutes)
+app.use('/api/v1/quizzes', quizzesRoutes)
+app.use('/api/v1/ai', aiRoutes)
+app.use('/api/v1/dashboard', dashboardRoutes)
+app.use('/api/v1/admin', adminRoutes)
+
+app.use('*', (_, res) => res.status(404).json({ success: false, message: 'Route topilmadi' }))
+app.use((err: Error, _req: express.Request, res: express.Response, _n: express.NextFunction) => {
+  console.error(err)
+  res.status(500).json({ success: false, message: 'Server xatosi' })
+})
+export default app`},
+
+'s/src/config/env.ts':{g:'server',i:'⚙️',l:'ts',n:'env.ts',p:'config/',c:`import dotenv from 'dotenv'
+dotenv.config()
+
+const required = (key: string): string => {
+  const val = process.env[key]
+  if (!val) throw new Error(\`Missing env: \${key}\`)
+  return val
+}
+
+export const env = {
+  port: parseInt(process.env.PORT || '5000'),
+  nodeEnv: process.env.NODE_ENV || 'development',
+  clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
+  jwt: {
+    secret: required('JWT_SECRET'),
+    refreshSecret: required('JWT_REFRESH_SECRET'),
+    expiresIn: process.env.JWT_EXPIRES_IN || '15m',
+    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+  },
+  smtp: {
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    user: required('SMTP_USER'),
+    pass: required('SMTP_PASS'),
+    from: process.env.FROM_EMAIL || 'DevPrep AI <noreply@devprep.ai>',
+  },
+  anthropic: { apiKey: process.env.ANTHROPIC_API_KEY || '' },
+} as const`},
+
+'s/src/utils/jwt.ts':{g:'server',i:'🔑',l:'ts',n:'jwt.ts',p:'utils/',c:`import jwt from 'jsonwebtoken'
+import { env } from '../config/env'
+
+export interface JwtPayload { userId: string; email: string; role: string }
+
+export const generateAccessToken = (payload: JwtPayload): string =>
+  jwt.sign(payload, env.jwt.secret, { expiresIn: env.jwt.expiresIn } as jwt.SignOptions)
+
+export const generateRefreshToken = (payload: JwtPayload): string =>
+  jwt.sign(payload, env.jwt.refreshSecret, { expiresIn: env.jwt.refreshExpiresIn } as jwt.SignOptions)
+
+export const verifyAccessToken = (token: string): JwtPayload =>
+  jwt.verify(token, env.jwt.secret) as JwtPayload
+
+export const verifyRefreshToken = (token: string): JwtPayload =>
+  jwt.verify(token, env.jwt.refreshSecret) as JwtPayload`},
+
+'s/src/utils/response.ts':{g:'server',i:'📤',l:'ts',n:'response.ts',p:'utils/',c:`import { Response } from 'express'
+
+export const successResponse = (res: Response, data: unknown, message = 'Success', statusCode = 200) =>
+  res.status(statusCode).json({ success: true, message, data })
+
+export const errorResponse = (res: Response, message = 'Internal server error', statusCode = 500, errors?: unknown) =>
+  res.status(statusCode).json({ success: false, message, errors: errors || null })
+
+export const paginatedResponse = (
+  res: Response,
+  data: unknown,
+  pagination: { page: number; limit: number; total: number },
+  message = 'Success'
+) => res.status(200).json({
+  success: true, message, data,
+  pagination: {
+    page: pagination.page,
+    limit: pagination.limit,
+    total: pagination.total,
+    totalPages: Math.ceil(pagination.total / pagination.limit),
+  },
+})`},
+
+'s/src/middleware/auth.ts':{g:'server',i:'🛡️',l:'ts',n:'auth.middleware.ts',p:'middleware/',c:`import { Response, NextFunction } from 'express'
+import { verifyAccessToken } from '../utils/jwt'
+import { errorResponse } from '../utils/response'
+import { AuthRequest } from '../types'
+
+export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction): void => {
+  try {
+    const authHeader = req.headers.authorization
+    if (!authHeader?.startsWith('Bearer ')) {
+      errorResponse(res, 'Token topilmadi', 401)
+      return
+    }
+    const token = authHeader.split(' ')[1]
+    const payload = verifyAccessToken(token)
+    req.user = payload
+    next()
+  } catch {
+    errorResponse(res, "Token noto'g'ri yoki muddati o'tgan", 401)
+  }
+}
+
+export const adminMiddleware = (req: AuthRequest, res: Response, next: NextFunction): void => {
+  if (!req.user || req.user.role !== 'ADMIN') {
+    errorResponse(res, 'Admin huquqi talab qilinadi', 403)
+    return
+  }
+  next()
+}`},
+
+'s/src/modules/auth/auth.schema.ts':{g:'server',i:'✅',l:'ts',n:'auth.schema.ts',p:'auth/',c:`import { z } from 'zod'
+
+export const registerSchema = z.object({
+  email: z.string().email("Email noto'g'ri formatda"),
+  password: z.string()
+    .min(8, 'Parol kamida 8 ta belgi')
+    .regex(/[A-Z]/, 'Kamida 1 ta katta harf')
+    .regex(/[0-9]/, 'Kamida 1 ta raqam'),
+  fullName: z.string().min(2).max(100),
+  track: z.enum(['FRONTEND', 'BACKEND', 'FULLSTACK']).optional(),
+})
+
+export const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+})
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email(),
+})
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1),
+  password: z.string().min(8).regex(/[A-Z]/).regex(/[0-9]/),
+})
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8).regex(/[A-Z]/).regex(/[0-9]/),
+})
+
+export const updateProfileSchema = z.object({
+  fullName: z.string().min(2).max(100).optional(),
+  avatarUrl: z.string().url().optional(),
+  track: z.enum(['FRONTEND', 'BACKEND', 'FULLSTACK']).optional(),
+})
+
+export type RegisterDto = z.infer<typeof registerSchema>
+export type LoginDto = z.infer<typeof loginSchema>
+export type ForgotPasswordDto = z.infer<typeof forgotPasswordSchema>
+export type ResetPasswordDto = z.infer<typeof resetPasswordSchema>
+export type ChangePasswordDto = z.infer<typeof changePasswordSchema>
+export type UpdateProfileDto = z.infer<typeof updateProfileSchema>`},
+
+'s/src/modules/auth/auth.service.ts':{g:'server',i:'🔐',l:'ts',n:'auth.service.ts',p:'auth/',c:`import crypto from 'crypto'
+import { prisma } from '../../config/database'
+import { hashPassword, comparePassword } from '../../utils/password'
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../utils/jwt'
+import { sendVerificationEmail, sendPasswordResetEmail } from '../../config/email'
+
+export class AuthService {
+  async register(dto: { email: string; password: string; fullName: string; track?: any }) {
+    const existing = await prisma.user.findUnique({ where: { email: dto.email } })
+    if (existing) throw new Error("Bu email allaqachon ro'yxatdan o'tgan")
+
+    const passwordHash = await hashPassword(dto.password)
+    const verifyToken = crypto.randomBytes(32).toString('hex')
+
+    const user = await prisma.user.create({
+      data: { email: dto.email, passwordHash, fullName: dto.fullName, track: dto.track, verifyToken },
+      select: { id: true, email: true, fullName: true, role: true, track: true, isVerified: true, createdAt: true },
+    })
+    await sendVerificationEmail(dto.email, verifyToken)
+    return { user, message: "Ro'yxatdan o'tdingiz! Email manzilingizni tasdiqlang." }
+  }
+
+  async login(dto: { email: string; password: string }) {
+    const user = await prisma.user.findUnique({ where: { email: dto.email } })
+    if (!user) throw new Error("Email yoki parol noto'g'ri")
+
+    const isValid = await comparePassword(dto.password, user.passwordHash)
+    if (!isValid) throw new Error("Email yoki parol noto'g'ri")
+    if (!user.isVerified) throw new Error('Email tasdiqlanmagan')
+
+    const payload = { userId: user.id, email: user.email, role: user.role }
+    const accessToken = generateAccessToken(payload)
+    const refreshToken = generateRefreshToken(payload)
+
+    // Streak calculation
+    const today = new Date(); today.setHours(0,0,0,0)
+    let streakCount = user.streakCount
+    if (user.lastActive) {
+      const last = new Date(user.lastActive); last.setHours(0,0,0,0)
+      const diff = Math.floor((today.getTime() - last.getTime()) / 86400000)
+      if (diff === 1) streakCount++
+      else if (diff > 1) streakCount = 1
+    } else streakCount = 1
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken, lastActive: new Date(), streakCount },
+    })
+    const { passwordHash, verifyToken, resetToken, resetTokenExp, refreshToken: _r, ...safe } = user
+    return { accessToken, refreshToken, user: { ...safe, streakCount } }
+  }
+
+  async logout(userId: string) {
+    await prisma.user.update({ where: { id: userId }, data: { refreshToken: null } })
+  }
+
+  async refreshTokens(token: string) {
+    const payload = verifyRefreshToken(token)
+    const user = await prisma.user.findFirst({ where: { id: payload.userId, refreshToken: token } })
+    if (!user) throw new Error('Refresh token topilmadi')
+    const newPayload = { userId: user.id, email: user.email, role: user.role }
+    const accessToken = generateAccessToken(newPayload)
+    const refreshToken = generateRefreshToken(newPayload)
+    await prisma.user.update({ where: { id: user.id }, data: { refreshToken } })
+    return { accessToken, refreshToken }
+  }
+
+  async verifyEmail(token: string) {
+    const user = await prisma.user.findFirst({ where: { verifyToken: token } })
+    if (!user) throw new Error("Token noto'g'ri yoki muddati o'tgan")
+    await prisma.user.update({ where: { id: user.id }, data: { isVerified: true, verifyToken: null } })
+  }
+
+  async forgotPassword(email: string) {
+    const user = await prisma.user.findUnique({ where: { email } })
+    if (!user) return
+    const resetToken = crypto.randomBytes(32).toString('hex')
+    await prisma.user.update({ where: { id: user.id }, data: { resetToken, resetTokenExp: new Date(Date.now() + 3600000) } })
+    await sendPasswordResetEmail(email, resetToken)
+  }
+
+  async resetPassword(token: string, password: string) {
+    const user = await prisma.user.findFirst({ where: { resetToken: token, resetTokenExp: { gt: new Date() } } })
+    if (!user) throw new Error("Token noto'g'ri yoki muddati o'tgan")
+    const passwordHash = await hashPassword(password)
+    await prisma.user.update({ where: { id: user.id }, data: { passwordHash, resetToken: null, resetTokenExp: null } })
+  }
+}
+export const authService = new AuthService()`},
+
+'s/src/modules/questions/questions.service.ts':{g:'server',i:'📚',l:'ts',n:'questions.service.ts',p:'questions/',c:`import { prisma } from '../../config/database'
+import { Difficulty, QuestionType } from '@prisma/client'
+
+export class QuestionsService {
+  async getQuestions(params: {
+    page?: number; limit?: number; categoryId?: string;
+    difficulty?: string; type?: string; search?: string; userId?: string
+  }) {
+    const { page=1, limit=20, categoryId, difficulty, type, search, userId } = params
+    const skip = (page-1)*limit
+    const where: any = { isActive: true }
+    if (categoryId) where.categoryId = categoryId
+    if (difficulty) where.difficulty = difficulty as Difficulty
+    if (type) where.type = type as QuestionType
+    if (search) where.title = { contains: search, mode: 'insensitive' }
+
+    const [questions, total] = await Promise.all([
+      prisma.question.findMany({
+        where, skip, take: limit,
+        include: {
+          category: { select: { id: true, name: true, slug: true, group: true, icon: true } },
+          bookmarks: userId ? { where: { userId }, select: { id: true } } : false,
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.question.count({ where }),
+    ])
+
+    return {
+      questions: questions.map((q) => ({
+        ...q, isBookmarked: userId ? q.bookmarks.length > 0 : false, bookmarks: undefined,
+      })),
+      total, page, limit,
+    }
+  }
+
+  async getCategories() {
+    const categories = await prisma.category.findMany({
+      include: { _count: { select: { questions: { where: { isActive: true } } } } },
+      orderBy: { name: 'asc' },
+    })
+    return categories.map((c) => ({ ...c, questionCount: c._count.questions }))
+  }
+
+  async toggleBookmark(userId: string, questionId: string) {
+    const existing = await prisma.bookmark.findUnique({
+      where: { userId_questionId: { userId, questionId } }
+    })
+    if (existing) {
+      await prisma.bookmark.delete({ where: { id: existing.id } })
+      return { bookmarked: false }
+    }
+    await prisma.bookmark.create({ data: { userId, questionId } })
+    return { bookmarked: true }
+  }
+}
+export const questionsService = new QuestionsService()`},
+
+'s/src/modules/quizzes/quizzes.service.ts':{g:'server',i:'📝',l:'ts',n:'quizzes.service.ts',p:'quizzes/',c:`import { prisma } from '../../config/database'
+import { Track, Difficulty } from '@prisma/client'
+
+export class QuizzesService {
+  async startQuiz(id: string) {
+    const quiz = await prisma.quiz.findFirst({
+      where: { id, isActive: true },
+      include: {
+        questions: {
+          include: {
+            question: {
+              select: {
+                id: true, title: true, type: true, difficulty: true, options: true,
+                category: { select: { name: true } },
+                // ⚠️ correctAnswer intentionally NOT included
+              },
+            },
+          },
+          orderBy: { orderIndex: 'asc' },
+        },
+      },
+    })
+    if (!quiz) throw new Error('Quiz topilmadi')
+    return {
+      id: quiz.id, title: quiz.title, description: quiz.description,
+      type: quiz.type, difficulty: quiz.difficulty, timeLimit: quiz.timeLimit,
+      questions: quiz.questions.map((qq) => qq.question),
+    }
+  }
+
+  async submitQuiz(quizId: string, userId: string, dto: { answers: any[]; timeSpent: number }) {
+    const quiz = await prisma.quiz.findFirst({
+      where: { id: quizId, isActive: true },
+      include: { questions: { include: { question: true }, orderBy: { orderIndex: 'asc' } } },
+    })
+    if (!quiz) throw new Error('Quiz topilmadi')
+
+    let score = 0
+    const detailedAnswers = dto.answers.map((ans) => {
+      const qq = quiz.questions.find((q) => q.questionId === ans.questionId)
+      if (!qq) return { ...ans, isCorrect: false }
+      const question = qq.question
+      let isCorrect = false
+      if (question.type !== 'OPEN_ENDED' && question.options && ans.selectedOptionId) {
+        const opts = question.options as Array<{ id: string; isCorrect: boolean }>
+        isCorrect = opts.find((o) => o.id === ans.selectedOptionId)?.isCorrect || false
+      }
+      if (isCorrect) score++
+      return {
+        questionId: ans.questionId, questionTitle: question.title,
+        selectedOptionId: ans.selectedOptionId, isCorrect,
+        correctAnswer: question.correctAnswer,
+        correctOptionId: (question.options as any[])?.find((o) => o.isCorrect)?.id,
+        explanation: question.explanation,
+      }
+    })
+
+    const total = quiz.questions.length
+    const percentage = total > 0 ? (score / total) * 100 : 0
+    const result = await prisma.quizResult.create({
+      data: { userId, quizId, score, total, percentage, timeSpent: dto.timeSpent, answers: detailedAnswers }
+    })
+
+    // Auto-check achievements
+    await this.checkAchievements(userId)
+    return { ...result, detailedAnswers }
+  }
+
+  async getLeaderboard() {
+    const results = await prisma.quizResult.groupBy({
+      by: ['userId'], _avg: { percentage: true }, _count: { id: true }, _max: { percentage: true },
+      orderBy: { _avg: { percentage: 'desc' } }, take: 50,
+    })
+    const users = await prisma.user.findMany({
+      where: { id: { in: results.map((r) => r.userId) } },
+      select: { id: true, fullName: true, avatarUrl: true, track: true },
+    })
+    return results.map((r, i) => ({
+      rank: i+1, user: users.find((u) => u.id === r.userId),
+      avgScore: Math.round(r._avg.percentage || 0),
+      totalQuizzes: r._count.id, bestScore: Math.round(r._max.percentage || 0),
+    }))
+  }
+
+  private async checkAchievements(userId: string) {
+    try {
+      const quizCount = await prisma.quizResult.count({ where: { userId } })
+      const achievements = await prisma.achievement.findMany({ where: { conditionType: 'QUIZ_COUNT' } })
+      for (const ach of achievements) {
+        if (quizCount >= ach.conditionValue) {
+          const exists = await prisma.userAchievement.findUnique({
+            where: { userId_achievementId: { userId, achievementId: ach.id } }
+          })
+          if (!exists) {
+            await prisma.userAchievement.create({ data: { userId, achievementId: ach.id } })
+            await prisma.notification.create({
+              data: { userId, type: 'ACHIEVEMENT', title: \`🏆 \${ach.title}\`, message: ach.description || '' }
+            })
+          }
+        }
+      }
+    } catch {}
+  }
+}
+export const quizzesService = new QuizzesService()`},
+
+'s/src/modules/ai/ai.service.ts':{g:'server',i:'🤖',l:'ts',n:'ai.service.ts',p:'ai/',c:`import Anthropic from '@anthropic-ai/sdk'
+import { prisma } from '../../config/database'
+import { env } from '../../config/env'
+
+const anthropic = new Anthropic({ apiKey: env.anthropic.apiKey })
+
+export class AIService {
+  async evaluateAnswer(userId: string, dto: {
+    questionText: string; userAnswer: string; category?: string
+  }) {
+    const prompt = \`You are a senior software engineer conducting a technical interview.
+Evaluate the answer and respond ONLY with valid JSON (no markdown).
+
+Question: \${dto.questionText}
+\${dto.category ? \`Category: \${dto.category}\` : ''}
+Candidate Answer: \${dto.userAnswer}
+
+{
+  "score": <1-10>,
+  "feedback": "<2-3 sentences>",
+  "idealAnswer": "<comprehensive ideal answer>",
+  "mistakes": ["mistake1", "mistake2"],
+  "resources": [{"title":"...","url":"...","type":"article|video|docs"}],
+  "keyPoints": ["concept1", "concept2"]
+}\`
+
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }],
+    })
+
+    const text = (response.content[0] as any).text
+    const parsed = JSON.parse(text.replace(/\`\`\`json|\`\`\`/g, '').trim())
+
+    const session = await prisma.aISession.create({
+      data: {
+        userId, questionText: dto.questionText, userAnswer: dto.userAnswer,
+        aiScore: parsed.score, aiFeedback: parsed.feedback,
+        idealAnswer: parsed.idealAnswer, resources: parsed.resources || [],
+      }
+    })
+    return { sessionId: session.id, ...parsed }
+  }
+
+  async getMockInterviewQuestions(track: string, count = 5) {
+    let where: any = { isActive: true, type: 'OPEN_ENDED' }
+    if (track === 'FRONTEND') where = { ...where, category: { group: 'FRONTEND' } }
+    else if (track === 'BACKEND') where = { ...where, category: { group: 'BACKEND' } }
+
+    const questions = await prisma.question.findMany({
+      where, include: { category: { select: { name: true, slug: true } } }, take: count * 3,
+    })
+    return questions.sort(() => Math.random() - 0.5).slice(0, count).map((q) => ({
+      id: q.id, title: q.title, difficulty: q.difficulty, category: q.category,
+    }))
+  }
+}
+export const aiService = new AIService()`},
+
+'s/src/modules/dashboard/dashboard.service.ts':{g:'server',i:'📊',l:'ts',n:'dashboard.service.ts',p:'dashboard/',c:`import { prisma } from '../../config/database'
+
+export class DashboardService {
+  async getStats(userId: string) {
+    const [user, quizResults, aiSessions, bookmarkCount, achievements, roadmapProgress] =
+      await Promise.all([
+        prisma.user.findUnique({ where: { id: userId }, select: { streakCount: true, track: true } }),
+        prisma.quizResult.findMany({ where: { userId }, select: { percentage: true, completedAt: true }, orderBy: { completedAt: 'desc' } }),
+        prisma.aISession.count({ where: { userId } }),
+        prisma.bookmark.count({ where: { userId } }),
+        prisma.userAchievement.count({ where: { userId } }),
+        prisma.roadmapProgress.count({ where: { userId, isCompleted: true } }),
+      ])
+
+    const totalTests = quizResults.length
+    const avgScore = totalTests > 0
+      ? Math.round(quizResults.reduce((s, r) => s + r.percentage, 0) / totalTests) : 0
+    const readinessScore = Math.min(100, Math.round(
+      avgScore * 0.5 + Math.min(totalTests * 2, 30) + Math.min(aiSessions * 3, 20)
+    ))
+
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(); d.setDate(d.getDate() - (6 - i)); d.setHours(0,0,0,0); return d
+    })
+    const weeklyActivity = last7Days.map((day) => {
+      const next = new Date(day); next.setDate(next.getDate() + 1)
+      const dr = quizResults.filter((r) => r.completedAt >= day && r.completedAt < next)
+      return {
+        date: day.toISOString().split('T')[0],
+        day: ['Yak','Du','Se','Cho','Pay','Ju','Sha'][day.getDay()],
+        score: dr.length > 0 ? Math.round(dr.reduce((s, r) => s + r.percentage, 0) / dr.length) : 0,
+        tests: dr.length,
+      }
+    })
+
+    return {
+      totalTests, avgScore, readinessScore,
+      streakCount: user?.streakCount || 0,
+      aiSessionsCount: aiSessions, bookmarkCount,
+      achievementsCount: achievements, roadmapCompleted: roadmapProgress,
+      weeklyActivity, track: user?.track,
+    }
+  }
+
+  async getRoadmap(track: string, userId: string) {
+    const nodes = await prisma.roadmapNode.findMany({
+      where: { track: track.toUpperCase() as any },
+      include: { progress: { where: { userId }, select: { isCompleted: true, completedAt: true } } },
+      orderBy: { orderIndex: 'asc' },
+    })
+    return nodes.map((n) => ({
+      id: n.id, title: n.title, description: n.description,
+      orderIndex: n.orderIndex, parentId: n.parentId,
+      isMilestone: n.isMilestone, resources: n.resources,
+      isCompleted: n.progress[0]?.isCompleted || false,
+      completedAt: n.progress[0]?.completedAt || null,
+    }))
+  }
+
+  async completeNode(userId: string, nodeId: string) {
+    return prisma.roadmapProgress.upsert({
+      where: { userId_nodeId: { userId, nodeId } },
+      update: { isCompleted: true, completedAt: new Date() },
+      create: { userId, nodeId, isCompleted: true, completedAt: new Date() },
+    })
+  }
+
+  async getAchievements(userId: string) {
+    const [all, earned] = await Promise.all([
+      prisma.achievement.findMany({ orderBy: { conditionValue: 'asc' } }),
+      prisma.userAchievement.findMany({ where: { userId }, include: { achievement: true } }),
+    ])
+    return all.map((ach) => {
+      const ua = earned.find((e) => e.achievementId === ach.id)
+      return { ...ach, isEarned: !!ua, earnedAt: ua?.earnedAt || null }
+    })
+  }
+}
+export const dashboardService = new DashboardService()`},
+
+// ─── CLIENT: CONFIG ──────────────────────────────────────────────────
+'c/tailwind.config.ts':{g:'client',i:'🎨',l:'ts',n:'tailwind.config.ts',p:'',c:`/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        dark: {
+          800: '#0f1628',
+          850: '#0d1320',
+          900: '#0a0e1a',
+          950: '#060912',
+        },
+        accent: {
+          DEFAULT: '#00d4ff',
+          50: 'rgba(0,212,255,0.05)',
+          100: 'rgba(0,212,255,0.1)',
+          200: 'rgba(0,212,255,0.2)',
+          500: '#00d4ff',
+        },
+        violet: { 500: '#7c3aed', 400: '#8b5cf6' },
+        emerald: { 500: '#10b981', 400: '#34d399' },
+        amber: { 500: '#f59e0b', 400: '#fbbf24' },
+        rose: { 500: '#ef4444', 400: '#f87171' },
+      },
+      fontFamily: {
+        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+        sans: ['Syne', 'system-ui', 'sans-serif'],
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.4s ease-out',
+        'slide-up': 'slideUp 0.4s ease-out',
+      },
+      keyframes: {
+        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+        slideUp: { '0%': { opacity: '0', transform: 'translateY(16px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+      },
+    },
+  },
+  plugins: [],
+}`},
+
+'c/src/index.css':{g:'client',i:'🖌️',l:'css',n:'index.css',p:'src/',c:`@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root { --bg: #0a0e1a; --bg2: #0f1628; --accent: #00d4ff; }
+  body { @apply bg-dark-900 text-slate-200 font-mono antialiased; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { @apply bg-slate-700 rounded-full; }
+  ::selection { background: rgba(0,212,255,0.2); color: #fff; }
+}
+
+@layer components {
+  .card { @apply bg-dark-800 border border-slate-800 rounded-xl p-6; }
+
+  .btn-primary {
+    @apply bg-accent-500 text-dark-900 font-bold px-5 py-2.5 rounded-lg
+           hover:bg-opacity-90 active:scale-95 transition-all duration-150
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply bg-slate-800 text-slate-200 font-semibold px-5 py-2.5 rounded-lg
+           border border-slate-700 hover:border-slate-600 hover:bg-slate-700
+           active:scale-95 transition-all duration-150;
+  }
+  .btn-ghost {
+    @apply text-slate-400 font-semibold px-4 py-2 rounded-lg
+           hover:bg-slate-800 hover:text-slate-200 transition-all;
+  }
+  .input {
+    @apply w-full bg-dark-850 border border-slate-700 rounded-lg px-4 py-3
+           text-slate-200 placeholder-slate-500 font-mono text-sm
+           focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-200;
+  }
+  .badge { @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-semibold; }
+  .badge-easy   { @apply bg-emerald-500/10 text-emerald-400 border border-emerald-500/20; }
+  .badge-medium { @apply bg-amber-500/10 text-amber-400 border border-amber-500/20; }
+  .badge-hard   { @apply bg-rose-500/10 text-rose-400 border border-rose-500/20; }
+  .badge-frontend { @apply bg-accent-100 text-accent-500 border border-accent-200; }
+  .badge-backend  { @apply bg-violet-500/10 text-violet-400 border border-violet-500/20; }
+  .badge-general  { @apply bg-slate-800 text-slate-400 border border-slate-700; }
+  .stat-card { @apply card hover:border-slate-700 transition-colors cursor-default; }
+  .sidebar-link {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400
+           hover:bg-slate-800 hover:text-slate-200 transition-all text-sm font-semibold;
+  }
+  .sidebar-link.active { @apply bg-accent-50 text-accent-500 border border-accent-200; }
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #fff 0%, #00d4ff 50%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.glow { box-shadow: 0 0 20px rgba(0,212,255,0.15); }
+.glass { background: rgba(15,22,40,0.8); backdrop-filter: blur(12px); border: 1px solid rgba(30,45,74,0.8); }`},
+
+'c/src/api/axios.ts':{g:'client',i:'📡',l:'ts',n:'axios.ts',p:'api/',c:`import axios from 'axios'
+
+const BASE_URL = import.meta.env.VITE_API_URL || '/api/v1'
+
+export const api = axios.create({
+  baseURL: BASE_URL, withCredentials: true,
+  headers: { 'Content-Type': 'application/json' },
+})
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('accessToken')
+  if (token) config.headers.Authorization = \`Bearer \${token}\`
+  return config
+})
+
+let isRefreshing = false
+let failedQueue: any[] = []
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach((p) => error ? p.reject(error) : p.resolve(token))
+  failedQueue = []
+}
+
+api.interceptors.response.use(
+  (res) => res,
+  async (error) => {
+    const orig = error.config
+    if (error.response?.status === 401 && !orig._retry) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => failedQueue.push({ resolve, reject }))
+          .then((t) => { orig.headers.Authorization = \`Bearer \${t}\`; return api(orig) })
+      }
+      orig._retry = true; isRefreshing = true
+      try {
+        const res = await axios.post(\`\${BASE_URL}/auth/refresh\`, {}, { withCredentials: true })
+        const { accessToken } = res.data.data
+        localStorage.setItem('accessToken', accessToken)
+        processQueue(null, accessToken)
+        return api(orig)
+      } catch (e) {
+        processQueue(e, null)
+        localStorage.removeItem('accessToken')
+        window.location.href = '/login'
+        return Promise.reject(e)
+      } finally { isRefreshing = false }
+    }
+    return Promise.reject(error)
+  }
+)
+export default api`},
+
+'c/src/store/authStore.ts':{g:'client',i:'🐻',l:'ts',n:'authStore.ts',p:'store/',c:`import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+import type { User } from '../types'
+
+interface AuthStore {
+  user: User | null; accessToken: string | null; isAuthenticated: boolean
+  setAuth: (user: User, token: string) => void
+  setUser: (user: User) => void
+  logout: () => void
+}
+
+export const useAuthStore = create<AuthStore>()(
+  persist(
+    (set) => ({
+      user: null, accessToken: null, isAuthenticated: false,
+      setAuth: (user, token) => {
+        localStorage.setItem('accessToken', token)
+        set({ user, accessToken: token, isAuthenticated: true })
+      },
+      setUser: (user) => set({ user }),
+      logout: () => {
+        localStorage.removeItem('accessToken')
+        set({ user: null, accessToken: null, isAuthenticated: false })
+      },
+    }),
+    { name: 'devprep-auth', partialize: (s) => ({ user: s.user, accessToken: s.accessToken, isAuthenticated: s.isAuthenticated }) }
+  )
+)`},
+
+'c/src/pages/auth/Login.tsx':{g:'client',i:'🔑',l:'tsx',n:'Login.tsx',p:'auth/',c:`import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Eye, EyeOff, LogIn } from 'lucide-react'
+import { authApi } from '../../api/auth.api'
+import { useAuthStore } from '../../store/authStore'
+import { Alert, Spinner } from '../../components/ui'
+
+export default function Login() {
+  const navigate = useNavigate()
+  const setAuth = useAuthStore((s) => s.setAuth)
+  const [form, setForm] = useState({ email: '', password: '' })
+  const [showPass, setShowPass] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault(); setLoading(true); setError('')
+    try {
+      const res = await authApi.login(form)
+      const { accessToken, user } = res.data.data
+      setAuth(user, accessToken)
+      navigate('/dashboard')
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Kirish amalga oshmadi')
+    } finally { setLoading(false) }
+  }
+
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="font-sans font-bold text-3xl text-white mb-2">Xush kelibsiz 👋</h1>
+        <p className="text-slate-400 text-sm">Hisobingizga kiring</p>
+      </div>
+      {error && <div className="mb-4"><Alert type="error" message={error} /></div>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="text-xs text-slate-400 mb-1.5 block uppercase tracking-wider">Email</label>
+          <input type="email" className="input" placeholder="you@example.com"
+            value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+        </div>
+        <div>
+          <div className="flex justify-between mb-1.5">
+            <label className="text-xs text-slate-400 uppercase tracking-wider">Parol</label>
+            <Link to="/forgot-password" className="text-xs text-accent-500 hover:underline">Unutdingizmi?</Link>
+          </div>
+          <div className="relative">
+            <input type={showPass ? 'text' : 'password'} className="input pr-10" placeholder="••••••••"
+              value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
+            <button type="button" onClick={() => setShowPass(!showPass)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+              {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+        </div>
+        <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2">
+          {loading ? <Spinner size={16} /> : <LogIn size={16} />}
+          {loading ? 'Kirilmoqda...' : 'Kirish'}
+        </button>
+      </form>
+      <p className="text-center text-sm text-slate-400 mt-6">
+        Hisobingiz yo'qmi?{' '}
+        <Link to="/register" className="text-accent-500 font-semibold hover:underline">Ro'yxatdan o'ting</Link>
+      </p>
+    </div>
+  )
+}`},
+
+'c/src/pages/Dashboard.tsx':{g:'client',i:'📊',l:'tsx',n:'Dashboard.tsx',p:'pages/',c:`import { useQuery } from '@tanstack/react-query'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts'
+import { Trophy, Flame, Bot, TrendingUp } from 'lucide-react'
+import { dashboardApi } from '../api/dashboard.api'
+import { PageLoader, ScoreRing } from '../components/ui'
+
+export default function Dashboard() {
+  const { data: s, isLoading } = useQuery({
+    queryKey: ['dashboard-stats'],
+    queryFn: () => dashboardApi.getStats().then((r) => r.data.data),
+  })
+  if (isLoading || !s) return <PageLoader />
+
+  const cards = [
+    { label: 'Jami testlar', value: s.totalTests, icon: Trophy, c: 'text-amber-400', b: 'bg-amber-500/10' },
+    { label: "O'rtacha ball", value: \`\${s.avgScore}%\`, icon: TrendingUp, c: 'text-emerald-400', b: 'bg-emerald-500/10' },
+    { label: 'Daily streak', value: \`\${s.streakCount} kun\`, icon: Flame, c: 'text-orange-400', b: 'bg-orange-500/10' },
+    { label: 'AI sessiyalar', value: s.aiSessionsCount, icon: Bot, c: 'text-violet-400', b: 'bg-violet-500/10' },
+  ]
+
+  return (
+    <div className="space-y-6 animate-slide-up">
+      <div>
+        <h1 className="font-sans font-bold text-2xl text-white">Dashboard</h1>
+        <p className="text-slate-400 text-sm mt-1">Sizning o'qish progressingiz</p>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <div className="card flex flex-col items-center justify-center py-4">
+          <div className="text-xs text-slate-400 uppercase tracking-widest mb-3">Interview Readiness</div>
+          <ScoreRing score={s.readinessScore} size={100} />
+        </div>
+        {cards.map((card) => (
+          <div key={card.label} className="stat-card">
+            <div className={\`p-2 rounded-lg \${card.b} w-fit mb-3\`}><card.icon size={18} className={card.c} /></div>
+            <div className="font-sans font-bold text-2xl text-white mb-0.5">{card.value}</div>
+            <div className="text-xs text-slate-400">{card.label}</div>
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="card">
+          <h3 className="font-semibold text-white mb-4 text-sm">Haftalik faollik</h3>
+          <ResponsiveContainer width="100%" height={180}>
+            <BarChart data={s.weeklyActivity} barSize={20}>
+              <XAxis dataKey="day" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} domain={[0,100]} />
+              <Tooltip contentStyle={{ background: '#0f1628', border: '1px solid #1e2d4a', borderRadius: 8, fontSize: 12 }} formatter={(v: number) => [\`\${v}%\`, 'Ball']} />
+              <Bar dataKey="score" fill="#00d4ff" radius={[4,4,0,0]} fillOpacity={0.8} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="card">
+          <h3 className="font-semibold text-white mb-4 text-sm">Ball dinamikasi</h3>
+          <ResponsiveContainer width="100%" height={180}>
+            <AreaChart data={s.weeklyActivity}>
+              <defs>
+                <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#00d4ff" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#00d4ff" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis dataKey="day" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} domain={[0,100]} />
+              <Tooltip contentStyle={{ background: '#0f1628', border: '1px solid #1e2d4a', borderRadius: 8, fontSize: 12 }} />
+              <Area type="monotone" dataKey="score" stroke="#00d4ff" strokeWidth={2} fill="url(#g)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  )
+}`},
+
+'c/src/pages/QuestionBank.tsx':{g:'client',i:'📚',l:'tsx',n:'QuestionBank.tsx',p:'pages/',c:`import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { Search, BookmarkPlus, Bookmark, ChevronRight, Filter } from 'lucide-react'
+import { questionsApi } from '../api/questions.api'
+import { Badge, PageLoader, EmptyState, Modal } from '../components/ui'
+import type { Question, Category } from '../types'
+
+export default function QuestionBank() {
+  const qc = useQueryClient()
+  const [search, setSearch] = useState('')
+  const [categoryId, setCategoryId] = useState('')
+  const [difficulty, setDifficulty] = useState('')
+  const [page, setPage] = useState(1)
+  const [selected, setSelected] = useState<Question | null>(null)
+
+  const params: any = { page, limit: 15 }
+  if (search) params.search = search
+  if (categoryId) params.categoryId = categoryId
+  if (difficulty) params.difficulty = difficulty
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['questions', params],
+    queryFn: () => questionsApi.getQuestions(params).then((r) => r.data),
+  })
+  const { data: cats } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => questionsApi.getCategories().then((r) => r.data.data as Category[]),
+  })
+  const bookmarkMut = useMutation({
+    mutationFn: (id: string) => questionsApi.toggleBookmark(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['questions'] }),
+  })
+
+  const questions: Question[] = data?.data || []
+  const pagination = data?.pagination
+  const grouped = (cats || []).reduce<Record<string, Category[]>>((acc, c) => {
+    if (!acc[c.group]) acc[c.group] = []
+    acc[c.group].push(c)
+    return acc
+  }, {})
+
+  return (
+    <div className="flex gap-6 animate-slide-up">
+      <aside className="w-56 shrink-0 space-y-2">
+        <div className="card p-4">
+          <h3 className="text-xs uppercase tracking-widest text-slate-400 mb-3">Kategoriyalar</h3>
+          <button onClick={() => { setCategoryId(''); setPage(1) }}
+            className={\`w-full text-left text-sm px-2 py-1.5 rounded-lg mb-1 transition-colors \${!categoryId ? 'text-accent-500 bg-accent-50' : 'text-slate-400 hover:text-white hover:bg-slate-800'}\`}>
+            Barcha savollar
+          </button>
+          {Object.entries(grouped).map(([group, cs]) => (
+            <div key={group} className="mb-3">
+              <div className="text-xs text-slate-600 uppercase px-2 mb-1">{group}</div>
+              {cs.map((c) => (
+                <button key={c.id} onClick={() => { setCategoryId(c.id); setPage(1) }}
+                  className={\`w-full text-left text-sm px-2 py-1.5 rounded-lg transition-colors \${categoryId === c.id ? 'text-accent-500 bg-accent-50' : 'text-slate-400 hover:text-white hover:bg-slate-800'}\`}>
+                  <span className="flex justify-between"><span>{c.name}</span><span className="text-xs text-slate-600">{c.questionCount}</span></span>
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div className="card p-4">
+          <h3 className="text-xs uppercase tracking-widest text-slate-400 mb-3">Qiyinlik</h3>
+          {['', 'EASY', 'MEDIUM', 'HARD'].map((d) => (
+            <button key={d} onClick={() => { setDifficulty(d); setPage(1) }}
+              className={\`w-full text-left text-sm px-2 py-1.5 rounded-lg mb-0.5 transition-colors \${difficulty === d ? 'text-accent-500 bg-accent-50' : 'text-slate-400 hover:text-white hover:bg-slate-800'}\`}>
+              {d ? {EASY:'Oson',MEDIUM:"O'rta",HARD:'Qiyin'}[d] : 'Barchasi'}
+            </button>
+          ))}
+        </div>
+      </aside>
+
+      <div className="flex-1 min-w-0">
+        <div className="relative mb-4">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <input className="input pl-9" placeholder="Savol qidirish..."
+            value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} />
+        </div>
+        <div className="flex items-center gap-3 mb-4 text-xs text-slate-400">
+          <Filter size={13} />
+          <span>{pagination?.total || 0} ta savol</span>
+          {(categoryId || difficulty || search) && (
+            <button onClick={() => { setCategoryId(''); setDifficulty(''); setSearch(''); setPage(1) }}
+              className="text-accent-500 hover:underline">Filtrni tozalash</button>
+          )}
+        </div>
+        {isLoading ? <PageLoader /> : questions.length === 0 ? (
+          <EmptyState icon="🔍" title="Savollar topilmadi" />
+        ) : (
+          <div className="space-y-2">
+            {questions.map((q) => (
+              <div key={q.id} onClick={() => setSelected(q)}
+                className="card p-4 hover:border-slate-700 cursor-pointer group flex items-start gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                    <Badge variant={q.difficulty.toLowerCase() as any}>{q.difficulty}</Badge>
+                    <Badge variant={q.category.group.toLowerCase() as any}>{q.category.name}</Badge>
+                    <span className="text-xs text-slate-500">{q.type === 'OPEN_ENDED' ? '✍️ Ochiq' : '📋 Test'}</span>
+                  </div>
+                  <p className="text-sm text-slate-200 group-hover:text-white line-clamp-2">{q.title}</p>
+                  {q.tags.length > 0 && (
+                    <div className="flex gap-1.5 mt-2">
+                      {q.tags.slice(0,3).map((t) => <span key={t} className="text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded">#{t}</span>)}
+                    </div>
+                  )}
+                </div>
+                <button onClick={(e) => { e.stopPropagation(); bookmarkMut.mutate(q.id) }}
+                  className={\`p-1.5 rounded-lg transition-colors \${q.isBookmarked ? 'text-accent-500 bg-accent-50' : 'text-slate-600 hover:text-accent-500'}\`}>
+                  {q.isBookmarked ? <Bookmark size={15} fill="currentColor" /> : <BookmarkPlus size={15} />}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        {pagination && pagination.totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-6">
+            <button onClick={() => setPage(p => Math.max(1,p-1))} disabled={page===1} className="btn-secondary text-xs px-3 py-1.5 disabled:opacity-40">← Oldingi</button>
+            <span className="text-xs text-slate-400">{page} / {pagination.totalPages}</span>
+            <button onClick={() => setPage(p => Math.min(pagination.totalPages,p+1))} disabled={page===pagination.totalPages} className="btn-secondary text-xs px-3 py-1.5 disabled:opacity-40">Keyingi →</button>
+          </div>
+        )}
+      </div>
+
+      <Modal isOpen={!!selected} onClose={() => setSelected(null)} title="Savol tafsiloti">
+        {selected && (
+          <div className="space-y-4">
+            <p className="text-slate-200 text-sm font-semibold leading-relaxed">{selected.title}</p>
+            {selected.options && (
+              <div className="space-y-2">
+                {selected.options.map((o) => (
+                  <div key={o.id} className={\`p-3 rounded-lg text-sm border \${o.isCorrect ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-slate-800/50 border-slate-700 text-slate-400'}\`}>
+                    {o.isCorrect && '✓ '}{o.text}
+                  </div>
+                ))}
+              </div>
+            )}
+            {selected.correctAnswer && (
+              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                <div className="text-xs text-emerald-400 mb-1">To'g'ri javob</div>
+                <p className="text-sm text-emerald-300">{selected.correctAnswer}</p>
+              </div>
+            )}
+            {selected.explanation && (
+              <div className="p-3 rounded-lg bg-slate-800 border border-slate-700">
+                <div className="text-xs text-slate-400 mb-1">Tushuntirish</div>
+                <p className="text-sm text-slate-300">{selected.explanation}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
+    </div>
+  )
+}`},
+
+'c/src/pages/AIInterview.tsx':{g:'client',i:'🤖',l:'tsx',n:'AIInterview.tsx',p:'pages/',c:`import { useState } from 'react'
+import { useMutation } from '@tanstack/react-query'
+import { Bot, Send, Lightbulb, BookOpen, ChevronRight, RefreshCw, Star } from 'lucide-react'
+import { aiApi } from '../api/ai.api'
+import { Spinner, Badge } from '../components/ui'
+import type { AIEvalResult, Question } from '../types'
+
+const tracks = [
+  { value: 'FRONTEND', label: '🎨 Frontend', desc: 'HTML, CSS, JS, React' },
+  { value: 'BACKEND', label: '⚙️ Backend', desc: 'Node.js, APIs, DB' },
+  { value: 'FULLSTACK', label: '🚀 Full Stack', desc: 'Har ikki tomon' },
+]
+
+export default function AIInterview() {
+  const [track, setTrack] = useState('')
+  const [questions, setQuestions] = useState<Question[]>([])
+  const [idx, setIdx] = useState(0)
+  const [answer, setAnswer] = useState('')
+  const [result, setResult] = useState<AIEvalResult | null>(null)
+  const [phase, setPhase] = useState<'select' | 'answer' | 'result'>('select')
+
+  const startMut = useMutation({
+    mutationFn: () => aiApi.startMockInterview(track, 5).then((r) => r.data.data),
+    onSuccess: (data) => { setQuestions(data); setIdx(0); setPhase('answer'); setAnswer(''); setResult(null) },
+  })
+
+  const evalMut = useMutation({
+    mutationFn: () => aiApi.evaluate({
+      questionText: questions[idx].title,
+      userAnswer: answer,
+      category: questions[idx].category?.name,
+    }).then((r) => r.data.data as AIEvalResult),
+    onSuccess: (data) => { setResult(data); setPhase('result') },
+  })
+
+  const sc = (n: number) => n >= 8 ? 'text-emerald-400' : n >= 5 ? 'text-amber-400' : 'text-rose-400'
+
+  return (
+    <div className="max-w-3xl mx-auto animate-slide-up space-y-6">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
+          <Bot size={20} className="text-violet-400" />
+        </div>
+        <div>
+          <h1 className="font-sans font-bold text-2xl text-white">AI Interview</h1>
+          <p className="text-slate-400 text-sm">Javoblaringizni Claude AI baholaydi</p>
+        </div>
+      </div>
+
+      {phase === 'select' && (
+        <div className="card space-y-4">
+          <h2 className="font-semibold text-white">Yo'nalishni tanlang</h2>
+          <div className="grid grid-cols-3 gap-3">
+            {tracks.map((t) => (
+              <button key={t.value} onClick={() => setTrack(t.value)}
+                className={\`p-4 rounded-xl border text-left transition-all \${track === t.value ? 'bg-violet-500/10 border-violet-500/30 text-violet-300' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}\`}>
+                <div className="font-semibold mb-1">{t.label}</div>
+                <div className="text-xs opacity-70">{t.desc}</div>
+              </button>
+            ))}
+          </div>
+          <button onClick={() => startMut.mutate()} disabled={!track || startMut.isPending}
+            className="btn-primary w-full flex items-center justify-center gap-2">
+            {startMut.isPending ? <Spinner size={16} /> : <Bot size={16} />}
+            Intervyuni boshlash
+          </button>
+        </div>
+      )}
+
+      {phase === 'answer' && questions[idx] && (
+        <div className="space-y-4">
+          <div className="flex justify-between text-xs text-slate-400">
+            <span>Savol {idx+1}/{questions.length}</span>
+            <div className="flex gap-1">
+              {questions.map((_,i) => <div key={i} className={\`w-2 h-2 rounded-full \${i===idx?'bg-violet-400':i<idx?'bg-emerald-400':'bg-slate-700'}\`} />)}
+            </div>
+          </div>
+          <div className="card">
+            <div className="flex gap-2 mb-3">
+              <Badge variant={questions[idx].difficulty.toLowerCase() as any}>{questions[idx].difficulty}</Badge>
+              <span className="text-xs text-slate-500">{questions[idx].category?.name}</span>
+            </div>
+            <p className="text-slate-100 font-semibold leading-relaxed">{questions[idx].title}</p>
+          </div>
+          <textarea value={answer} onChange={(e) => setAnswer(e.target.value)}
+            placeholder="Bu yerga javobingizni yozing..."
+            className="input min-h-[160px] resize-none w-full" />
+          <button onClick={() => evalMut.mutate()} disabled={!answer.trim() || evalMut.isPending}
+            className="btn-primary w-full flex items-center justify-center gap-2">
+            {evalMut.isPending ? <><Spinner size={16} /> AI baholayapti...</> : <><Send size={16} /> AI baholash</>}
+          </button>
+        </div>
+      )}
+
+      {phase === 'result' && result && (
+        <div className="space-y-4 animate-slide-up">
+          <div className="card flex items-center gap-6">
+            <div className="text-center">
+              <div className={\`font-sans font-bold text-5xl \${sc(result.score)}\`}>{result.score}</div>
+              <div className="text-xs text-slate-400 mt-1">/ 10</div>
+            </div>
+            <div className="flex-1">
+              <div className="flex gap-1 mb-2">
+                {Array.from({length:10},(_,i) => <div key={i} className={\`flex-1 h-2 rounded-full \${i<result.score?(result.score>=8?'bg-emerald-400':result.score>=5?'bg-amber-400':'bg-rose-400'):'bg-slate-700'}\`} />)}
+              </div>
+              <p className="text-sm text-slate-300">{result.feedback}</p>
+            </div>
+          </div>
+          {result.mistakes.length > 0 && (
+            <div className="card border-rose-500/20">
+              <div className="text-rose-400 text-sm font-semibold mb-2">⚠️ Kamchiliklar</div>
+              {result.mistakes.map((m,i) => <p key={i} className="text-sm text-slate-300 flex gap-2"><span className="text-rose-500">•</span>{m}</p>)}
+            </div>
+          )}
+          <div className="card border-emerald-500/20">
+            <div className="flex items-center gap-2 text-emerald-400 text-sm font-semibold mb-2"><Lightbulb size={15}/> Ideal javob</div>
+            <p className="text-sm text-slate-300 leading-relaxed">{result.idealAnswer}</p>
+          </div>
+          {result.keyPoints.length > 0 && (
+            <div className="card">
+              <div className="flex items-center gap-2 text-amber-400 text-sm font-semibold mb-2"><Star size={15}/> Asosiy tushunchalar</div>
+              <div className="flex flex-wrap gap-2">
+                {result.keyPoints.map((kp,i) => <span key={i} className="px-2.5 py-1 bg-amber-500/10 border border-amber-500/20 rounded-lg text-xs text-amber-300">{kp}</span>)}
+              </div>
+            </div>
+          )}
+          {result.resources.length > 0 && (
+            <div className="card">
+              <div className="flex items-center gap-2 text-accent-500 text-sm font-semibold mb-2"><BookOpen size={15}/> Materiallar</div>
+              {result.resources.map((r,i) => (
+                <a key={i} href={r.url} target="_blank" rel="noreferrer"
+                  className="flex items-center justify-between p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 group mb-1">
+                  <span className="text-sm text-slate-300 group-hover:text-white">{r.title}</span>
+                  <ChevronRight size={13} className="text-slate-500 group-hover:text-accent-500"/>
+                </a>
+              ))}
+            </div>
+          )}
+          <button onClick={() => { if(idx<questions.length-1){setIdx(i=>i+1);setAnswer('');setResult(null);setPhase('answer')}else{setPhase('select');setQuestions([])} }}
+            className="btn-primary w-full flex items-center justify-center gap-2">
+            <RefreshCw size={15}/>{idx<questions.length-1?'Keyingi savol':'Yakunlash'}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}`},
+
+'c/src/pages/Leaderboard.tsx':{g:'client',i:'🏆',l:'tsx',n:'Leaderboard.tsx',p:'pages/',c:`import { useQuery } from '@tanstack/react-query'
+import { Trophy } from 'lucide-react'
+import { quizApi } from '../api/quiz.api'
+import { PageLoader } from '../components/ui'
+import { useAuthStore } from '../store/authStore'
+import type { LeaderboardEntry } from '../types'
+
+export default function Leaderboard() {
+  const { user } = useAuthStore()
+  const { data, isLoading } = useQuery({
+    queryKey: ['leaderboard'],
+    queryFn: () => quizApi.getLeaderboard().then((r) => r.data.data as LeaderboardEntry[]),
+  })
+  const trackLabel: Record<string, string> = { FRONTEND: 'Frontend', BACKEND: 'Backend', FULLSTACK: 'Full Stack' }
+  const icons = ['🥇', '🥈', '🥉']
+  const colors = ['text-amber-400', 'text-slate-400', 'text-orange-600']
+
+  return (
+    <div className="max-w-2xl mx-auto animate-slide-up space-y-6">
+      <div className="flex items-center gap-3">
+        <Trophy size={24} className="text-amber-400" />
+        <div>
+          <h1 className="font-sans font-bold text-2xl text-white">Liderlar jadvali</h1>
+          <p className="text-slate-400 text-sm">Eng yaxshi o'quvchilar</p>
+        </div>
+      </div>
+      {isLoading ? <PageLoader /> : (
+        <div className="space-y-2">
+          {(data || []).map((e) => (
+            <div key={e.user?.id} className={\`card flex items-center gap-4 transition-all \${e.user?.id===user?.id?'border-accent-200/50 bg-accent-50':'hover:border-slate-700'}\`}>
+              <div className={\`w-10 text-center font-bold text-lg \${colors[e.rank-1]||'text-slate-500'}\`}>
+                {e.rank<=3?icons[e.rank-1]:\`#\${e.rank}\`}
+              </div>
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-accent-500 to-violet-500 flex items-center justify-center font-bold text-dark-900 text-sm shrink-0">
+                {e.user?.fullName?.charAt(0)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-white text-sm truncate">
+                  {e.user?.fullName}
+                  {e.user?.id===user?.id && <span className="text-xs text-accent-500 ml-2">Sen</span>}
+                </div>
+                <div className="text-xs text-slate-500">{e.user?.track?trackLabel[e.user.track]:'Umumiy'}</div>
+              </div>
+              <div className="text-right">
+                <div className="font-bold text-white">{e.avgScore}%</div>
+                <div className="text-xs text-slate-500">{e.totalQuizzes} test</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}`},
+
+'c/src/pages/Achievements.tsx':{g:'client',i:'🏅',l:'tsx',n:'Achievements.tsx',p:'pages/',c:`import { useQuery } from '@tanstack/react-query'
+import { dashboardApi } from '../api/dashboard.api'
+import { PageLoader } from '../components/ui'
+import type { Achievement } from '../types'
+
+export default function Achievements() {
+  const { data, isLoading } = useQuery({
+    queryKey: ['achievements'],
+    queryFn: () => dashboardApi.getAchievements().then((r) => r.data.data as Achievement[]),
+  })
+  const earned = data?.filter((a) => a.isEarned).length || 0
+
+  return (
+    <div className="animate-slide-up space-y-6">
+      <div>
+        <h1 className="font-sans font-bold text-2xl text-white">Badgelar</h1>
+        <p className="text-slate-400 text-sm mt-1">{earned} / {data?.length || 0} badge qozonildi</p>
+      </div>
+      {isLoading ? <PageLoader /> : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {(data||[]).map((ach) => (
+            <div key={ach.id} className={\`card text-center transition-all \${ach.isEarned?'border-amber-500/30 bg-amber-500/5':'opacity-50 grayscale'}\`}>
+              <div className="text-4xl mb-3">{ach.icon||'🏆'}</div>
+              <div className={\`font-semibold text-sm mb-1 \${ach.isEarned?'text-white':'text-slate-500'}\`}>{ach.title}</div>
+              <div className="text-xs text-slate-500">{ach.description}</div>
+              {ach.isEarned && ach.earnedAt && (
+                <div className="text-xs text-amber-400 mt-2">{new Date(ach.earnedAt).toLocaleDateString('uz-UZ')}</div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}`},
+
+'c/src/pages/Profile.tsx':{g:'client',i:'👤',l:'tsx',n:'Profile.tsx',p:'pages/',c:`import { useState } from 'react'
+import { useMutation } from '@tanstack/react-query'
+import { Save } from 'lucide-react'
+import { authApi } from '../api/auth.api'
+import { useAuthStore } from '../store/authStore'
+import { Alert, Spinner } from '../components/ui'
+
+const tracks = [
+  { value: 'FRONTEND', label: '🎨 Frontend' },
+  { value: 'BACKEND', label: '⚙️ Backend' },
+  { value: 'FULLSTACK', label: '🚀 Full Stack' },
+]
+
+export default function Profile() {
+  const { user, setUser } = useAuthStore()
+  const [form, setForm] = useState({ fullName: user?.fullName||'', track: user?.track||'' })
+  const [pass, setPass] = useState({ currentPassword: '', newPassword: '' })
+  const [msg, setMsg] = useState(''); const [err, setErr] = useState('')
+
+  const profileMut = useMutation({
+    mutationFn: () => authApi.updateProfile(form).then((r) => r.data.data),
+    onSuccess: (data) => { setUser(data); setMsg('Profil yangilandi!'); setErr('') },
+    onError: (e: any) => { setErr(e.response?.data?.message||'Xatolik'); setMsg('') },
+  })
+  const passMut = useMutation({
+    mutationFn: () => authApi.changePassword(pass.currentPassword, pass.newPassword),
+    onSuccess: () => { setMsg('Parol yangilandi!'); setErr(''); setPass({ currentPassword:'', newPassword:'' }) },
+    onError: (e: any) => { setErr(e.response?.data?.message||'Xatolik'); setMsg('') },
+  })
+
+  return (
+    <div className="max-w-xl mx-auto animate-slide-up space-y-6">
+      <h1 className="font-sans font-bold text-2xl text-white">Profil</h1>
+      {msg && <Alert type="success" message={msg} />}
+      {err && <Alert type="error" message={err} />}
+
+      <div className="card flex items-center gap-4">
+        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent-500 to-violet-500 flex items-center justify-center font-bold text-dark-900 text-2xl">
+          {user?.fullName?.charAt(0)}
+        </div>
+        <div>
+          <div className="font-bold text-white text-lg">{user?.fullName}</div>
+          <div className="text-slate-400 text-sm">{user?.email}</div>
+          <div className="text-xs text-slate-500 mt-1">{user?.role==='ADMIN'?'👑 Admin':'👤 User'}</div>
+        </div>
+      </div>
+
+      <div className="card space-y-4">
+        <h3 className="font-semibold text-white text-sm">Shaxsiy ma'lumotlar</h3>
+        <div>
+          <label className="text-xs text-slate-400 uppercase tracking-wider mb-1.5 block">To'liq ism</label>
+          <input className="input" value={form.fullName} onChange={(e) => setForm({...form, fullName: e.target.value})} />
+        </div>
+        <div>
+          <label className="text-xs text-slate-400 uppercase tracking-wider mb-1.5 block">Yo'nalish</label>
+          <div className="grid grid-cols-3 gap-2">
+            {tracks.map((t) => (
+              <button key={t.value} onClick={() => setForm({...form, track: form.track===t.value?'':t.value})}
+                className={\`p-2 rounded-lg text-xs font-semibold border transition-all \${form.track===t.value?'bg-accent-100 border-accent-200 text-accent-500':'bg-slate-800 border-slate-700 text-slate-400'}\`}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <button onClick={() => profileMut.mutate()} disabled={profileMut.isPending}
+          className="btn-primary flex items-center gap-2">
+          {profileMut.isPending?<Spinner size={14}/>:<Save size={14}/>} Saqlash
+        </button>
+      </div>
+
+      <div className="card space-y-4">
+        <h3 className="font-semibold text-white text-sm">Parolni o'zgartirish</h3>
+        <div>
+          <label className="text-xs text-slate-400 uppercase tracking-wider mb-1.5 block">Joriy parol</label>
+          <input type="password" className="input" value={pass.currentPassword} onChange={(e) => setPass({...pass, currentPassword: e.target.value})} />
+        </div>
+        <div>
+          <label className="text-xs text-slate-400 uppercase tracking-wider mb-1.5 block">Yangi parol</label>
+          <input type="password" className="input" value={pass.newPassword} onChange={(e) => setPass({...pass, newPassword: e.target.value})} />
+        </div>
+        <button onClick={() => passMut.mutate()} disabled={passMut.isPending||!pass.currentPassword}
+          className="btn-secondary flex items-center gap-2">
+          {passMut.isPending&&<Spinner size={14}/>} Yangilash
+        </button>
+      </div>
+    </div>
+  )
+}`},
+
+'c/src/types/index.ts':{g:'client',i:'📋',l:'ts',n:'index.ts',p:'types/',c:`export interface User {
+  id: string; email: string; fullName: string; avatarUrl?: string
+  role: 'USER' | 'ADMIN'; track?: 'FRONTEND' | 'BACKEND' | 'FULLSTACK'
+  isVerified: boolean; streakCount: number; lastActive?: string; createdAt: string
+  _count?: { quizResults: number; bookmarks: number; aiSessions: number }
+}
+
+export interface Category {
+  id: string; name: string; slug: string
+  group: 'FRONTEND' | 'BACKEND' | 'GENERAL'
+  icon?: string; questionCount?: number
+}
+
+export interface Question {
+  id: string; categoryId: string; category: Category
+  title: string; type: 'MULTIPLE_CHOICE' | 'SINGLE_CHOICE' | 'OPEN_ENDED'
+  difficulty: 'EASY' | 'MEDIUM' | 'HARD'
+  options?: Array<{ id: string; text: string; isCorrect: boolean }>
+  correctAnswer?: string; explanation?: string
+  tags: string[]; isActive: boolean; isBookmarked?: boolean; createdAt: string
+}
+
+export interface Quiz {
+  id: string; title: string; description?: string
+  type: 'FRONTEND' | 'BACKEND' | 'FULLSTACK'
+  difficulty: 'EASY' | 'MEDIUM' | 'HARD' | 'MIXED'
+  timeLimit: number; questionCount: number; isActive: boolean; createdAt: string
+  _count?: { results: number }
+}
+
+export interface QuizSession {
+  id: string; title: string; description?: string
+  type: string; difficulty: string; timeLimit: number; questions: Question[]
+}
+
+export interface QuizResult {
+  id: string; userId: string; quizId: string
+  score: number; total: number; percentage: number; timeSpent: number
+  answers: AnswerDetail[]; completedAt: string; quiz?: Quiz
+}
+
+export interface AnswerDetail {
+  questionId: string; questionTitle: string
+  selectedOptionId?: string; textAnswer?: string
+  isCorrect: boolean; correctAnswer?: string
+  correctOptionId?: string; explanation?: string
+}
+
+export interface AIEvalResult {
+  sessionId: string; score: number; feedback: string
+  idealAnswer: string; mistakes: string[]
+  resources: Array<{ title: string; url: string; type: string }>
+  keyPoints: string[]
+}
+
+export interface RoadmapNode {
+  id: string; track: string; title: string; description?: string
+  orderIndex: number; parentId?: string; isMilestone: boolean
+  resources?: Array<{ title: string; url: string }>
+  isCompleted: boolean; completedAt?: string
+}
+
+export interface Achievement {
+  id: string; slug: string; title: string; description?: string
+  icon?: string; conditionType: string; conditionValue: number
+  isEarned: boolean; earnedAt?: string
+}
+
+export interface DashboardStats {
+  totalTests: number; avgScore: number; readinessScore: number
+  streakCount: number; aiSessionsCount: number; bookmarkCount: number
+  achievementsCount: number; roadmapCompleted: number
+  weeklyActivity: Array<{ date: string; day: string; score: number; tests: number }>
+  track?: string
+}
+
+export interface LeaderboardEntry {
+  rank: number
+  user: Pick<User, 'id' | 'fullName' | 'avatarUrl' | 'track'>
+  avgScore: number; totalQuizzes: number; bestScore: number
+}
+
+export interface ApiResponse<T> { success: boolean; message: string; data: T }
+export interface PaginatedResponse<T> {
+  success: boolean; data: T[]
+  pagination: { page: number; limit: number; total: number; totalPages: number }
+}`},
+
+// ─── DOCS ─────────────────────────────────────────────────────────────
+'d/DEPLOY.md':{g:'docs',i:'🚀',l:'md',n:'DEPLOY.md',p:'',c:`# Deploy Qo'llanma
+
+## Kerakli servislar (barchasi bepul)
+| Servis    | Maqsad     | Link                  |
+|-----------|------------|-----------------------|
+| GitHub    | Kod        | github.com            |
+| Neon      | PostgreSQL | neon.tech             |
+| Render    | Backend    | render.com            |
+| Vercel    | Frontend   | vercel.com            |
+| Anthropic | AI         | console.anthropic.com |
+
+## 1. Neon PostgreSQL
+1. neon.tech → Create Project: "devprep"
+2. Connection string: postgresql://...neon.tech/neondb?sslmode=require
+
+## 2. Render (Backend)
+Build:  npm install && npx prisma generate && npm run build
+Start:  npx prisma migrate deploy && npm start
+
+Env:
+  DATABASE_URL        = postgresql://...
+  DIRECT_URL          = postgresql://...
+  JWT_SECRET          = (64 random chars)
+  JWT_REFRESH_SECRET  = (64 random chars)
+  SMTP_USER           = gmail@gmail.com
+  SMTP_PASS           = (Gmail App Password)
+  ANTHROPIC_API_KEY   = sk-ant-...
+  CLIENT_URL          = https://devprep.vercel.app
+  NODE_ENV            = production
+
+## 3. Vercel (Frontend)
+Root:   client
+Build:  npm run build
+Output: dist
+
+Env:
+  VITE_API_URL = https://devprep-api.onrender.com/api/v1
+
+## 4. Seed
+  cd server && DATABASE_URL="..." npm run db:seed
+  Admin: admin@devprep.ai / Admin123!`},
+
+'d/API.md':{g:'docs',i:'📡',l:'md',n:'API.md',p:'',c:`# API Endpoints
+
+Base URL: https://devprep-api.onrender.com/api/v1
+Header: Authorization: Bearer <accessToken>
+
+## Auth
+POST   /auth/register           → Ro'yxatdan o'tish
+POST   /auth/login              → Kirish → { accessToken, user }
+POST   /auth/logout             → Chiqish 🔒
+POST   /auth/refresh            → Token yangilash
+GET    /auth/verify-email?token → Email tasdiqlash
+POST   /auth/forgot-password    → Reset yuborish
+POST   /auth/reset-password     → Parol yangilash
+GET    /auth/me                 → Profil 🔒
+PUT    /auth/profile            → Yangilash 🔒
+PUT    /auth/change-password    → Parol 🔒
+
+## Questions 🔒
+GET  /questions?search=&categoryId=&difficulty=&page=
+GET  /questions/categories
+GET  /questions/bookmarks
+GET  /questions/:id
+POST /questions/:id/bookmark    → toggle
+
+## Quizzes 🔒
+GET  /quizzes?type=&difficulty=
+POST /quizzes/:id/start         → savollar (javobsiz)
+POST /quizzes/:id/submit        → { answers, timeSpent }
+GET  /quizzes/results/my
+GET  /quizzes/results/:id
+GET  /quizzes/leaderboard
+
+## AI 🔒
+POST /ai/evaluate               → { questionText, userAnswer, category }
+POST /ai/mock-interview/start   → { track, count }
+GET  /ai/sessions
+
+## Dashboard 🔒
+GET  /dashboard/stats
+GET  /dashboard/roadmap/:track
+POST /dashboard/roadmap/:nodeId/complete
+GET  /dashboard/notifications
+GET  /dashboard/achievements
+
+## Admin 👑
+GET    /admin/analytics
+GET    /admin/users
+DELETE /admin/users/:id
+POST   /admin/questions
+PUT    /admin/questions/:id
+DELETE /admin/questions/:id
+POST   /admin/quizzes
+POST   /admin/categories`},
+
+'d/LOCAL_SETUP.md':{g:'docs',i:'💻',l:'md',n:'LOCAL_SETUP.md',p:'',c:`# Lokal Ishga Tushirish
+
+## 1. Clone
+  git clone https://github.com/username/devprep-ai.git
+  cd devprep-ai
+
+## 2. Backend
+  cd server
+  npm install
+  cp .env.example .env
+  # .env ni to'ldiring
+
+## 3. Database
+  npx prisma db push
+  npm run db:seed
+
+## 4. Frontend
+  cd ../client
+  npm install
+  cp .env.example .env
+  # VITE_API_URL=http://localhost:5000/api/v1
+
+## 5. Ishga tushirish
+  # Terminal 1:
+  cd server && npm run dev
+
+  # Terminal 2:
+  cd client && npm run dev
+
+  Frontend: http://localhost:5173
+  Backend:  http://localhost:5000/health
+  Admin:    admin@devprep.ai / Admin123!
+
+## Foydali buyruqlar
+  npx prisma studio     # DB GUI
+  npx prisma db push    # Schema yuklash
+  npm run db:seed       # Seed data`},
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  TREE SECTIONS
+// ════════════════════════════════════════════════════════════════════
+const SECTIONS = [
+  { g:'server', label:'⚙️ Server', clr:'#10b981',
+    keys:['s/prisma/schema.prisma','s/src/app.ts','s/src/config/env.ts','s/src/utils/jwt.ts','s/src/utils/response.ts','s/src/middleware/auth.ts','s/src/modules/auth/auth.schema.ts','s/src/modules/auth/auth.service.ts','s/src/modules/questions/questions.service.ts','s/src/modules/quizzes/quizzes.service.ts','s/src/modules/ai/ai.service.ts','s/src/modules/dashboard/dashboard.service.ts']
+  },
+  { g:'client', label:'⚛️ Client', clr:'#00d4ff',
+    keys:['c/tailwind.config.ts','c/src/index.css','c/src/api/axios.ts','c/src/store/authStore.ts','c/src/types/index.ts','c/src/pages/auth/Login.tsx','c/src/pages/Dashboard.tsx','c/src/pages/QuestionBank.tsx','c/src/pages/AIInterview.tsx','c/src/pages/Leaderboard.tsx','c/src/pages/Achievements.tsx','c/src/pages/Profile.tsx']
+  },
+  { g:'docs', label:'📚 Docs', clr:'#a78bfa',
+    keys:['d/DEPLOY.md','d/API.md','d/LOCAL_SETUP.md']
+  },
+]
+
+// ════════════════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════════════════
+let tabs=[], active=null
+
+function gname(key){ return F[key]?.n||key.split('/').pop() }
+
+function buildTree(q=''){
+  const el=document.getElementById('tree')
+  el.innerHTML=''
+  SECTIONS.forEach(sec=>{
+    const keys=sec.keys.filter(k=>!q||gname(k).toLowerCase().includes(q.toLowerCase()))
+    if(!keys.length) return
+    const g=document.createElement('div')
+    const h=document.createElement('div')
+    h.className='grp-hdr'
+    h.innerHTML=`<span style="color:${sec.clr}">${sec.label}</span><span>${keys.length} fayl</span>`
+    g.appendChild(h)
+    keys.forEach(key=>{
+      const f=F[key]; if(!f) return
+      const d=document.createElement('div')
+      d.className='f-item'+(active===key?' active':'')
+      d.innerHTML=`${f.i} ${f.p?`<span class="f-sub">${f.p}</span>`:''}<span>${f.n}</span>`
+      d.onclick=()=>openFile(key)
+      g.appendChild(d)
+    })
+    el.appendChild(g)
+  })
+}
+
+function search(q){ buildTree(q) }
+
+function openFile(key){
+  active=key
+  if(!tabs.includes(key)){ tabs.push(key); if(tabs.length>8) tabs.shift() }
+  renderTabs(); renderCode(key)
+  buildTree(document.getElementById('si')?.value||'')
+}
+
+function renderTabs(){
+  const el=document.getElementById('tabs')
+  el.innerHTML=''
+  if(!tabs.length){ el.innerHTML='<span style="padding:0 16px;font-size:11px;color:var(--tx3);display:flex;align-items:center">Fayl tanlang →</span>'; return }
+  tabs.forEach(key=>{
+    const f=F[key]
+    const d=document.createElement('div')
+    d.className='tab'+(key===active?' active':'')
+    d.innerHTML=`${f?.i||'📄'} ${f?.n||gname(key)}<span class="x" data-k="${key}">×</span>`
+    d.onclick=e=>{ if(e.target.dataset?.k) closeTab(e.target.dataset.k); else openFile(key) }
+    el.appendChild(d)
+  })
+}
+
+function closeTab(key){
+  tabs=tabs.filter(k=>k!==key)
+  if(active===key){ active=tabs[tabs.length-1]||null; active?renderCode(active):showEmpty() }
+  renderTabs(); buildTree(document.getElementById('si')?.value||'')
+}
+
+function renderCode(key){
+  const f=F[key]; if(!f) return
+  const area=document.getElementById('ca')
+  const lines=f.c.split('\n')
+  const lns=lines.map((_,i)=>`<div class="ln">${i+1}</div>`).join('')
+  area.innerHTML=`
+    <div class="code-bar">
+      <span class="code-path">${key.replace('s/','server/').replace('c/','client/').replace('d/','docs/')}</span>
+      <button class="copy-btn" id="cb" onclick="doCopy('${key}')">📋 Nusxa</button>
+    </div>
+    <div class="code-scroll">
+      <div class="lns">${lns}</div>
+      <div class="code">${hl(f.c,f.l)}</div>
+    </div>`
+  document.getElementById('sp').textContent=`${f.i} ${f.n} — ${lines.length} qator`
+  document.getElementById('sl').textContent=`${f.l.toUpperCase()} · UTF-8`
+}
+
+function showEmpty(){
+  document.getElementById('ca').innerHTML='<div class="empty"><div class="empty-i">📂</div><span>Chapdan fayl tanlang</span></div>'
+  document.getElementById('sp').textContent='DevPrep AI v1.0 — tayyor'
+}
+
+function doCopy(key){
+  navigator.clipboard.writeText(F[key]?.c||'').then(()=>{
+    const b=document.getElementById('cb')
+    if(b){b.textContent='✅ Nusxalandi';b.classList.add('ok')}
+    setTimeout(()=>{ if(b){b.textContent='📋 Nusxa';b.classList.remove('ok')} },2000)
+  })
+}
+
+function hl(code,lang){
+  let c=code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  if(lang==='json'){
+    c=c.replace(/("[\w\-]+")\s*:/g,'<span class="pr">$1</span>:')
+       .replace(/:\s*("[^"]*")/g,': <span class="str">$1</span>')
+       .replace(/:\s*(\d[\d.]*)/g,': <span class="num">$1</span>')
+       .replace(/:\s*(true|false|null)/g,': <span class="kw">$1</span>')
+  } else if(lang==='prisma'){
+    c=c.replace(/\/\/.*/g,'<span class="cmt">$&</span>')
+       .replace(/"[^"]*"/g,'<span class="str">$&</span>')
+       .replace(/\b(model|enum|generator|datasource)\b/g,'<span class="kw">$&</span>')
+       .replace(/\b(String|Int|Boolean|Float|DateTime|Json)\b/g,'<span class="tp">$&</span>')
+       .replace(/@[\w]+(\([^)]*\))?/g,'<span class="dc">$&</span>')
+  } else if(lang==='css'){
+    c=c.replace(/\/\*.[\s\S]*?\*\//g,'<span class="cmt">$&</span>')
+       .replace(/"[^"]*"/g,'<span class="str">$&</span>')
+       .replace(/@[\w-]+/g,'<span class="kw">$&</span>')
+       .replace(/([\w-]+)\s*:/g,'<span class="pr">$1</span>:')
+       .replace(/:\s*([^;{}\n]+)/g,(m,v)=>`: <span class="str">${v}</span>`)
+  } else if(lang==='md'){
+    c=c.replace(/^(#{1,3} .+)$/gm,'<span class="cls">$1</span>')
+       .replace(/\*\*([^*]+)\*\*/g,'<span class="str">$1</span>')
+       .replace(/`([^`]+)`/g,'<span class="tp">$1</span>')
+       .replace(/^(\|.+\|)$/gm,'<span class="cmt">$1</span>')
+       .replace(/^( {2}[\w.#$].+)$/gm,'<span class="fn">$1</span>')
+  } else {
+    c=c.replace(/\/\/.*/g,'<span class="cmt">$&</span>')
+       .replace(/\/\*[\s\S]*?\*\//g,'<span class="cmt">$&</span>')
+       .replace(/`[^`]*`/g,m=>`<span class="str">${m}</span>`)
+       .replace(/"([^"\\]|\\.)*"/g,'<span class="str">$&</span>')
+       .replace(/'([^'\\]|\\.)*'/g,'<span class="str">$&</span>')
+       .replace(/\b(import|export|from|default|const|let|var|function|class|interface|type|enum|return|async|await|try|catch|throw|new|if|else|for|of|in|extends|implements|null|undefined|true|false|void)\b/g,'<span class="kw">$&</span>')
+       .replace(/\b(string|number|boolean|any|never|unknown)\b/g,'<span class="tp">$&</span>')
+       .replace(/\b([A-Z][a-zA-Z0-9]+)\b(?!\s*[=:])/g,'<span class="cls">$&</span>')
+       .replace(/\b(\d+)\b/g,'<span class="num">$1</span>')
+  }
+  return c
+}
+
+// Init
+buildTree()
+openFile('s/prisma/schema.prisma')
+</script>
+</body>
+</html>

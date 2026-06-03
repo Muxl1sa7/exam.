@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevPrep AI — Final To'liq Kodlar</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#080c18;--bg2:#0e1525;--bg3:#131d32;--bd:#1a2840;--ac:#00d4ff;--vi:#7c3aed;--gr:#10b981;--am:#f59e0b;--rd:#ef4444;--tx:#dde4f0;--tx2:#8899bb;--tx3:#4a5a78}
+html,body{height:100%;overflow:hidden;font-family:'JetBrains Mono',monospace}
+body{background:var(--bg);color:var(--tx);display:flex;flex-direction:column}
+.hdr{background:var(--bg2);border-bottom:1px solid var(--bd);padding:9px 18px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:8px}
+.li{width:24px;height:24px;background:var(--ac);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px}
+.lt{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;background:linear-gradient(135deg,#fff,var(--ac));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hbadges{display:flex;gap:6px;margin-left:auto}
+.hb{padding:2px 9px;border-radius:20px;font-size:9.5px;font-weight:700;border:1px solid}
+.hb.s{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.2);color:var(--gr)}
+.hb.c{background:rgba(0,212,255,.08);border-color:rgba(0,212,255,.2);color:var(--ac)}
+.hb.d{background:rgba(124,58,237,.08);border-color:rgba(124,58,237,.2);color:#a78bfa}
+.wrap{display:flex;flex:1;overflow:hidden}
+.side{width:224px;background:var(--bg2);border-right:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0}
+.si{padding:7px;border-bottom:1px solid var(--bd)}
+.si input{width:100%;background:var(--bg3);border:1px solid var(--bd);border-radius:4px;padding:5px 8px;font-size:10.5px;color:var(--tx);font-family:inherit;outline:none}
+.si input:focus{border-color:var(--ac)}
+.si input::placeholder{color:var(--tx3)}
+.tree{flex:1;overflow-y:auto;padding:3px 0}
+.tree::-webkit-scrollbar{width:3px}
+.tree::-webkit-scrollbar-thumb{background:var(--bd)}
+.gh{padding:6px 10px 3px;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--tx3);display:flex;align-items:center;justify-content:space-between;user-select:none}
+.fi{padding:4px 10px 4px 18px;font-size:10.5px;cursor:pointer;color:var(--tx2);display:flex;align-items:center;gap:5px;transition:all .1s;border-left:2px solid transparent;user-select:none;line-height:1.5}
+.fi:hover{background:rgba(0,212,255,.03);color:var(--tx)}
+.fi.active{background:rgba(0,212,255,.06);color:var(--ac);border-left-color:var(--ac)}
+.fsub{font-size:8.5px;color:var(--tx3);background:var(--bg3);padding:1px 4px;border-radius:2px;flex-shrink:0}
+.editor{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--bd);overflow-x:auto;min-height:33px;flex-shrink:0}
+.tabs::-webkit-scrollbar{height:2px}
+.tab{display:flex;align-items:center;gap:5px;padding:0 12px;font-size:10px;cursor:pointer;color:var(--tx3);white-space:nowrap;border-right:1px solid var(--bd);min-height:33px;flex-shrink:0;transition:color .1s}
+.tab:hover{color:var(--tx)}
+.tab.active{color:var(--tx);background:var(--bg);border-bottom:2px solid var(--ac);margin-bottom:-1px}
+.tab .x{opacity:0;padding:0 2px;border-radius:2px;font-size:11px;margin-left:2px}
+.tab:hover .x{opacity:1}
+.tab .x:hover{background:rgba(255,255,255,.1);color:#fff}
+.ca{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.cbar{padding:5px 13px;background:var(--bg2);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;font-size:10px;color:var(--tx3);flex-shrink:0}
+.cp{color:var(--tx2)}
+.cb{background:var(--bg3);border:1px solid var(--bd);color:var(--tx2);padding:2px 9px;border-radius:3px;cursor:pointer;font-size:9.5px;font-family:inherit;transition:all .12s}
+.cb:hover{border-color:var(--ac);color:var(--ac)}
+.cb.ok{border-color:var(--gr);color:var(--gr)}
+.cs{flex:1;overflow:auto;display:flex}
+.cs::-webkit-scrollbar{width:5px;height:5px}
+.cs::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+.lns{padding:11px 0;background:rgba(0,0,0,.1);min-width:42px;text-align:right;user-select:none;flex-shrink:0}
+.ln{padding:0 8px;font-size:11px;line-height:1.62;color:var(--tx3);opacity:.35}
+.code{padding:11px 16px;font-size:11.5px;line-height:1.62;white-space:pre;flex:1;tab-size:2}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:7px;color:var(--tx3)}
+.empty-i{font-size:34px;opacity:.2}
+.status{background:var(--ac);color:#060c18;padding:2px 13px;font-size:10px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;font-weight:700}
+/* syntax */
+.kw{color:#c792ea}.fn{color:#82aaff}.str{color:#c3e88d}.num{color:#f78c6c}.cmt{color:#4a6070;font-style:italic}.cls{color:#ffcb6b}.tp{color:#00d4ff}.dc{color:#ff5370}.pr{color:#f07178}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="logo"><div class="li">⚡</div><span class="lt">DevPrep AI — Final To'liq Kodlar</span></div>
+  <div class="hbadges">
+    <span class="hb s">⚙️ 18 server</span>
+    <span class="hb c">⚛️ 16 client</span>
+    <span class="hb d">📚 3 docs</span>
+  </div>
+</div>
+<div class="wrap">
+  <div class="side">
+    <div class="si"><input placeholder="🔍 Fayl qidirish..." oninput="srch(this.value)" id="sii"></div>
+    <div class="tree" id="tr"></div>
+  </div>
+  <div class="editor">
+    <div class="tabs" id="tb"></div>
+    <div class="ca" id="ca"><div class="empty"><div class="empty-i">📂</div><span>Chapdan fayl tanlang</span></div></div>
+  </div>
+</div>
+<div class="status"><span id="sp">DevPrep AI v1.0 — 37 fayl tayyor</span><span id="sl">TypeScript · UTF-8</span></div>
+
+<script>
+const F={
+// ══ SERVER ════════════════════════════════════════════════════════
+'server/prisma/schema.prisma':{g:'s',i:'🔷',l:'prisma',n:'schema.prisma',d:'prisma/',c:`generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql"; url = env("DATABASE_URL"); directUrl = env("DIRECT_URL") }
+
+enum Role { USER ADMIN }
+enum Track { FRONTEND BACKEND FULLSTACK }
+enum Difficulty { EASY MEDIUM HARD MIXED }
+enum QuestionType { MULTIPLE_CHOICE SINGLE_CHOICE OPEN_ENDED }
+enum CategoryGroup { FRONTEND BACKEND GENERAL }
+enum NotifType { QUIZ_RESULT ACHIEVEMENT ROADMAP SYSTEM }
+enum AchievementCondition { QUIZ_COUNT SCORE STREAK CATEGORY }
+
+model User {
+  id String @id @default(uuid())
+  email String @unique
+  passwordHash String
+  fullName String
+  avatarUrl String?
+  role Role @default(USER)
+  track Track?
+  isVerified Boolean @default(false)
+  verifyToken String?
+  resetToken String?
+  resetTokenExp DateTime?
+  refreshToken String?
+  streakCount Int @default(0)
+  lastActive DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  quizResults QuizResult[]
+  bookmarks Bookmark[]
+  notifications Notification[]
+  achievements UserAchievement[]
+  roadmapProgress RoadmapProgress[]
+  aiSessions AISession[]
+  adminLogs AdminLog[]
+  @@map("users")
+}
+model Category {
+  id String @id @default(uuid())
+  name String @unique; slug String @unique
+  group CategoryGroup; icon String?
+  createdAt DateTime @default(now())
+  questions Question[]
+  @@map("categories")
+}
+model Question {
+  id String @id @default(uuid())
+  categoryId String
+  category Category @relation(fields: [categoryId], references: [id])
+  title String; type QuestionType; difficulty Difficulty
+  options Json?; correctAnswer String?; explanation String?
+  tags String[] @default([])
+  isActive Boolean @default(true); createdById String?
+  createdAt DateTime @default(now()); updatedAt DateTime @updatedAt
+  quizQuestions QuizQuestion[]; bookmarks Bookmark[]
+  @@map("questions")
+}
+model Quiz {
+  id String @id @default(uuid())
+  title String; description String?; type Track; difficulty Difficulty
+  timeLimit Int; questionCount Int; isActive Boolean @default(true)
+  createdById String?; createdAt DateTime @default(now())
+  questions QuizQuestion[]; results QuizResult[]
+  @@map("quizzes")
+}
+model QuizQuestion {
+  quizId String; questionId String; orderIndex Int
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  @@id([quizId, questionId])
+  @@map("quiz_questions")
+}
+model QuizResult {
+  id String @id @default(uuid())
+  userId String; quizId String; score Int; total Int
+  percentage Float; timeSpent Int; answers Json
+  completedAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  @@map("quiz_results")
+}
+model Bookmark {
+  id String @id @default(uuid())
+  userId String; questionId String; createdAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  @@unique([userId, questionId])
+  @@map("bookmarks")
+}
+model RoadmapNode {
+  id String @id @default(uuid()); track Track; title String
+  description String?; orderIndex Int; parentId String?
+  resources Json?; isMilestone Boolean @default(false)
+  parent RoadmapNode? @relation("NodeChildren", fields: [parentId], references: [id])
+  children RoadmapNode[] @relation("NodeChildren")
+  progress RoadmapProgress[]
+  @@map("roadmap_nodes")
+}
+model RoadmapProgress {
+  userId String; nodeId String; isCompleted Boolean @default(false); completedAt DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  node RoadmapNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  @@id([userId, nodeId])
+  @@map("roadmap_progress")
+}
+model AISession {
+  id String @id @default(uuid()); userId String
+  questionText String; userAnswer String; aiScore Int
+  aiFeedback String; idealAnswer String; resources Json?
+  createdAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("ai_sessions")
+}
+model Achievement {
+  id String @id @default(uuid()); slug String @unique
+  title String; description String?; icon String?
+  conditionType AchievementCondition; conditionValue Int
+  userAchievements UserAchievement[]
+  @@map("achievements")
+}
+model UserAchievement {
+  userId String; achievementId String; earnedAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  @@id([userId, achievementId])
+  @@map("user_achievements")
+}
+model Notification {
+  id String @id @default(uuid()); userId String; type NotifType
+  title String; message String?; isRead Boolean @default(false)
+  createdAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("notifications")
+}
+model AdminLog {
+  id String @id @default(uuid()); adminId String
+  action String; target String?; details Json?
+  createdAt DateTime @default(now())
+  admin User @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  @@map("admin_logs")
+}`},
+
+'server/prisma/seed.ts':{g:'s',i:'🌱',l:'ts',n:'seed.ts',d:'prisma/',c:`import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
+const prisma = new PrismaClient()
+
+async function main() {
+  console.log('🌱 Seed boshlandi...')
+
+  // CATEGORIES
+  const cats = await Promise.all([
+    prisma.category.upsert({ where:{slug:'html'}, update:{}, create:{name:'HTML',slug:'html',group:'FRONTEND',icon:'html5'} }),
+    prisma.category.upsert({ where:{slug:'css'}, update:{}, create:{name:'CSS',slug:'css',group:'FRONTEND',icon:'css3'} }),
+    prisma.category.upsert({ where:{slug:'javascript'}, update:{}, create:{name:'JavaScript',slug:'javascript',group:'FRONTEND',icon:'javascript'} }),
+    prisma.category.upsert({ where:{slug:'typescript'}, update:{}, create:{name:'TypeScript',slug:'typescript',group:'FRONTEND',icon:'typescript'} }),
+    prisma.category.upsert({ where:{slug:'react'}, update:{}, create:{name:'React',slug:'react',group:'FRONTEND',icon:'react'} }),
+    prisma.category.upsert({ where:{slug:'nextjs'}, update:{}, create:{name:'Next.js',slug:'nextjs',group:'FRONTEND',icon:'nextjs'} }),
+    prisma.category.upsert({ where:{slug:'nodejs'}, update:{}, create:{name:'Node.js',slug:'nodejs',group:'BACKEND',icon:'nodejs'} }),
+    prisma.category.upsert({ where:{slug:'express'}, update:{}, create:{name:'Express.js',slug:'express',group:'BACKEND',icon:'express'} }),
+    prisma.category.upsert({ where:{slug:'databases'}, update:{}, create:{name:'Databases',slug:'databases',group:'BACKEND',icon:'database'} }),
+    prisma.category.upsert({ where:{slug:'git'}, update:{}, create:{name:'Git & GitHub',slug:'git',group:'GENERAL',icon:'git'} }),
+    prisma.category.upsert({ where:{slug:'oop'}, update:{}, create:{name:'OOP',slug:'oop',group:'GENERAL',icon:'oop'} }),
+  ])
+  console.log(\`✅ \${cats.length} kategoriya\`)
+
+  const js = cats.find(c=>c.slug==='javascript')!
+  const react = cats.find(c=>c.slug==='react')!
+  const node = cats.find(c=>c.slug==='nodejs')!
+
+  // QUESTIONS
+  await Promise.all([
+    prisma.question.create({ data: {
+      categoryId: js.id, title: "=== va == farqi nima?",
+      type:'SINGLE_CHOICE', difficulty:'EASY',
+      options: [
+        {id:'a',text:'=== faqat qiymat solishtiradi',isCorrect:false},
+        {id:'b',text:'=== qiymat va tur solishtiradi, == faqat qiymat',isCorrect:true},
+        {id:'c',text:'Ikkalasi bir xil',isCorrect:false},
+      ],
+      explanation: '=== strict equality: qiymat + tur. == type coercion qiladi.',
+      tags:['operators','basics'],
+    }}),
+    prisma.question.create({ data: {
+      categoryId: js.id, title: "var, let, const farqlari nima?",
+      type:'OPEN_ENDED', difficulty:'MEDIUM',
+      correctAnswer: "var: function scope, hoisting. let: block scope, reassign mumkin. const: block scope, reassign mumkin emas.",
+      tags:['variables','scope','es6'],
+    }}),
+    prisma.question.create({ data: {
+      categoryId: js.id, title: "Closure nima?",
+      type:'OPEN_ENDED', difficulty:'MEDIUM',
+      correctAnswer: "Closure - funktsiya tashqi scope'dagi o'zgaruvchilarga kirish imkoniyatini saqlab qoladi. Encapsulation, factory functions uchun ishlatiladi.",
+      tags:['closure','scope'],
+    }}),
+    prisma.question.create({ data: {
+      categoryId: react.id, title: "useState hook qanday ishlaydi?",
+      type:'OPEN_ENDED', difficulty:'EASY',
+      correctAnswer: "useState: functional component da state saqlash. [state, setState] qaytaradi. setState chaqirilganda re-render bo'ladi.",
+      tags:['hooks','useState'],
+    }}),
+    prisma.question.create({ data: {
+      categoryId: node.id, title: "Event Loop nima?",
+      type:'OPEN_ENDED', difficulty:'HARD',
+      correctAnswer: "Event Loop: Node.js async mexanizmi. Call stack, callback queue, microtask queue. Stack bo'sh bo'lganda queue'dan vazifalar bajariladi.",
+      tags:['event-loop','async'],
+    }}),
+  ])
+  console.log('✅ Savollar yaratildi')
+
+  // ACHIEVEMENTS
+  await Promise.all([
+    prisma.achievement.upsert({ where:{slug:'first-test'}, update:{}, create:{slug:'first-test',title:'Birinchi qadam',description:'Birinchi testni yakunlading',icon:'🎯',conditionType:'QUIZ_COUNT',conditionValue:1} }),
+    prisma.achievement.upsert({ where:{slug:'10-tests'}, update:{}, create:{slug:'10-tests',title:'Izchil o\'quvchi',description:'10 ta test',icon:'🔥',conditionType:'QUIZ_COUNT',conditionValue:10} }),
+    prisma.achievement.upsert({ where:{slug:'50-tests'}, update:{}, create:{slug:'50-tests',title:'Pro daraja',description:'50 ta test',icon:'💎',conditionType:'QUIZ_COUNT',conditionValue:50} }),
+  ])
+  console.log('✅ Achievementlar')
+
+  // ROADMAP
+  const frontendNodes = [
+    {title:'HTML Asoslari',orderIndex:1,isMilestone:false},
+    {title:'CSS Asoslari',orderIndex:2,isMilestone:false},
+    {title:'JavaScript Asoslari',orderIndex:3,isMilestone:true},
+    {title:'ES6+ Xususiyatlar',orderIndex:4,isMilestone:false},
+    {title:'React Asoslari',orderIndex:5,isMilestone:true},
+    {title:'React Advanced',orderIndex:6,isMilestone:false},
+    {title:'TypeScript',orderIndex:7,isMilestone:false},
+    {title:'Next.js',orderIndex:8,isMilestone:true},
+  ]
+  for (const n of frontendNodes) {
+    await prisma.roadmapNode.upsert({
+      where:{id:\`frontend-\${n.orderIndex}\`},
+      update:{}, create:{id:\`frontend-\${n.orderIndex}\`,track:'FRONTEND',...n},
+    })
+  }
+  console.log('✅ Roadmap yaratildi')
+
+  // ADMIN USER
+  const hash = await bcrypt.hash('Admin123!',12)
+  await prisma.user.upsert({
+    where:{email:'admin@devprep.ai'}, update:{},
+    create:{email:'admin@devprep.ai',passwordHash:hash,fullName:'DevPrep Admin',role:'ADMIN',isVerified:true},
+  })
+  console.log('✅ Admin: admin@devprep.ai / Admin123!')
+  console.log('🎉 Seed yakunlandi!')
+}
+
+main().catch(console.error).finally(()=>prisma.$disconnect())`},
+
+'server/src/app.ts':{g:'s',i:'🚀',l:'ts',n:'app.ts',d:'src/',c:`import express from 'express'
+import cors from 'cors'
+import helmet from 'helmet'
+import morgan from 'morgan'
+import cookieParser from 'cookie-parser'
+import { env } from './config/env'
+import { globalLimiter, authLimiter, aiLimiter } from './middleware/rateLimit'
+import authRoutes from './modules/auth/auth.routes'
+import questionsRoutes from './modules/questions/questions.routes'
+import quizzesRoutes from './modules/quizzes/quizzes.routes'
+import aiRoutes from './modules/ai/ai.routes'
+import dashboardRoutes from './modules/dashboard/dashboard.routes'
+import adminRoutes from './modules/admin/admin.routes'
+
+const app = express()
+
+app.use(helmet())
+app.use(cors({ origin: env.clientUrl, credentials: true, methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'] }))
+app.use('/api/v1/auth', authLimiter)
+app.use('/api/v1/ai', aiLimiter)
+app.use(globalLimiter)
+app.use(morgan(env.nodeEnv === 'development' ? 'dev' : 'combined'))
+app.use(express.json({ limit: '10mb' }))
+app.use(express.urlencoded({ extended: true }))
+app.use(cookieParser())
+
+app.get('/health', (_, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }))
+
+app.use('/api/v1/auth', authRoutes)
+app.use('/api/v1/questions', questionsRoutes)
+app.use('/api/v1/quizzes', quizzesRoutes)
+app.use('/api/v1/ai', aiRoutes)
+app.use('/api/v1/dashboard', dashboardRoutes)
+app.use('/api/v1/admin', adminRoutes)
+
+app.use('*', (_, res) => res.status(404).json({ success: false, message: 'Route topilmadi' }))
+export default app`},
+
+'server/src/config/database.ts':{g:'s',i:'🐘',l:'ts',n:'database.ts',d:'config/',c:`import { PrismaClient } from '@prisma/client'
+
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined }
+
+export const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+  })
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma`},
+
+'server/src/config/email.ts':{g:'s',i:'✉️',l:'ts',n:'email.ts',d:'config/',c:`import nodemailer from 'nodemailer'
+import { env } from './env'
+
+export const transporter = nodemailer.createTransport({
+  host: env.smtp.host, port: env.smtp.port, secure: false,
+  auth: { user: env.smtp.user, pass: env.smtp.pass },
+})
+
+export const sendVerificationEmail = async (to: string, token: string) => {
+  const url = \`\${env.clientUrl}/verify-email?token=\${token}\`
+  await transporter.sendMail({
+    from: env.smtp.from, to,
+    subject: 'DevPrep AI — Email tasdiqlash',
+    html: \`<div style="font-family:Arial;background:#0a0e1a;color:#e2e8f0;padding:40px;border-radius:12px;max-width:600px;margin:0 auto">
+      <h1 style="color:#00d4ff">DevPrep AI</h1>
+      <h2 style="margin-top:24px">Email manzilingizni tasdiqlang</h2>
+      <p style="color:#94a3b8;margin:16px 0">Hisobingizni faollashtirish uchun:</p>
+      <a href="\${url}" style="background:#00d4ff;color:#0a0e1a;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;display:inline-block">
+        Email tasdiqlash
+      </a>
+      <p style="color:#64748b;font-size:13px;margin-top:32px">Havola 24 soat amal qiladi.</p>
+    </div>\`,
+  })
+}
+
+export const sendPasswordResetEmail = async (to: string, token: string) => {
+  const url = \`\${env.clientUrl}/reset-password?token=\${token}\`
+  await transporter.sendMail({
+    from: env.smtp.from, to,
+    subject: 'DevPrep AI — Parolni tiklash',
+    html: \`<div style="font-family:Arial;background:#0a0e1a;color:#e2e8f0;padding:40px;border-radius:12px;max-width:600px;margin:0 auto">
+      <h1 style="color:#00d4ff">DevPrep AI</h1>
+      <h2 style="margin-top:24px">Parolni tiklash</h2>
+      <p style="color:#94a3b8;margin:16px 0">Havola 1 soat amal qiladi:</p>
+      <a href="\${url}" style="background:#ef4444;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;display:inline-block">
+        Parolni tiklash
+      </a>
+    </div>\`,
+  })
+}`},
+
+'server/src/modules/auth/auth.routes.ts':{g:'s',i:'🔀',l:'ts',n:'auth.routes.ts',d:'auth/',c:`import { Router } from 'express'
+import { authController } from './auth.controller'
+import { authMiddleware } from '../../middleware/auth.middleware'
+import { validate } from '../../middleware/validate.middleware'
+import { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema, changePasswordSchema, updateProfileSchema } from './auth.schema'
+
+const router = Router()
+
+// ── Public ──────────────────────────────────────────────────────────
+router.post('/register', validate(registerSchema), authController.register.bind(authController))
+router.post('/login', validate(loginSchema), authController.login.bind(authController))
+router.post('/refresh', authController.refresh.bind(authController))
+router.get('/verify-email', authController.verifyEmail.bind(authController))
+router.post('/forgot-password', validate(forgotPasswordSchema), authController.forgotPassword.bind(authController))
+router.post('/reset-password', validate(resetPasswordSchema), authController.resetPassword.bind(authController))
+
+// ── Protected ───────────────────────────────────────────────────────
+router.post('/logout', authMiddleware, authController.logout.bind(authController))
+router.get('/me', authMiddleware, authController.getProfile.bind(authController))
+router.put('/profile', authMiddleware, validate(updateProfileSchema), authController.updateProfile.bind(authController))
+router.put('/change-password', authMiddleware, validate(changePasswordSchema), authController.changePassword.bind(authController))
+
+export default router`},
+
+'server/src/modules/quizzes/quizzes.routes.ts':{g:'s',i:'🔀',l:'ts',n:'quizzes.routes.ts',d:'quizzes/',c:`import { Router } from 'express'
+import { quizzesController } from './quizzes.controller'
+import { authMiddleware } from '../../middleware/auth.middleware'
+
+const router = Router()
+router.use(authMiddleware)
+
+router.get('/', quizzesController.getQuizzes.bind(quizzesController))
+router.get('/leaderboard', quizzesController.getLeaderboard.bind(quizzesController))
+router.get('/results/my', quizzesController.getMyResults.bind(quizzesController))
+router.get('/results/:id', quizzesController.getResult.bind(quizzesController))
+router.get('/:id', quizzesController.getQuiz.bind(quizzesController))
+router.post('/:id/start', quizzesController.startQuiz.bind(quizzesController))
+router.post('/:id/submit', quizzesController.submitQuiz.bind(quizzesController))
+
+export default router`},
+
+'server/src/modules/questions/questions.routes.ts':{g:'s',i:'🔀',l:'ts',n:'questions.routes.ts',d:'questions/',c:`import { Router } from 'express'
+import { questionsController } from './questions.controller'
+import { authMiddleware } from '../../middleware/auth.middleware'
+
+const router = Router()
+router.use(authMiddleware)
+
+router.get('/', questionsController.getQuestions.bind(questionsController))
+router.get('/categories', questionsController.getCategories.bind(questionsController))
+router.get('/bookmarks', questionsController.getBookmarks.bind(questionsController))
+router.get('/:id', questionsController.getQuestion.bind(questionsController))
+router.post('/:id/bookmark', questionsController.toggleBookmark.bind(questionsController))
+
+export default router`},
+
+'server/src/modules/ai/ai.routes.ts':{g:'s',i:'🔀',l:'ts',n:'ai.routes.ts',d:'ai/',c:`import { Router } from 'express'
+import { aiController } from './ai.controller'
+import { authMiddleware } from '../../middleware/auth.middleware'
+
+const router = Router()
+router.use(authMiddleware)
+
+router.post('/evaluate', aiController.evaluateAnswer.bind(aiController))
+router.post('/mock-interview/start', aiController.getMockInterviewQuestions.bind(aiController))
+router.get('/sessions', aiController.getSessions.bind(aiController))
+router.get('/sessions/:id', aiController.getSession.bind(aiController))
+
+export default router`},
+
+'server/src/modules/dashboard/dashboard.routes.ts':{g:'s',i:'🔀',l:'ts',n:'dashboard.routes.ts',d:'dashboard/',c:`import { Router, Response } from 'express'
+import { dashboardService } from './dashboard.service'
+import { successResponse, errorResponse } from '../../utils/response'
+import { authMiddleware } from '../../middleware/auth.middleware'
+import { AuthRequest } from '../../types'
+
+const router = Router()
+router.use(authMiddleware)
+
+router.get('/stats', async (req: AuthRequest, res: Response) => {
+  try { successResponse(res, await dashboardService.getStats(req.user!.userId)) }
+  catch (e: any) { errorResponse(res, e.message) }
+})
+
+router.get('/roadmap/:track', async (req: AuthRequest, res: Response) => {
+  try { successResponse(res, await dashboardService.getRoadmap(req.params.track, req.user!.userId)) }
+  catch (e: any) { errorResponse(res, e.message) }
+})
+
+router.post('/roadmap/:nodeId/complete', async (req: AuthRequest, res: Response) => {
+  try { successResponse(res, await dashboardService.completeNode(req.user!.userId, req.params.nodeId), 'Tugatildi!') }
+  catch (e: any) { errorResponse(res, e.message) }
+})
+
+router.get('/notifications', async (req: AuthRequest, res: Response) => {
+  try {
+    const data = await dashboardService.getNotifications?.(req.user!.userId)
+    successResponse(res, data)
+  } catch (e: any) { errorResponse(res, e.message) }
+})
+
+router.get('/achievements', async (req: AuthRequest, res: Response) => {
+  try { successResponse(res, await dashboardService.getAchievements(req.user!.userId)) }
+  catch (e: any) { errorResponse(res, e.message) }
+})
+
+export default router`},
+
+'server/src/modules/admin/admin.routes.ts':{g:'s',i:'👑',l:'ts',n:'admin.routes.ts',d:'admin/',c:`import { Router, Response } from 'express'
+import { prisma } from '../../config/database'
+import { authMiddleware } from '../../middleware/auth.middleware'
+import { adminMiddleware } from '../../middleware/admin.middleware'
+import { successResponse, errorResponse, paginatedResponse } from '../../utils/response'
+import { AuthRequest } from '../../types'
+
+const router = Router()
+router.use(authMiddleware, adminMiddleware)
+
+// ── Users ───────────────────────────────────────────────────────────
+router.get('/users', async (req: AuthRequest, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string)||1
+    const limit = parseInt(req.query.limit as string)||20
+    const skip = (page-1)*limit
+    const search = req.query.search as string
+    const where: any = {}
+    if (search) where.OR = [
+      { email: { contains: search, mode: 'insensitive' } },
+      { fullName: { contains: search, mode: 'insensitive' } },
+    ]
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        where, skip, take: limit,
+        select: { id:true, email:true, fullName:true, role:true, track:true, isVerified:true, streakCount:true, createdAt:true, _count:{ select:{ quizResults:true, aiSessions:true } } },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.user.count({ where }),
+    ])
+    paginatedResponse(res, users, { page, limit, total })
+  } catch (e: any) { errorResponse(res, e.message) }
+})
+
+router.delete('/users/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    if (req.params.id === req.user!.userId) { errorResponse(res, "O'zingizni o'chira olmaysiz", 400); return }
+    await prisma.user.delete({ where: { id: req.params.id } })
+    successResponse(res, null, "Foydalanuvchi o'chirildi")
+  } catch (e: any) { errorResponse(res, e.message) }
+})
+
+// ── Questions ───────────────────────────────────────────────────────
+router.post('/questions', async (req: AuthRequest, res: Response) => {
+  try {
+    const q = await prisma.question.create({ data: { ...req.body, createdById: req.user!.userId }, include: { category: true } })
+    await prisma.adminLog.create({ data: { adminId: req.user!.userId, action: 'CREATE_QUESTION', target: q.id } })
+    successResponse(res, q, 'Savol yaratildi', 201)
+  } catch (e: any) { errorResponse(res, e.message) }
+})
+
+router.put('/questions/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    const q = await prisma.question.update({ where: { id: req.params.id }, data: req.body, include: { category: true } })
+    successResponse(res, q, 'Savol yangilandi')
+  } catch (e: any) { errorResponse(res, e.message) }
+})
+
+router.delete('/questions/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    await prisma.question.delete({ where: { id: req.params.id } })
+    successResponse(res, null, "Savol o'chirildi")
+  } catch (e: any) { errorResponse(res, e.message) }
+})
+
+// ── Categories ──────────────────────────────────────────────────────
+router.post('/categories', async (req: AuthRequest, res: Response) => {
+  try {
+    const cat = await prisma.category.create({ data: req.body })
+    successResponse(res, cat, 'Kategoriya yaratildi', 201)
+  } catch (e: any) { errorResponse(res, e.message) }
+})
+
+// ── Quizzes ─────────────────────────────────────────────────────────
+router.post('/quizzes', async (req: AuthRequest, res: Response) => {
+  try {
+    const { questionIds, ...data } = req.body
+    const quiz = await prisma.quiz.create({
+      data: {
+        ...data, createdById: req.user!.userId, questionCount: questionIds?.length||0,
+        questions: questionIds ? { create: questionIds.map((qId: string, idx: number) => ({ questionId: qId, orderIndex: idx })) } : undefined,
+      },
+      include: { questions: true },
+    })
+    successResponse(res, quiz, 'Quiz yaratildi', 201)
+  } catch (e: any) { errorResponse(res, e.message) }
+})
+
+// ── Analytics ───────────────────────────────────────────────────────
+router.get('/analytics', async (req: AuthRequest, res: Response) => {
+  try {
+    const [totalUsers, totalQuestions, totalQuizzes, totalResults, avgScore, recentUsers] = await Promise.all([
+      prisma.user.count(),
+      prisma.question.count({ where: { isActive: true } }),
+      prisma.quiz.count({ where: { isActive: true } }),
+      prisma.quizResult.count(),
+      prisma.quizResult.aggregate({ _avg: { percentage: true } }),
+      prisma.user.findMany({ take: 5, orderBy: { createdAt: 'desc' }, select: { id:true, email:true, fullName:true, createdAt:true } }),
+    ])
+    successResponse(res, { totalUsers, totalQuestions, totalQuizzes, totalResults, avgScore: Math.round(avgScore._avg.percentage||0), recentUsers })
+  } catch (e: any) { errorResponse(res, e.message) }
+})
+
+export default router`},
+
+'server/src/middleware/rateLimit.ts':{g:'s',i:'⚡',l:'ts',n:'rateLimit.ts',d:'middleware/',c:`import rateLimit from 'express-rate-limit'
+
+export const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 100, standardHeaders: true, legacyHeaders: false,
+  message: { success: false, message: "Juda ko'p so'rov. 15 daqiqadan keyin urinib ko'ring." },
+})
+
+export const authLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false,
+  message: { success: false, message: "Juda ko'p urinish. 1 soatdan keyin urinib ko'ring." },
+})
+
+export const aiLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, max: 30, standardHeaders: true, legacyHeaders: false,
+  message: { success: false, message: "AI limitiga yetdingiz. 1 soatdan keyin urinib ko'ring." },
+})`},
+
+'server/src/server.ts':{g:'s',i:'🟢',l:'ts',n:'server.ts',d:'src/',c:`import app from './app'
+import { env } from './config/env'
+import { prisma } from './config/database'
+
+const startServer = async () => {
+  try {
+    await prisma.$connect()
+    console.log('✅ PostgreSQL (Neon) ga ulanildi')
+
+    app.listen(env.port, () => {
+      console.log(\`
+🚀 DevPrep AI Server ishga tushdi!
+   Port:  \${env.port}
+   Mode:  \${env.nodeEnv}
+   API:   http://localhost:\${env.port}/api/v1
+      \`)
+    })
+  } catch (error) {
+    console.error('❌ Server xatosi:', error)
+    await prisma.$disconnect()
+    process.exit(1)
+  }
+}
+
+process.on('SIGINT', async () => { await prisma.$disconnect(); process.exit(0) })
+process.on('SIGTERM', async () => { await prisma.$disconnect(); process.exit(0) })
+
+startServer()`},
+
+// ══ CLIENT ════════════════════════════════════════════════════════
+'client/src/pages/auth/Register.tsx':{g:'c',i:'📝',l:'tsx',n:'Register.tsx',d:'auth/',c:`import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { UserPlus, Eye, EyeOff } from 'lucide-react'
+import { authApi } from '../../api/auth.api'
+import { Alert, Spinner } from '../../components/ui'
+
+const tracks = [
+  { value: 'FRONTEND', label: '🎨 Frontend' },
+  { value: 'BACKEND', label: '⚙️ Backend' },
+  { value: 'FULLSTACK', label: '🚀 Full Stack' },
+]
+
+export default function Register() {
+  const navigate = useNavigate()
+  const [form, setForm] = useState({ email: '', password: '', fullName: '', track: '' })
+  const [showPass, setShowPass] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault(); setLoading(true); setError('')
+    try {
+      await authApi.register(form)
+      setSuccess('Tabriklaymiz! Email manzilingizni tasdiqlang.')
+      setTimeout(() => navigate('/login'), 3000)
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Ro'yxatdan o'tish amalga oshmadi")
+    } finally { setLoading(false) }
+  }
+
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="font-sans font-bold text-3xl text-white mb-2">Hisob yarating 🚀</h1>
+        <p className="text-slate-400 text-sm">DevPrep AI ga qo'shiling</p>
+      </div>
+      {error && <div className="mb-4"><Alert type="error" message={error} /></div>}
+      {success && <div className="mb-4"><Alert type="success" message={success} /></div>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="text-xs text-slate-400 mb-1.5 block uppercase tracking-wider">To'liq ism</label>
+          <input className="input" placeholder="Sardor Rahimov" value={form.fullName}
+            onChange={(e) => setForm({ ...form, fullName: e.target.value })} required />
+        </div>
+        <div>
+          <label className="text-xs text-slate-400 mb-1.5 block uppercase tracking-wider">Email</label>
+          <input type="email" className="input" placeholder="you@example.com" value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+        </div>
+        <div>
+          <label className="text-xs text-slate-400 mb-1.5 block uppercase tracking-wider">Parol</label>
+          <div className="relative">
+            <input type={showPass ? 'text' : 'password'} className="input pr-10"
+              placeholder="Kamida 8 ta belgi, 1 katta harf, 1 raqam"
+              value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
+            <button type="button" onClick={() => setShowPass(!showPass)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+              {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+        </div>
+        <div>
+          <label className="text-xs text-slate-400 mb-1.5 block uppercase tracking-wider">Yo'nalish (ixtiyoriy)</label>
+          <div className="grid grid-cols-3 gap-2">
+            {tracks.map((t) => (
+              <button key={t.value} type="button"
+                onClick={() => setForm({ ...form, track: form.track === t.value ? '' : t.value })}
+                className={\`p-2 rounded-lg text-xs font-semibold border transition-all \${
+                  form.track === t.value ? 'bg-accent-100 border-accent-200 text-accent-500' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'
+                }\`}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2">
+          {loading ? <Spinner size={16} /> : <UserPlus size={16} />}
+          {loading ? "Ro'yxatdan o'tilmoqda..." : "Ro'yxatdan o'tish"}
+        </button>
+      </form>
+      <p className="text-center text-sm text-slate-400 mt-6">
+        Hisobingiz bormi?{' '}
+        <Link to="/login" className="text-accent-500 font-semibold hover:underline">Kirish</Link>
+      </p>
+    </div>
+  )
+}`},
+
+'client/src/pages/QuizList.tsx':{g:'c',i:'📋',l:'tsx',n:'QuizList.tsx',d:'pages/',c:`import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
+import { Clock, Users, ChevronRight, Filter } from 'lucide-react'
+import { quizApi } from '../api/quiz.api'
+import { Badge, PageLoader, EmptyState } from '../components/ui'
+import type { Quiz } from '../types'
+
+const diffLabel: Record<string,string> = { EASY:'Oson', MEDIUM:"O'rta", HARD:'Qiyin', MIXED:'Aralash' }
+const typeLabel: Record<string,string> = { FRONTEND:'Frontend', BACKEND:'Backend', FULLSTACK:'Full Stack' }
+
+export default function QuizList() {
+  const navigate = useNavigate()
+  const [typeFilter, setTypeFilter] = useState('')
+  const [diffFilter, setDiffFilter] = useState('')
+  const params: any = {}
+  if (typeFilter) params.type = typeFilter
+  if (diffFilter) params.difficulty = diffFilter
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['quizzes', params],
+    queryFn: () => quizApi.getQuizzes(params).then((r) => r.data.data as Quiz[]),
+  })
+
+  return (
+    <div className="animate-slide-up space-y-6">
+      <div>
+        <h1 className="font-sans font-bold text-2xl text-white">Quizlar</h1>
+        <p className="text-slate-400 text-sm mt-1">Bilimingizni sinab ko'ring</p>
+      </div>
+      <div className="flex flex-wrap gap-3">
+        <div className="flex items-center gap-2">
+          <Filter size={14} className="text-slate-500" />
+          {['','FRONTEND','BACKEND','FULLSTACK'].map((t) => (
+            <button key={t} onClick={() => setTypeFilter(t)}
+              className={\`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all \${typeFilter===t?'bg-accent-100 border-accent-200 text-accent-500':'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}\`}>
+              {t ? typeLabel[t] : 'Barchasi'}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          {['','EASY','MEDIUM','HARD'].map((d) => (
+            <button key={d} onClick={() => setDiffFilter(d)}
+              className={\`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all \${diffFilter===d?'bg-accent-100 border-accent-200 text-accent-500':'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}\`}>
+              {d ? diffLabel[d] : 'Qiyinlik'}
+            </button>
+          ))}
+        </div>
+      </div>
+      {isLoading ? <PageLoader /> : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {(data||[]).length===0 ? <div className="col-span-3"><EmptyState icon="📋" title="Quiz topilmadi" /></div>
+          : (data||[]).map((quiz) => (
+            <div key={quiz.id} onClick={() => navigate(\`/quizzes/\${quiz.id}/session\`)}
+              className="card hover:border-slate-700 cursor-pointer group transition-all hover:glow">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex gap-2 flex-wrap">
+                  <Badge variant={quiz.type.toLowerCase() as any}>{typeLabel[quiz.type]}</Badge>
+                  <Badge variant={quiz.difficulty.toLowerCase() as any}>{diffLabel[quiz.difficulty]}</Badge>
+                </div>
+                <ChevronRight size={16} className="text-slate-600 group-hover:text-accent-500 mt-0.5" />
+              </div>
+              <h3 className="font-semibold text-white mb-1 group-hover:text-accent-500">{quiz.title}</h3>
+              {quiz.description && <p className="text-xs text-slate-400 mb-4 line-clamp-2">{quiz.description}</p>}
+              <div className="flex items-center gap-4 text-xs text-slate-500 pt-3 border-t border-slate-800">
+                <span>📝 {quiz.questionCount} savol</span>
+                <span className="flex items-center gap-1"><Clock size={11}/> {Math.round(quiz.timeLimit/60)} min</span>
+                {quiz._count && <span className="flex items-center gap-1"><Users size={11}/> {quiz._count.results}</span>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}`},
+
+'client/src/pages/QuizSession.tsx':{g:'c',i:'⏱️',l:'tsx',n:'QuizSession.tsx',d:'pages/',c:`import { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { Clock, ChevronLeft, ChevronRight, Send, AlertCircle } from 'lucide-react'
+import { quizApi } from '../api/quiz.api'
+import { PageLoader, Badge, Spinner } from '../components/ui'
+import type { QuizSession as ISession } from '../types'
+
+export default function QuizSession() {
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const [started, setStarted] = useState(false)
+  const [session, setSession] = useState<ISession | null>(null)
+  const [cur, setCur] = useState(0)
+  const [answers, setAnswers] = useState<Record<string,string>>({})
+  const [timeLeft, setTimeLeft] = useState(0)
+  const [t0] = useState(Date.now())
+
+  const { data: meta, isLoading } = useQuery({
+    queryKey: ['quiz', id],
+    queryFn: () => quizApi.getQuiz(id!).then((r) => r.data.data),
+  })
+  const startMut = useMutation({
+    mutationFn: () => quizApi.startQuiz(id!).then((r) => r.data.data as ISession),
+    onSuccess: (d) => { setSession(d); setTimeLeft(d.timeLimit); setStarted(true) },
+  })
+  const submitMut = useMutation({
+    mutationFn: () => quizApi.submitQuiz(id!, {
+      answers: session!.questions.map((q) => ({ questionId: q.id, selectedOptionId: answers[q.id] })),
+      timeSpent: Math.round((Date.now() - t0) / 1000),
+    }).then((r) => r.data.data),
+    onSuccess: (d) => navigate(\`/quizzes/results/\${d.id}\`),
+  })
+
+  useEffect(() => {
+    if (!started || timeLeft <= 0) return
+    const t = setInterval(() => setTimeLeft((n) => { if(n<=1){clearInterval(t);submitMut.mutate();return 0} return n-1 }), 1000)
+    return () => clearInterval(t)
+  }, [started])
+
+  if (isLoading) return <PageLoader />
+
+  if (!started && meta) return (
+    <div className="max-w-lg mx-auto mt-12 card animate-slide-up text-center">
+      <div className="text-5xl mb-4">📋</div>
+      <h2 className="font-sans font-bold text-2xl text-white mb-2">{meta.title}</h2>
+      <div className="grid grid-cols-3 gap-3 my-6">
+        {[['Savollar', meta.questionCount], ['Vaqt', \`\${Math.round(meta.timeLimit/60)} min\`], ['Qiyinlik', meta.difficulty]].map(([l,v]) => (
+          <div key={l as string} className="p-3 rounded-xl bg-slate-800 border border-slate-700">
+            <div className="font-bold text-white">{v}</div>
+            <div className="text-xs text-slate-400">{l}</div>
+          </div>
+        ))}
+      </div>
+      <button onClick={() => startMut.mutate()} disabled={startMut.isPending}
+        className="btn-primary w-full flex items-center justify-center gap-2">
+        {startMut.isPending && <Spinner size={16}/>} Quizni boshlash
+      </button>
+    </div>
+  )
+
+  if (!session) return <PageLoader />
+  const q = session.questions[cur]
+  const isLast = cur === session.questions.length - 1
+
+  return (
+    <div className="max-w-3xl mx-auto animate-slide-up">
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-sm text-slate-400"><span className="text-white font-bold">{cur+1}</span>/{session.questions.length}</span>
+        <div className={\`flex items-center gap-2 px-4 py-2 rounded-xl font-mono font-bold border \${timeLeft<60?'bg-rose-500/10 border-rose-500/20 text-rose-400':timeLeft<180?'bg-amber-500/10 border-amber-500/20 text-amber-400':'bg-accent-100 border-accent-200 text-accent-500'}\`}>
+          <Clock size={16}/>
+          {String(Math.floor(timeLeft/60)).padStart(2,'0')}:{String(timeLeft%60).padStart(2,'0')}
+        </div>
+        <span className="text-xs text-slate-400">{Object.keys(answers).length} javob</span>
+      </div>
+      <div className="h-1 bg-slate-800 rounded-full mb-4 overflow-hidden">
+        <div className="h-full bg-accent-500 rounded-full transition-all" style={{width:\`\${((cur+1)/session.questions.length)*100}%\`}}/>
+      </div>
+      <div className="card mb-3">
+        <div className="flex gap-2 mb-3">
+          <Badge variant={q.difficulty.toLowerCase() as any}>{q.difficulty}</Badge>
+          {q.category && <span className="text-xs text-slate-500">{q.category.name}</span>}
+        </div>
+        <p className="text-slate-100 font-semibold leading-relaxed">{q.title}</p>
+      </div>
+      {q.options && (
+        <div className="space-y-2 mb-4">
+          {q.options.map((opt,idx) => (
+            <button key={opt.id} onClick={() => setAnswers({...answers,[q.id]:opt.id})}
+              className={\`w-full p-3.5 rounded-xl text-left text-sm border transition-all \${answers[q.id]===opt.id?'bg-accent-100 border-accent-200 text-accent-500 font-semibold':'bg-slate-800/50 border-slate-700 text-slate-300 hover:border-slate-600'}\`}>
+              <span className="mr-3 inline-flex w-6 h-6 items-center justify-center rounded-full bg-slate-700 text-xs font-bold">{String.fromCharCode(65+idx)}</span>
+              {opt.text}
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="flex items-center justify-between">
+        <button onClick={() => setCur(c=>Math.max(0,c-1))} disabled={cur===0} className="btn-secondary flex items-center gap-1 disabled:opacity-40">
+          <ChevronLeft size={14}/> Oldingi
+        </button>
+        <div className="flex gap-1 flex-wrap justify-center max-w-xs">
+          {session.questions.map((sq,i) => (
+            <button key={sq.id} onClick={() => setCur(i)}
+              className={\`w-7 h-7 rounded-lg text-xs font-bold transition-all \${i===cur?'bg-accent-500 text-dark-900':answers[sq.id]?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30':'bg-slate-800 text-slate-500 hover:bg-slate-700'}\`}>
+              {i+1}
+            </button>
+          ))}
+        </div>
+        {isLast ? (
+          <button onClick={() => submitMut.mutate()} disabled={submitMut.isPending} className="btn-primary flex items-center gap-1">
+            {submitMut.isPending?<Spinner size={14}/>:<Send size={14}/>} Yuborish
+          </button>
+        ) : (
+          <button onClick={() => setCur(c=>Math.min(session.questions.length-1,c+1))} className="btn-secondary flex items-center gap-1">
+            Keyingi <ChevronRight size={14}/>
+          </button>
+        )}
+      </div>
+      {isLast && Object.keys(answers).length < session.questions.length && (
+        <div className="mt-3 flex items-center gap-2 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+          <AlertCircle size={13}/> {session.questions.length - Object.keys(answers).length} ta savol javobsiz
+        </div>
+      )}
+    </div>
+  )
+}`},
+
+'client/src/pages/QuizResult.tsx':{g:'c',i:'🏆',l:'tsx',n:'QuizResult.tsx',d:'pages/',c:`import { useParams, useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import { CheckCircle, XCircle, Clock, RotateCcw, Home } from 'lucide-react'
+import { quizApi } from '../api/quiz.api'
+import { PageLoader, ScoreRing } from '../components/ui'
+import type { QuizResult as IResult } from '../types'
+
+export default function QuizResult() {
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const { data: result, isLoading } = useQuery({
+    queryKey: ['quiz-result', id],
+    queryFn: () => quizApi.getResult(id!).then((r) => r.data.data as IResult),
+  })
+  if (isLoading) return <PageLoader />
+  if (!result) return null
+  const pct = Math.round(result.percentage)
+  const msg = pct>=80?{text:'Ajoyib! 🎉',c:'text-emerald-400'}:pct>=60?{text:'Yaxshi! 👍',c:'text-amber-400'}:{text:"Ko'proq mashq 💪",c:'text-rose-400'}
+
+  return (
+    <div className="max-w-3xl mx-auto animate-slide-up space-y-6">
+      <div className="card text-center py-8">
+        <ScoreRing score={pct} size={120} label="Ball" />
+        <h2 className={\`font-sans font-bold text-2xl mt-4 mb-1 \${msg.c}\`}>{msg.text}</h2>
+        <p className="text-slate-400 text-sm">{result.quiz?.title}</p>
+        <div className="flex items-center justify-center gap-8 mt-6 pt-6 border-t border-slate-800">
+          <div><div className="font-bold text-xl text-emerald-400">{result.score}</div><div className="text-xs text-slate-400">To'g'ri</div></div>
+          <div><div className="font-bold text-xl text-rose-400">{result.total-result.score}</div><div className="text-xs text-slate-400">Noto'g'ri</div></div>
+          <div><div className="font-bold text-xl text-slate-300 flex items-center gap-1"><Clock size={16}/>{Math.round(result.timeSpent/60)}m</div><div className="text-xs text-slate-400">Vaqt</div></div>
+        </div>
+        <div className="flex justify-center gap-3 mt-6">
+          <button onClick={() => navigate('/quizzes')} className="btn-secondary flex items-center gap-2"><RotateCcw size={14}/>Qayta</button>
+          <button onClick={() => navigate('/dashboard')} className="btn-ghost flex items-center gap-2"><Home size={14}/>Dashboard</button>
+        </div>
+      </div>
+      <div>
+        <h3 className="font-semibold text-white mb-3 text-sm">Javoblar tahlili</h3>
+        <div className="space-y-2">
+          {result.answers.map((ans,i) => (
+            <div key={ans.questionId} className={\`card p-4 border \${ans.isCorrect?'border-emerald-500/20':'border-rose-500/20'}\`}>
+              <div className="flex items-start gap-3">
+                {ans.isCorrect?<CheckCircle size={16} className="text-emerald-400 mt-0.5 shrink-0"/>:<XCircle size={16} className="text-rose-400 mt-0.5 shrink-0"/>}
+                <div className="flex-1">
+                  <p className="text-sm text-slate-200 mb-1">{i+1}. {ans.questionTitle}</p>
+                  {!ans.isCorrect && ans.correctAnswer && (
+                    <div className="text-xs bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-2 text-emerald-300 mb-1">✓ {ans.correctAnswer}</div>
+                  )}
+                  {ans.explanation && <p className="text-xs text-slate-400">{ans.explanation}</p>}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}`},
+
+'client/src/pages/Roadmap.tsx':{g:'c',i:'🗺️',l:'tsx',n:'Roadmap.tsx',d:'pages/',c:`import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { CheckCircle, Circle, Award, ChevronDown, ChevronRight } from 'lucide-react'
+import { dashboardApi } from '../api/dashboard.api'
+import { PageLoader } from '../components/ui'
+import type { RoadmapNode } from '../types'
+
+const tracks = [
+  { value: 'FRONTEND', label: '🎨 Frontend' },
+  { value: 'BACKEND', label: '⚙️ Backend' },
+  { value: 'FULLSTACK', label: '🚀 Full Stack' },
+]
+
+export default function Roadmap() {
+  const [track, setTrack] = useState('FRONTEND')
+  const [expanded, setExpanded] = useState<string|null>(null)
+  const qc = useQueryClient()
+
+  const { data: nodes, isLoading } = useQuery({
+    queryKey: ['roadmap', track],
+    queryFn: () => dashboardApi.getRoadmap(track).then((r) => r.data.data as RoadmapNode[]),
+  })
+  const completeMut = useMutation({
+    mutationFn: (nodeId: string) => dashboardApi.completeNode(nodeId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['roadmap', track] }),
+  })
+
+  const completed = nodes?.filter(n=>n.isCompleted).length || 0
+  const total = nodes?.length || 0
+  const pct = total > 0 ? Math.round((completed/total)*100) : 0
+
+  return (
+    <div className="max-w-3xl mx-auto animate-slide-up space-y-6">
+      <div>
+        <h1 className="font-sans font-bold text-2xl text-white">Roadmap</h1>
+        <p className="text-slate-400 text-sm mt-1">O'rganish yo'lini kuzating</p>
+      </div>
+      <div className="flex gap-2">
+        {tracks.map((t) => (
+          <button key={t.value} onClick={() => setTrack(t.value)}
+            className={\`px-4 py-2 rounded-xl text-sm font-semibold border transition-all \${track===t.value?'bg-accent-100 border-accent-200 text-accent-500':'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}\`}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+      <div className="card">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-semibold text-slate-300">Umumiy progress</span>
+          <span className="text-sm font-bold text-accent-500">{pct}%</span>
+        </div>
+        <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+          <div className="h-full bg-accent-500 rounded-full transition-all duration-500" style={{width:\`\${pct}%\`}}/>
+        </div>
+        <div className="text-xs text-slate-500 mt-2">{completed} / {total} mavzu tugatildi</div>
+      </div>
+      {isLoading ? <PageLoader /> : (
+        <div className="space-y-2">
+          {(nodes||[]).map((node) => (
+            <div key={node.id} className={\`card border transition-all \${node.isCompleted?'border-emerald-500/20 bg-emerald-500/5':node.isMilestone?'border-amber-500/20':'border-slate-800'}\`}>
+              <div className="flex items-center gap-4 cursor-pointer" onClick={() => setExpanded(expanded===node.id?null:node.id)}>
+                <button onClick={(e) => { e.stopPropagation(); if(!node.isCompleted) completeMut.mutate(node.id) }} className="shrink-0">
+                  {node.isCompleted?<CheckCircle size={22} className="text-emerald-400"/>:<Circle size={22} className="text-slate-600 hover:text-accent-500 transition-colors"/>}
+                </button>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-500 font-mono">{String(node.orderIndex).padStart(2,'0')}.</span>
+                    {node.isMilestone && <Award size={13} className="text-amber-400"/>}
+                    <span className={\`text-sm font-semibold \${node.isCompleted?'text-emerald-300 line-through opacity-60':'text-white'}\`}>{node.title}</span>
+                    {node.isMilestone && <span className="text-xs text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">Milestone</span>}
+                  </div>
+                </div>
+                {expanded===node.id?<ChevronDown size={14} className="text-slate-500"/>:<ChevronRight size={14} className="text-slate-500"/>}
+              </div>
+              {expanded===node.id && (
+                <div className="mt-3 ml-[46px] space-y-2 animate-slide-up">
+                  {node.description && <p className="text-sm text-slate-400">{node.description}</p>}
+                  {!node.isCompleted && (
+                    <button onClick={() => completeMut.mutate(node.id)}
+                      className="text-xs text-emerald-400 border border-emerald-500/20 px-3 py-1.5 rounded-lg hover:border-emerald-500/40 transition-all">
+                      ✓ Tugatildi deb belgilash
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}`},
+
+'client/src/components/layout/AuthLayout.tsx':{g:'c',i:'🔐',l:'tsx',n:'AuthLayout.tsx',d:'layout/',c:`import { Outlet } from 'react-router-dom'
+import { Zap } from 'lucide-react'
+
+export default function AuthLayout() {
+  return (
+    <div className="min-h-screen bg-dark-900 flex">
+      {/* Left decorative panel */}
+      <div className="hidden lg:flex flex-col w-1/2 bg-dark-800 border-r border-slate-800 p-12 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-accent-500/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-violet-500/5 rounded-full blur-3xl" />
+        </div>
+        <div className="flex items-center gap-3 mb-16 relative">
+          <div className="w-10 h-10 rounded-xl bg-accent-500 flex items-center justify-center">
+            <Zap size={20} className="text-dark-900" />
+          </div>
+          <div>
+            <div className="font-sans font-bold text-lg text-white">DevPrep AI</div>
+            <div className="text-xs text-accent-500">Interview Preparation Platform</div>
+          </div>
+        </div>
+        <div className="relative flex-1 flex flex-col justify-center">
+          <h2 className="font-sans font-bold text-4xl text-white mb-4 leading-tight">
+            IT sohasida<br />
+            <span className="gradient-text">orzuyingizga</span><br />
+            yeting
+          </h2>
+          <p className="text-slate-400 text-sm leading-relaxed mb-10 max-w-sm">
+            IT kurslarini bitirganlar uchun professional interview tayyorgarlik platformasi.
+          </p>
+          <div className="space-y-3">
+            {[
+              { icon: '🤖', title: 'AI bilan mashq qiling', desc: 'Javoblaringizni Claude AI baholaydi' },
+              { icon: '📊', title: 'Progressingizni kuzating', desc: 'Kuchli va zaif tomonlarni biling' },
+              { icon: '🏆', title: 'Raqobat qiling', desc: "Leaderboard'da yuqori o'rin egallang" },
+            ].map((item) => (
+              <div key={item.title} className="flex items-start gap-3 p-3 rounded-xl bg-slate-800/50">
+                <span className="text-xl">{item.icon}</span>
+                <div>
+                  <div className="text-sm font-semibold text-white">{item.title}</div>
+                  <div className="text-xs text-slate-400">{item.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      {/* Right form panel */}
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="w-full max-w-md animate-slide-up">
+          <Outlet />
+        </div>
+      </div>
+    </div>
+  )
+}`},
+
+'client/src/api/auth.api.ts':{g:'c',i:'🔑',l:'ts',n:'auth.api.ts',d:'api/',c:`import api from './axios'
+import type { User } from '../types'
+
+export const authApi = {
+  register: (data: { email: string; password: string; fullName: string; track?: string }) =>
+    api.post('/auth/register', data),
+
+  login: (data: { email: string; password: string }) =>
+    api.post<{ data: { accessToken: string; user: User } }>('/auth/login', data),
+
+  logout: () => api.post('/auth/logout'),
+
+  verifyEmail: (token: string) => api.get(\`/auth/verify-email?token=\${token}\`),
+
+  forgotPassword: (email: string) => api.post('/auth/forgot-password', { email }),
+
+  resetPassword: (token: string, password: string) =>
+    api.post('/auth/reset-password', { token, password }),
+
+  getProfile: () => api.get<{ data: User }>('/auth/me'),
+
+  updateProfile: (data: Partial<User>) => api.put<{ data: User }>('/auth/profile', data),
+
+  changePassword: (currentPassword: string, newPassword: string) =>
+    api.put('/auth/change-password', { currentPassword, newPassword }),
+}`},
+
+'client/src/api/dashboard.api.ts':{g:'c',i:'📊',l:'ts',n:'dashboard.api.ts',d:'api/',c:`import api from './axios'
+
+export const dashboardApi = {
+  getStats: () => api.get('/dashboard/stats'),
+  getRoadmap: (track: string) => api.get(\`/dashboard/roadmap/\${track}\`),
+  completeNode: (nodeId: string) => api.post(\`/dashboard/roadmap/\${nodeId}/complete\`),
+  getNotifications: () => api.get('/dashboard/notifications'),
+  markRead: (id: string) => api.patch(\`/dashboard/notifications/\${id}/read\`),
+  getAchievements: () => api.get('/dashboard/achievements'),
+}`},
+
+// ══ DOCS ════════════════════════════════════════════════════════
+'docs/DEPLOY.md':{g:'d',i:'🚀',l:'md',n:'DEPLOY.md',d:'',c:`# Deploy Qo'llanma
+
+## Servislar (barchasi bepul)
+| Servis    | Link                  |
+|-----------|-----------------------|
+| GitHub    | github.com            |
+| Neon DB   | neon.tech             |
+| Render    | render.com            |
+| Vercel    | vercel.com            |
+| Anthropic | console.anthropic.com |
+
+## 1. Neon PostgreSQL
+  neon.tech → Create Project: "devprep"
+  DATABASE_URL = postgresql://...neon.tech/neondb?sslmode=require
+
+## 2. Render (Backend)
+  Root: server
+  Build: npm install && npx prisma generate && npm run build
+  Start: npx prisma migrate deploy && npm start
+
+  ENV:
+    DATABASE_URL        = postgresql://...
+    DIRECT_URL          = postgresql://...
+    JWT_SECRET          = (64 chars)
+    JWT_REFRESH_SECRET  = (64 chars)
+    SMTP_USER           = gmail@gmail.com
+    SMTP_PASS           = (App Password)
+    ANTHROPIC_API_KEY   = sk-ant-...
+    CLIENT_URL          = https://devprep.vercel.app
+    NODE_ENV            = production
+
+## 3. Vercel (Frontend)
+  Root:   client
+  Build:  npm run build
+  Output: dist
+  ENV:    VITE_API_URL = https://devprep-api.onrender.com/api/v1
+
+## 4. Seed
+  cd server && DATABASE_URL="..." npm run db:seed
+  Admin: admin@devprep.ai / Admin123!`},
+
+'docs/API.md':{g:'d',i:'📡',l:'md',n:'API.md',d:'',c:`# API Endpoints
+
+Base: https://devprep-api.onrender.com/api/v1
+Auth: Authorization: Bearer <token>
+
+## Auth
+POST /auth/register   → { email, password, fullName, track? }
+POST /auth/login      → { accessToken, user }
+POST /auth/logout     🔒
+POST /auth/refresh
+GET  /auth/verify-email?token=
+POST /auth/forgot-password
+POST /auth/reset-password
+GET  /auth/me         🔒
+PUT  /auth/profile    🔒
+PUT  /auth/change-password 🔒
+
+## Questions 🔒
+GET  /questions?search=&categoryId=&difficulty=&page=
+GET  /questions/categories
+GET  /questions/bookmarks
+GET  /questions/:id
+POST /questions/:id/bookmark
+
+## Quizzes 🔒
+GET  /quizzes?type=&difficulty=
+POST /quizzes/:id/start
+POST /quizzes/:id/submit → { answers, timeSpent }
+GET  /quizzes/results/my
+GET  /quizzes/results/:id
+GET  /quizzes/leaderboard
+
+## AI 🔒
+POST /ai/evaluate → { questionText, userAnswer, category }
+POST /ai/mock-interview/start → { track, count }
+GET  /ai/sessions
+
+## Dashboard 🔒
+GET  /dashboard/stats
+GET  /dashboard/roadmap/:track
+POST /dashboard/roadmap/:nodeId/complete
+GET  /dashboard/notifications
+GET  /dashboard/achievements
+
+## Admin 👑
+GET    /admin/analytics
+GET    /admin/users
+DELETE /admin/users/:id
+POST   /admin/questions
+PUT    /admin/questions/:id
+DELETE /admin/questions/:id
+POST   /admin/quizzes
+POST   /admin/categories`},
+}
+
+// ════════════════════════════════════════════════════════════════
+const SECS=[
+  {g:'s',lbl:'⚙️ Server',clr:'#10b981'},
+  {g:'c',lbl:'⚛️ Client',clr:'#00d4ff'},
+  {g:'d',lbl:'📚 Docs',clr:'#a78bfa'},
+]
+let tabs=[],act=null
+
+const gn=k=>F[k]?.n||k.split('/').pop()
+
+function buildTree(q=''){
+  const el=document.getElementById('tr')
+  el.innerHTML=''
+  SECS.forEach(sec=>{
+    const keys=Object.keys(F).filter(k=>F[k].g===sec.g&&(!q||gn(k).toLowerCase().includes(q.toLowerCase())))
+    if(!keys.length) return
+    const g=document.createElement('div')
+    const h=document.createElement('div')
+    h.className='gh'
+    h.innerHTML=`<span style="color:${sec.clr}">${sec.lbl}</span><span>${keys.length}</span>`
+    g.appendChild(h)
+    keys.forEach(key=>{
+      const f=F[key]
+      const d=document.createElement('div')
+      d.className='fi'+(act===key?' active':'')
+      d.innerHTML=`${f.i} ${f.d?`<span class="fsub">${f.d}</span>`:''}<span>${f.n}</span>`
+      d.onclick=()=>open(key)
+      g.appendChild(d)
+    })
+    el.appendChild(g)
+  })
+}
+
+function srch(q){buildTree(q)}
+
+function open(key){
+  act=key
+  if(!tabs.includes(key)){tabs.push(key);if(tabs.length>8)tabs.shift()}
+  rTabs();rCode(key)
+  buildTree(document.getElementById('sii')?.value||'')
+}
+
+function rTabs(){
+  const el=document.getElementById('tb')
+  el.innerHTML=''
+  if(!tabs.length){el.innerHTML='<span style="padding:0 14px;font-size:10px;color:var(--tx3);display:flex;align-items:center">Fayl tanlang →</span>';return}
+  tabs.forEach(key=>{
+    const f=F[key]
+    const d=document.createElement('div')
+    d.className='tab'+(key===act?' active':'')
+    d.innerHTML=`${f?.i||'📄'} ${f?.n||gn(key)}<span class="x" data-k="${key}">×</span>`
+    d.onclick=e=>{if(e.target.dataset?.k)close(e.target.dataset.k);else open(key)}
+    el.appendChild(d)
+  })
+}
+
+function close(key){
+  tabs=tabs.filter(k=>k!==key)
+  if(act===key){act=tabs[tabs.length-1]||null;act?rCode(act):empty()}
+  rTabs();buildTree(document.getElementById('sii')?.value||'')
+}
+
+function rCode(key){
+  const f=F[key];if(!f) return
+  const el=document.getElementById('ca')
+  const lines=f.c.split('\n')
+  const lns=lines.map((_,i)=>`<div class="ln">${i+1}</div>`).join('')
+  el.innerHTML=`
+    <div class="cbar">
+      <span class="cp">${key}</span>
+      <button class="cb" id="cb" onclick="doCopy('${key}')">📋 Nusxa</button>
+    </div>
+    <div class="cs">
+      <div class="lns">${lns}</div>
+      <div class="code">${hl(f.c,f.l)}</div>
+    </div>`
+  document.getElementById('sp').textContent=`${f.i} ${f.n} — ${lines.length} qator`
+  document.getElementById('sl').textContent=`${f.l.toUpperCase()} · UTF-8`
+}
+
+function empty(){
+  document.getElementById('ca').innerHTML='<div class="empty"><div class="empty-i">📂</div><span>Chapdan fayl tanlang</span></div>'
+  document.getElementById('sp').textContent='DevPrep AI v1.0 — 37 fayl tayyor'
+}
+
+function doCopy(key){
+  navigator.clipboard.writeText(F[key]?.c||'').then(()=>{
+    const b=document.getElementById('cb')
+    if(b){b.textContent='✅ Nusxalandi';b.classList.add('ok')}
+    setTimeout(()=>{if(b){b.textContent='📋 Nusxa';b.classList.remove('ok')}},2000)
+  })
+}
+
+function hl(code,lang){
+  let c=code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  if(lang==='prisma'){
+    c=c.replace(/\/\/.*/g,'<span class="cmt">$&</span>')
+       .replace(/"[^"]*"/g,'<span class="str">$&</span>')
+       .replace(/\b(model|enum|generator|datasource)\b/g,'<span class="kw">$&</span>')
+       .replace(/\b(String|Int|Boolean|Float|DateTime|Json)\b/g,'<span class="tp">$&</span>')
+       .replace(/@[\w]+(\([^)]*\))?/g,'<span class="dc">$&</span>')
+  } else if(lang==='md'){
+    c=c.replace(/^(#{1,3} .+)$/gm,'<span class="cls">$1</span>')
+       .replace(/`([^`]+)`/g,'<span class="tp">$1</span>')
+       .replace(/^(\|.+\|)$/gm,'<span class="cmt">$1</span>')
+       .replace(/^( {2}[\w.$].+)$/gm,'<span class="fn">$1</span>')
+  } else {
+    c=c.replace(/\/\/.*/g,'<span class="cmt">$&</span>')
+       .replace(/\/\*[\s\S]*?\*\//g,'<span class="cmt">$&</span>')
+       .replace(/`[^`]*`/g,m=>`<span class="str">${m}</span>`)
+       .replace(/"([^"\\]|\\.)*"/g,'<span class="str">$&</span>')
+       .replace(/'([^'\\]|\\.)*'/g,'<span class="str">$&</span>')
+       .replace(/\b(import|export|from|default|const|let|var|function|class|interface|type|enum|return|async|await|try|catch|throw|new|if|else|for|of|in|extends|implements|null|undefined|true|false|void)\b/g,'<span class="kw">$&</span>')
+       .replace(/\b(string|number|boolean|any|never|unknown)\b/g,'<span class="tp">$&</span>')
+       .replace(/\b([A-Z][a-zA-Z0-9]+)\b/g,'<span class="cls">$&</span>')
+       .replace(/\b(\d+)\b/g,'<span class="num">$1</span>')
+  }
+  return c
+}
+
+buildTree()
+open('server/prisma/schema.prisma')
+</script>
+</body>
+</html>

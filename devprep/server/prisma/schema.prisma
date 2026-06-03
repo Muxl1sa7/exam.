@@ -1,0 +1,289 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── ENUMS ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Track {
+  FRONTEND
+  BACKEND
+  FULLSTACK
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+  MIXED
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  SINGLE_CHOICE
+  OPEN_ENDED
+}
+
+enum CategoryGroup {
+  FRONTEND
+  BACKEND
+  GENERAL
+}
+
+enum NotifType {
+  QUIZ_RESULT
+  ACHIEVEMENT
+  ROADMAP
+  SYSTEM
+}
+
+enum AchievementCondition {
+  QUIZ_COUNT
+  SCORE
+  STREAK
+  CATEGORY
+}
+
+// ─── USER ────────────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  fullName      String
+  avatarUrl     String?
+  role          Role      @default(USER)
+  track         Track?
+  isVerified    Boolean   @default(false)
+  verifyToken   String?
+  resetToken    String?
+  resetTokenExp DateTime?
+  refreshToken  String?
+  streakCount   Int       @default(0)
+  lastActive    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  quizResults     QuizResult[]
+  bookmarks       Bookmark[]
+  notifications   Notification[]
+  achievements    UserAchievement[]
+  roadmapProgress RoadmapProgress[]
+  aiSessions      AISession[]
+  adminLogs       AdminLog[]
+
+  @@map("users")
+}
+
+// ─── CATEGORY ────────────────────────────────────────────────────────────────
+
+model Category {
+  id        String        @id @default(uuid())
+  name      String        @unique
+  slug      String        @unique
+  group     CategoryGroup
+  icon      String?
+  createdAt DateTime      @default(now())
+  questions Question[]
+
+  @@map("categories")
+}
+
+// ─── QUESTION ────────────────────────────────────────────────────────────────
+
+model Question {
+  id            String       @id @default(uuid())
+  categoryId    String
+  category      Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  title         String
+  type          QuestionType
+  difficulty    Difficulty
+  options       Json?
+  correctAnswer String?
+  explanation   String?
+  tags          String[]     @default([])
+  isActive      Boolean      @default(true)
+  createdById   String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  quizQuestions QuizQuestion[]
+  bookmarks     Bookmark[]
+
+  @@map("questions")
+}
+
+// ─── QUIZ ────────────────────────────────────────────────────────────────────
+
+model Quiz {
+  id            String     @id @default(uuid())
+  title         String
+  description   String?
+  type          Track
+  difficulty    Difficulty
+  timeLimit     Int
+  questionCount Int
+  isActive      Boolean    @default(true)
+  createdById   String?
+  createdAt     DateTime   @default(now())
+
+  questions QuizQuestion[]
+  results   QuizResult[]
+
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  quizId     String
+  questionId String
+  orderIndex Int
+  quiz       Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@id([quizId, questionId])
+  @@map("quiz_questions")
+}
+
+model QuizResult {
+  id          String   @id @default(uuid())
+  userId      String
+  quizId      String
+  score       Int
+  total       Int
+  percentage  Float
+  timeSpent   Int
+  answers     Json
+  completedAt DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@map("quiz_results")
+}
+
+// ─── BOOKMARK ────────────────────────────────────────────────────────────────
+
+model Bookmark {
+  id         String   @id @default(uuid())
+  userId     String
+  questionId String
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questionId])
+  @@map("bookmarks")
+}
+
+// ─── ROADMAP ─────────────────────────────────────────────────────────────────
+
+model RoadmapNode {
+  id          String  @id @default(uuid())
+  track       Track
+  title       String
+  description String?
+  orderIndex  Int
+  parentId    String?
+  resources   Json?
+  isMilestone Boolean @default(false)
+
+  parent   RoadmapNode?  @relation("NodeChildren", fields: [parentId], references: [id])
+  children RoadmapNode[] @relation("NodeChildren")
+  progress RoadmapProgress[]
+
+  @@map("roadmap_nodes")
+}
+
+model RoadmapProgress {
+  userId      String
+  nodeId      String
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  node        RoadmapNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, nodeId])
+  @@map("roadmap_progress")
+}
+
+// ─── AI SESSION ──────────────────────────────────────────────────────────────
+
+model AISession {
+  id           String   @id @default(uuid())
+  userId       String
+  questionText String
+  userAnswer   String
+  aiScore      Int
+  aiFeedback   String
+  idealAnswer  String
+  resources    Json?
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ai_sessions")
+}
+
+// ─── ACHIEVEMENTS ────────────────────────────────────────────────────────────
+
+model Achievement {
+  id             String               @id @default(uuid())
+  slug           String               @unique
+  title          String
+  description    String?
+  icon           String?
+  conditionType  AchievementCondition
+  conditionValue Int
+
+  userAchievements UserAchievement[]
+
+  @@map("achievements")
+}
+
+model UserAchievement {
+  userId        String
+  achievementId String
+  earnedAt      DateTime    @default(now())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@id([userId, achievementId])
+  @@map("user_achievements")
+}
+
+// ─── NOTIFICATIONS ───────────────────────────────────────────────────────────
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  type      NotifType
+  title     String
+  message   String?
+  isRead    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+// ─── ADMIN LOGS ──────────────────────────────────────────────────────────────
+
+model AdminLog {
+  id        String   @id @default(uuid())
+  adminId   String
+  action    String
+  target    String?
+  details   Json?
+  createdAt DateTime @default(now())
+  admin     User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@map("admin_logs")
+}

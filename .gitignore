@@ -1,0 +1,52 @@
+# ── Dependencies ─────────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+
+# ── Build outputs ────────────────────────────────────────────────
+dist/
+build/
+.next/
+
+# ── Environment variables (MUHIM: hech qachon commit qilmang!) ──
+.env
+.env.local
+.env.development
+.env.production
+.env.*.local
+
+# ── Prisma ───────────────────────────────────────────────────────
+server/prisma/migrations/
+
+# ── Logs ─────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── OS files ─────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+
+# ── IDE ──────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*.suo
+
+# ── TypeScript ───────────────────────────────────────────────────
+*.tsbuildinfo
+
+# ── Vite ─────────────────────────────────────────────────────────
+client/.vite/
+
+# ── Coverage ─────────────────────────────────────────────────────
+coverage/
+.nyc_output/
