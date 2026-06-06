@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, Trash2, Pencil } from 'lucide-react'
 import api from '../../api/axios'
 import { questionsApi } from '../../api/questions.api'
 import { PageLoader, Modal, Badge } from '../../components/ui'
@@ -11,7 +11,9 @@ const emptyForm = { title: '', categoryId: '', type: 'SINGLE_CHOICE', difficulty
 export default function AdminQuestions() {
   const qc = useQueryClient()
   const [showModal, setShowModal] = useState(false)
+  const [editId, setEditId] = useState<string | null>(null)
   const [form, setForm] = useState(emptyForm)
+
   const { data: questions, isLoading } = useQuery({
     queryKey: ['admin-questions'],
     queryFn: () => api.get('/questions', { params: { limit: 50 } }).then((r) => r.data.data),
@@ -20,20 +22,64 @@ export default function AdminQuestions() {
     queryKey: ['categories'],
     queryFn: () => questionsApi.getCategories().then((r) => r.data.data),
   })
+
   const createMutation = useMutation({
     mutationFn: () => api.post('/admin/questions', { ...form, tags: form.tags.split(',').map((t: string) => t.trim()).filter(Boolean) }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-questions'] }); setShowModal(false); setForm(emptyForm) },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-questions'] }); closeModal() },
   })
+
+  const editMutation = useMutation({
+    mutationFn: () => api.put(`/admin/questions/${editId}`, { ...form, tags: form.tags.split(',').map((t: string) => t.trim()).filter(Boolean) }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-questions'] }); closeModal() },
+  })
+
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/admin/questions/${id}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-questions'] }),
   })
+
+  function openCreate() {
+    setEditId(null)
+    setForm(emptyForm)
+    setShowModal(true)
+  }
+
+  function openEdit(q: any) {
+    setEditId(q.id)
+    setForm({
+      title: q.title || '',
+      categoryId: q.categoryId || '',
+      type: q.type || 'SINGLE_CHOICE',
+      difficulty: q.difficulty || 'EASY',
+      correctAnswer: q.correctAnswer || '',
+      explanation: q.explanation || '',
+      tags: (q.tags || []).join(', '),
+    })
+    setShowModal(true)
+  }
+
+  function closeModal() {
+    setShowModal(false)
+    setEditId(null)
+    setForm(emptyForm)
+  }
+
+  function handleSubmit() {
+    if (editId) editMutation.mutate()
+    else createMutation.mutate()
+  }
+
+  const isPending = createMutation.isPending || editMutation.isPending
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="font-sans font-bold text-2xl text-white">Savollar</h1>
-        <button onClick={() => setShowModal(true)} className="btn-primary flex items-center gap-2"><Plus size={15} /> Savol qo'shish</button>
+        <button onClick={openCreate} className="btn-primary flex items-center gap-2">
+          <Plus size={15} /> Savol qo'shish
+        </button>
       </div>
+
       {isLoading ? <PageLoader /> : (
         <div className="space-y-2">
           {(questions || []).map((q: any) => (
@@ -45,14 +91,26 @@ export default function AdminQuestions() {
                 </div>
                 <p className="text-sm text-slate-200 truncate">{q.title}</p>
               </div>
-              <button onClick={() => { if(confirm("O'chirasizmi?")) deleteMutation.mutate(q.id) }} className="p-1.5 text-slate-600 hover:text-rose-400 shrink-0">
-                <Trash2 size={14} />
-              </button>
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  onClick={() => openEdit(q)}
+                  className="p-1.5 text-slate-500 hover:text-accent-400 hover:bg-accent-400/10 rounded-lg transition-colors"
+                >
+                  <Pencil size={14} />
+                </button>
+                <button
+                  onClick={() => { if (confirm("O'chirasizmi?")) deleteMutation.mutate(q.id) }}
+                  className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-400/10 rounded-lg transition-colors"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </div>
           ))}
         </div>
       )}
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Yangi savol">
+
+      <Modal isOpen={showModal} onClose={closeModal} title={editId ? 'Savolni tahrirlash' : 'Yangi savol'}>
         <div className="space-y-3">
           <div>
             <label className="text-xs text-slate-400 mb-1 block">Kategoriya</label>
@@ -95,8 +153,12 @@ export default function AdminQuestions() {
             <label className="text-xs text-slate-400 mb-1 block">Teglar (vergul bilan)</label>
             <input className="input" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} placeholder="js, async, promise" />
           </div>
-          <button onClick={() => createMutation.mutate()} disabled={!form.title || !form.categoryId || createMutation.isPending} className="btn-primary w-full">
-            {createMutation.isPending ? 'Saqlanmoqda...' : 'Saqlash'}
+          <button
+            onClick={handleSubmit}
+            disabled={!form.title || !form.categoryId || isPending}
+            className="btn-primary w-full"
+          >
+            {isPending ? 'Saqlanmoqda...' : editId ? 'Yangilash' : 'Saqlash'}
           </button>
         </div>
       </Modal>

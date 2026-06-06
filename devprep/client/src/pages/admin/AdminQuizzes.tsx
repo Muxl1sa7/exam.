@@ -19,6 +19,11 @@ export default function AdminQuizzes() {
     mutationFn: () => api.post('/admin/quizzes', { ...form, timeLimit: Number(form.timeLimit), questionIds: form.questionIds.split(',').map((s: string) => s.trim()).filter(Boolean) }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-quizzes'] }); setShowModal(false); setForm(emptyForm) },
   })
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/quizzes/${id}`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-quizzes'] }),
+  })
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -37,6 +42,13 @@ export default function AdminQuizzes() {
                 <p className="text-sm text-white">{q.title}</p>
                 <p className="text-xs text-slate-500">{q.questionCount} savol · {Math.round(q.timeLimit/60)} daqiqa</p>
               </div>
+              <button
+                onClick={() => { if (confirm(`"${q.title}" o'chirilsinmi?`)) deleteMutation.mutate(q.id) }}
+                disabled={deleteMutation.isPending}
+                className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+              >
+                <Trash2 size={15} />
+              </button>
             </div>
           ))}
         </div>

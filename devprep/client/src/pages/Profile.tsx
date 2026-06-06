@@ -5,7 +5,7 @@ import { authApi } from '../api/auth.api'
 import { useAuthStore } from '../store/authStore'
 import { Alert, Spinner } from '../components/ui'
 
-const tracks = [
+const tracks: { value: 'FRONTEND' | 'BACKEND' | 'FULLSTACK'; label: string }[] = [
   { value: 'FRONTEND', label: '🎨 Frontend' },
   { value: 'BACKEND', label: '⚙️ Backend' },
   { value: 'FULLSTACK', label: '🚀 Full Stack' },
@@ -13,13 +13,13 @@ const tracks = [
 
 export default function Profile() {
   const { user, setUser } = useAuthStore()
-  const [form, setForm] = useState({ fullName: user?.fullName || '', track: user?.track || '' })
+  const [form, setForm] = useState<{ fullName: string; track: 'FRONTEND' | 'BACKEND' | 'FULLSTACK' | '' }>({ fullName: user?.fullName || '', track: (user?.track as 'FRONTEND' | 'BACKEND' | 'FULLSTACK' | '') || '' })
   const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '' })
   const [msg, setMsg] = useState('')
   const [err, setErr] = useState('')
 
   const profileMutation = useMutation({
-    mutationFn: () => authApi.updateProfile(form).then((r) => r.data.data),
+    mutationFn: () => authApi.updateProfile({ ...form, track: form.track || undefined }).then((r) => r.data.data),
     onSuccess: (data) => { setUser(data); setMsg('Profil yangilandi!'); setErr('') },
     onError: (e: any) => { setErr(e.response?.data?.message || 'Xatolik'); setMsg('') },
   })

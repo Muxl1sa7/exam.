@@ -1,5 +1,5 @@
 import { prisma } from '../../config/database'
-import { Track, Difficulty } from '@prisma/client'
+import { aiService } from '../ai/ai.service'
 
 interface SubmitAnswers {
   answers: Array<{ questionId: string; selectedOptionId?: string; textAnswer?: string }>
@@ -12,8 +12,8 @@ export class QuizzesService {
     const skip = (page - 1) * limit
 
     const where: any = { isActive: true }
-    if (type) where.type = type as Track
-    if (difficulty) where.difficulty = difficulty as Difficulty
+    if (type) where.type = type as any
+    if (difficulty) where.difficulty = difficulty as any
 
     const [quizzes, total] = await Promise.all([
       prisma.quiz.findMany({
@@ -61,7 +61,7 @@ export class QuizzesService {
                 difficulty: true,
                 options: true,
                 category: { select: { name: true } },
-                // NOTE: correctAnswer NOT included for security
+                // correctAnswer NOT included for security
               },
             },
           },
@@ -78,7 +78,7 @@ export class QuizzesService {
       type: quiz.type,
       difficulty: quiz.difficulty,
       timeLimit: quiz.timeLimit,
-      questions: quiz.questions.map((qq) => qq.question),
+      questions: quiz.questions.map((qq: any) => qq.question),
     }
   }
 
@@ -87,7 +87,11 @@ export class QuizzesService {
       where: { id: quizId, isActive: true },
       include: {
         questions: {
-          include: { question: true },
+          include: {
+            question: {
+              include: { category: { select: { name: true } } },
+            },
+          },
           orderBy: { orderIndex: 'asc' },
         },
       },
@@ -95,36 +99,73 @@ export class QuizzesService {
     if (!quiz) throw new Error('Quiz topilmadi')
 
     let score = 0
-    const detailedAnswers = dto.answers.map((ans) => {
-      const quizQuestion = quiz.questions.find((qq) => qq.questionId === ans.questionId)
+    const detailedAnswers: any[] = dto.answers.map((ans) => {
+      const quizQuestion = quiz.questions.find((qq: any) => qq.questionId === ans.questionId)
       if (!quizQuestion) return { ...ans, isCorrect: false, correctAnswer: null, explanation: null }
 
       const question = quizQuestion.question
       let isCorrect = false
 
-      if (question.type === 'OPEN_ENDED') {
-        isCorrect = false // AI evaluates open-ended
-      } else if (question.options && ans.selectedOptionId) {
+      if (question.type !== 'OPEN_ENDED' && question.options && ans.selectedOptionId) {
         const options = question.options as Array<{ id: string; text: string; isCorrect: boolean }>
         const selectedOption = options.find((o) => o.id === ans.selectedOptionId)
         isCorrect = selectedOption?.isCorrect || false
+        if (isCorrect) score++
       }
-
-      if (isCorrect) score++
 
       return {
         questionId: ans.questionId,
         questionTitle: question.title,
+        questionType: question.type,
         selectedOptionId: ans.selectedOptionId,
         textAnswer: ans.textAnswer,
         isCorrect,
         correctAnswer: question.correctAnswer,
         correctOptionId: question.options
-          ? (question.options as any[]).find((o) => o.isCorrect)?.id
+          ? (question.options as any[]).find((o: any) => o.isCorrect)?.id
           : null,
         explanation: question.explanation,
       }
     })
+
+    // Evaluate open-ended answers with AI in parallel
+    const openEndedIndices = detailedAnswers.reduce<number[]>((acc, ans, idx) => {
+      const qq = quiz.questions.find((q: any) => q.questionId === ans.questionId)
+      if (qq?.question.type === 'OPEN_ENDED' && ans.textAnswer) acc.push(idx)
+      return acc
+    }, [])
+
+    if (openEndedIndices.length > 0) {
+      const evaluations = await Promise.allSettled(
+        openEndedIndices.map((idx) => {
+          const ans = detailedAnswers[idx]
+          const qq = quiz.questions.find((q: any) => q.questionId === ans.questionId)!
+          return aiService.evaluateAnswerInternal({
+            questionText: qq.question.title,
+            userAnswer: ans.textAnswer,
+            category: qq.question.category?.name,
+          })
+        })
+      )
+
+      evaluations.forEach((result, i) => {
+        const idx = openEndedIndices[i]
+        if (result.status === 'fulfilled') {
+          const ev = result.value
+          const isCorrect = ev.score >= 7
+          if (isCorrect) score++
+          detailedAnswers[idx] = {
+            ...detailedAnswers[idx],
+            isCorrect,
+            aiScore: ev.score,
+            aiFeedback: ev.feedback,
+            aiIdealAnswer: ev.idealAnswer,
+            aiMistakes: ev.mistakes,
+            aiKeyPoints: ev.keyPoints,
+          }
+        }
+      })
+    }
 
     const total = quiz.questions.length
     const percentage = total > 0 ? (score / total) * 100 : 0
@@ -141,7 +182,6 @@ export class QuizzesService {
       },
     })
 
-    // Check achievements
     await this.checkAchievements(userId)
 
     return { ...result, detailedAnswers }

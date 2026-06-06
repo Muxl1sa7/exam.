@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Search, BookmarkPlus, Bookmark, ChevronRight, Filter } from 'lucide-react'
 import { questionsApi } from '../api/questions.api'
@@ -11,13 +11,19 @@ const groupLabel: Record<string, string> = { FRONTEND: 'Frontend', BACKEND: 'Bac
 export default function QuestionBank() {
   const qc = useQueryClient()
   const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [difficulty, setDifficulty] = useState('')
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState<Question | null>(null)
 
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 400)
+    return () => clearTimeout(timer)
+  }, [search])
+
   const params: Record<string, string | number> = { page, limit: 15 }
-  if (search) params.search = search
+  if (debouncedSearch) params.search = debouncedSearch
   if (categoryId) params.categoryId = categoryId
   if (difficulty) params.difficulty = difficulty
 
@@ -107,7 +113,7 @@ export default function QuestionBank() {
           <Filter size={13} />
           <span>{pagination?.total || 0} ta savol topildi</span>
           {(categoryId || difficulty || search) && (
-            <button onClick={() => { setCategoryId(''); setDifficulty(''); setSearch(''); setPage(1) }}
+            <button onClick={() => { setCategoryId(''); setDifficulty(''); setSearch(''); setDebouncedSearch(''); setPage(1) }}
               className="text-accent-500 hover:underline">Filtrlarni tozalash</button>
           )}
         </div>

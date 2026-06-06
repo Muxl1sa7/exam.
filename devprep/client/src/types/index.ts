@@ -76,12 +76,18 @@ export interface QuizResult {
 export interface AnswerDetail {
   questionId: string
   questionTitle: string
+  questionType?: string
   selectedOptionId?: string
   textAnswer?: string
   isCorrect: boolean
   correctAnswer?: string
   correctOptionId?: string
   explanation?: string
+  aiScore?: number
+  aiFeedback?: string
+  aiIdealAnswer?: string
+  aiMistakes?: string[]
+  aiKeyPoints?: string[]
 }
 
 export interface AISession {

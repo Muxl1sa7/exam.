@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { CheckCircle, XCircle, Clock, RotateCcw, Home } from 'lucide-react'
+import { CheckCircle, XCircle, Clock, RotateCcw, Home, Bot } from 'lucide-react'
 import { quizApi } from '../api/quiz.api'
 import { PageLoader, ScoreRing } from '../components/ui'
 import type { QuizResult as IResult } from '../types'
@@ -71,12 +71,50 @@ export default function QuizResult() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-slate-200 mb-2">{i + 1}. {ans.questionTitle}</p>
-                  {!ans.isCorrect && ans.correctAnswer && (
+
+                  {ans.textAnswer && (
+                    <div className="text-xs bg-slate-800 border border-slate-700 rounded-lg p-2 text-slate-300 mb-2">
+                      ✍️ Sizning javobingiz: {ans.textAnswer}
+                    </div>
+                  )}
+
+                  {!ans.isCorrect && ans.correctAnswer && !ans.aiScore && (
                     <div className="text-xs bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-2 text-emerald-300 mb-2">
                       ✓ To'g'ri javob: {ans.correctAnswer}
                     </div>
                   )}
-                  {ans.explanation && (
+
+                  {ans.aiScore !== undefined && (
+                    <div className="mt-2 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Bot size={13} className="text-violet-400" />
+                        <span className="text-xs text-violet-400 font-semibold">AI baholash</span>
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${ans.aiScore >= 7 ? 'bg-emerald-500/20 text-emerald-400' : ans.aiScore >= 5 ? 'bg-amber-500/20 text-amber-400' : 'bg-rose-500/20 text-rose-400'}`}>
+                          {ans.aiScore}/10
+                        </span>
+                      </div>
+                      {ans.aiFeedback && (
+                        <p className="text-xs text-slate-300 leading-relaxed pl-5">{ans.aiFeedback}</p>
+                      )}
+                      {ans.aiIdealAnswer && (
+                        <div className="text-xs bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-2 text-emerald-300 ml-5">
+                          💡 Ideal javob: {ans.aiIdealAnswer}
+                        </div>
+                      )}
+                      {ans.aiMistakes && ans.aiMistakes.length > 0 && (
+                        <div className="ml-5">
+                          <p className="text-xs text-rose-400 mb-1">Kamchiliklar:</p>
+                          <ul className="space-y-0.5">
+                            {ans.aiMistakes.map((m, mi) => (
+                              <li key={mi} className="text-xs text-slate-400">• {m}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {ans.explanation && !ans.aiScore && (
                     <p className="text-xs text-slate-400 leading-relaxed">{ans.explanation}</p>
                   )}
                 </div>

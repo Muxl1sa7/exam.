@@ -10,14 +10,23 @@ interface EvaluateDto {
   category?: string
 }
 
+export interface AIEvaluationResult {
+  score: number
+  feedback: string
+  idealAnswer: string
+  mistakes: string[]
+  resources: Array<{ title: string; url: string; type: string }>
+  keyPoints: string[]
+}
+
 interface MockInterviewDto {
   track: 'FRONTEND' | 'BACKEND' | 'FULLSTACK'
   count?: number
 }
 
 export class AIService {
-  async evaluateAnswer(userId: string, dto: EvaluateDto) {
-    const prompt = `You are a senior software engineer conducting a technical interview. 
+  private buildPrompt(dto: EvaluateDto): string {
+    return `You are a senior software engineer conducting a technical interview.
 Evaluate the following answer and respond ONLY with a valid JSON object.
 
 Question: ${dto.questionText}
@@ -35,46 +44,62 @@ Respond with this exact JSON structure (no markdown, no explanation outside JSON
   ],
   "keyPoints": ["<key concept 1>", "<key concept 2>", "<key concept 3>"]
 }`
+  }
 
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
-      messages: [{ role: 'user', content: prompt }],
-    })
+  private async callClaude(prompt: string, retries = 2): Promise<AIEvaluationResult> {
+    let lastError: unknown
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const response = await anthropic.messages.create({
+          model: 'claude-sonnet-4-5',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompt }],
+        })
 
-    const content = response.content[0]
-    if (content.type !== 'text') throw new Error('AI javob qaytarmadi')
+        const content = response.content[0]
+        if (content.type !== 'text') throw new Error('AI javob qaytarmadi')
 
-    let parsed: any
-    try {
-      const cleaned = content.text.replace(/```json|```/g, '').trim()
-      parsed = JSON.parse(cleaned)
-    } catch {
-      throw new Error('AI natijasini tahlil qilib bo\'lmadi')
+        const cleaned = content.text.replace(/```json|```/g, '').trim()
+        const parsed = JSON.parse(cleaned)
+        return {
+          score: Math.min(10, Math.max(1, Number(parsed.score) || 1)),
+          feedback: parsed.feedback || '',
+          idealAnswer: parsed.idealAnswer || '',
+          mistakes: Array.isArray(parsed.mistakes) ? parsed.mistakes : [],
+          resources: Array.isArray(parsed.resources) ? parsed.resources : [],
+          keyPoints: Array.isArray(parsed.keyPoints) ? parsed.keyPoints : [],
+        }
+      } catch (err) {
+        lastError = err
+        if (attempt < retries) {
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)))
+        }
+      }
     }
+    throw lastError
+  }
 
-    // Save to DB
+  // Used internally by quiz submission — no DB save
+  async evaluateAnswerInternal(dto: EvaluateDto): Promise<AIEvaluationResult> {
+    return this.callClaude(this.buildPrompt(dto))
+  }
+
+  async evaluateAnswer(userId: string, dto: EvaluateDto) {
+    const result = await this.callClaude(this.buildPrompt(dto))
+
     const session = await prisma.aISession.create({
       data: {
         userId,
         questionText: dto.questionText,
         userAnswer: dto.userAnswer,
-        aiScore: parsed.score,
-        aiFeedback: parsed.feedback,
-        idealAnswer: parsed.idealAnswer,
-        resources: parsed.resources || [],
+        aiScore: result.score,
+        aiFeedback: result.feedback,
+        idealAnswer: result.idealAnswer,
+        resources: result.resources,
       },
     })
 
-    return {
-      sessionId: session.id,
-      score: parsed.score,
-      feedback: parsed.feedback,
-      idealAnswer: parsed.idealAnswer,
-      mistakes: parsed.mistakes || [],
-      resources: parsed.resources || [],
-      keyPoints: parsed.keyPoints || [],
-    }
+    return { sessionId: session.id, ...result }
   }
 
   async getMockInterviewQuestions(dto: MockInterviewDto) {
@@ -98,14 +123,15 @@ Respond with this exact JSON structure (no markdown, no explanation outside JSON
     })
 
     // Shuffle and take needed count
-    const shuffled = questions.sort(() => Math.random() - 0.5).slice(0, count)
-
-    return shuffled.map((q) => ({
-      id: q.id,
-      title: q.title,
-      difficulty: q.difficulty,
-      category: q.category,
-    }))
+    return [...questions]
+      .sort(() => Math.random() - 0.5)
+      .slice(0, count)
+      .map((q) => ({
+        id: q.id,
+        title: q.title,
+        difficulty: q.difficulty,
+        category: q.category,
+      }))
   }
 
   async getSessions(userId: string, page = 1, limit = 10) {
